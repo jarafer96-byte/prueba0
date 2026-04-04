@@ -608,7 +608,6 @@ function renderFilasTabla(productos) {
   return productos.map(p => {
     const idBase = p.id_base || '';
     const nombre = p.nombre || '';
-    const precio = p.precio || 0;
     const precioAnterior = p.precio_anterior || 0;  
     const descripcion = p.descripcion || '';
 
