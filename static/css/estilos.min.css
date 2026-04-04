@@ -633,7 +633,7 @@ h1, h2, h3, .btn, .card { font-family: 'Raleway', sans-serif; }
 .card:hover, .card-giratoria:hover {
   transform: translateY(-5px);
   will-change: transform, box-shadow;
-  ox-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
 }
 .text-center {
   text-align: center;
