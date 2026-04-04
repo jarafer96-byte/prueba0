@@ -12,6 +12,12 @@
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     animation: pulseOferta 1.5s infinite; /* si quieres la animación que ya definiste */
 }
+.precio-anterior-tachado {
+  text-decoration: line-through;
+  color: #999;
+  font-size: 0.9rem;
+  margin-right: 5px;
+}
 
 .card, .card-giratoria { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1); contain: content; padding: 12px; }
 .btn, .panel-grupos, .panel-subcategorias { contain: content; }
