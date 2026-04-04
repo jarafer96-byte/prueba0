@@ -560,7 +560,6 @@ function renderTablaProductos() {
                 <th style="width: 80px;">Fotos extra</th>
                 <th style="width: 200px;">Producto</th>
                 <th style="width: 80px;">Precio</th>
-                <th style="width: 80px;">Precio anterior</th> 
                 <th style="min-width: 300px;">Colores / Talles / Stock</th>
                 <th style="min-width: 200px;">Descripción</th>
                 <th style="width: 120px;">Acciones</th>
