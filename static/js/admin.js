@@ -708,7 +708,6 @@ function renderFilasTabla(productos) {
          </td>
          <td><input type="text" class="editable-input nombre-input form-control form-control-sm" value="${nombre.replace(/"/g, '&quot;')}" data-id="${idBase}" data-campo="nombre" style="border-color: white;"></td>
          <td><input type="number" class="editable-input precio-input form-control form-control-sm" value="${precio}" data-id="${idBase}" data-campo="precio" step="0.01" min="0" style="width:80px; border-color: white;"></td>
-          <td><input type="number" class="editable-input precio-anterior-input form-control form-control-sm" value="${precioAnterior}" data-id="${idBase}" data-campo="precio_anterior" step="0.01" min="0" style="width:80px; border-color: white;"></td>
           <td>${coloresCellHTML}</td>
           <td>${descripcionHTML}</td>
           <td>
