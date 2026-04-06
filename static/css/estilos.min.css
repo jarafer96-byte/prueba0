@@ -56,6 +56,21 @@ body.container.py-5.modo-oscuro {
 
 
 
+
+.fotos-adicionales-grid {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 0.25rem;
+  gap: 3px;
+}
+
+.foto-adicional-thumb {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 3px;
+  cursor: pointer;
+}
 /* Opcional: si la imagen no tiene ya una clase base, puedes añadirle transición */
 .producto-img {
   opacity: 0;
