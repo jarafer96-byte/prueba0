@@ -289,27 +289,39 @@ function renderProducto(p, esLCP = false) {
   titulo.textContent = p.nombre;
 
   precioSpan.textContent = p.precio;
-  precioSpan.id = `precio_${p.id_base}`; 
+  precioSpan.id = `precio_${p.id_base}`;
+
   if (esOferta) {
-    precioAnteriorSpan.style.display = 'inline';
+    precioAnteriorSpan.classList.remove('precio-anterior-oculto');
+    precioAnteriorSpan.classList.add('precio-anterior-visible');
     precioAnteriorSpan.textContent = `$${precioAnterior.toFixed(2)}`;
-    ofertaBadge.style.display = 'block';
+  
+    ofertaBadge.classList.remove('oferta-badge-oculto');
+    ofertaBadge.classList.add('oferta-badge-visible');
     ofertaBadge.textContent = `🔥 OFERTA -${descuentoPorcentaje}%`;
-    precioSpan.style.color = '#ff4757';
-    precioSpan.style.fontWeight = 'bold';
+  
+    precioSpan.classList.add('precio-oferta');
+  
+    // Ocultar elementos que no deben verse en oferta
+    ahorroSmall.classList.add('ahorro-oculto');
   } else {
-    precioAnteriorSpan.style.display = 'none';
-    ahorroSmall.style.display = 'none';
-    ofertaBadge.style.display = 'none';
+    precioAnteriorSpan.classList.remove('precio-anterior-visible');
+    precioAnteriorSpan.classList.add('precio-anterior-oculto');
+  
+    ofertaBadge.classList.remove('oferta-badge-visible');
+    ofertaBadge.classList.add('oferta-badge-oculto');
+  
+    precioSpan.classList.remove('precio-oferta');
+  
+    ahorroSmall.classList.add('ahorro-oculto');
   }
 
   // Descripción
   if (p.descripcion) {
-    descripcionTexto.innerHTML = `<div style="font-size:1rem; line-height:1.5; color:#f8f9fa; white-space:pre-line;">${p.descripcion}</div>`;
+    descripcionTexto.innerHTML = `<div class="producto-descripcion">${p.descripcion}</div>`;
   } else {
-    descripcionTexto.innerHTML = `<div style="font-size:1rem; color:#adb5bd; font-style:italic;">Este producto no tiene descripción adicional.</div>`;
+    descripcionTexto.innerHTML = `<div class="producto-descripcion-vacio">Este producto no tiene descripción adicional.</div>`;
   }
-
   // Colores y talles (igual que antes, usando las mismas variables)
   const variantes = p.variantes || {};
   const colores = p.colores || [];
