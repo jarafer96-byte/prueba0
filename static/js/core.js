@@ -1495,8 +1495,14 @@ document.addEventListener('DOMContentLoaded', () => {
     loginToggleBtn.addEventListener('click', () => {
       const form = document.getElementById('loginFloatingForm');
       if (form) {
-        form.style.display = form.style.display === 'none' ? 'block' : 'none';
-        if (form.style.display === 'block' && !window.adminScriptCargado) {
+        if (form.classList.contains('login-form-hidden')) {
+          form.classList.remove('login-form-hidden');
+          form.classList.add('login-form-visible');
+        } else {
+          form.classList.remove('login-form-visible');
+          form.classList.add('login-form-hidden');
+        }
+        if (form.classList.contains('login-form-visible') && !window.adminScriptCargado) {
           const script = document.createElement('script');
           script.src = 'static/js/admin.js';
           script.onload = () => { window.adminScriptCargado = true; };
