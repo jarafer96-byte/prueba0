@@ -156,7 +156,7 @@ body.container.py-5.modo-oscuro {
 </div>
   
 <div class="text-center mt-5 mb-1">
-  <select id="ordenPrecio" class="form-select w-auto d-inline-block" aria-label="Ordenar productos por precio" style="min-width: 210px;">
+  <select id="ordenPrecio" class="form-select w-auto d-inline-block orden-precio-select" aria-label="Ordenar productos por precio">
     <option value="asc" selected>Precio: Menor a mayor</option>
     <option value="desc">Precio: Mayor a menor</option>
   </select>
@@ -169,17 +169,15 @@ body.container.py-5.modo-oscuro {
   </nav>
     
   <div class="contenedor-panel">
-      <button class="flecha-scroll flecha-izq" style="display: none;">‹</button>
-      <div id="panelGrupos" class="panel-grupos oculta">
-      </div>
-      <button class="flecha-scroll flecha-der" style="display: none;">›</button>
+      <button class="flecha-scroll flecha-izq flecha-oculta">‹</button>
+      <div id="panelGrupos" class="panel-grupos oculta"></div>
+      <button class="flecha-scroll flecha-der flecha-oculta">›</button>
   </div>
 
   <div class="contenedor-panel">
-      <button class="flecha-scroll flecha-izq" style="display: none;">‹</button>
-      <div id="panelSubcategorias" class="panel-subcategorias oculta">
-      </div>
-      <button class="flecha-scroll flecha-der" style="display: none;">›</button>
+      <button class="flecha-scroll flecha-izq flecha-oculta">‹</button>
+      <div id="panelSubcategorias" class="panel-subcategorias oculta"></div>
+      <button class="flecha-scroll flecha-der flecha-oculta">›</button>
   </div>
 </div>
 
