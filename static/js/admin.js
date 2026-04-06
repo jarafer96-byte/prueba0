@@ -627,11 +627,11 @@ function renderGruposHorizontal(productos) {
   grupos.forEach(grupo => {
     const tieneSub = subgruposPorGrupo[grupo] && subgruposPorGrupo[grupo].size > 0;
     html += `
-      <div class="admin-grupo-item" data-grupo="${grupo}" style="display: inline-flex; align-items: center;">
+      <div class="admin-grupo-item" data-grupo="${grupo}">
         <button class="btn btn-outline-secondary btn-sm grupo-btn" data-grupo="${grupo}">
           ${grupo}
         </button>
-        ${tieneSub ? `<button class="btn btn-sm btn-link subgrupo-toggle-btn" data-grupo="${grupo}" style="padding: 0 5px;">▼</button>` : ''}
+        ${tieneSub ? `<button class="btn btn-sm btn-link subgrupo-toggle-btn" data-grupo="${grupo}">▼</button>` : ''}
       </div>
     `;
   });
