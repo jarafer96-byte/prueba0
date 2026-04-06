@@ -332,8 +332,8 @@ body.container.py-5.modo-oscuro {
         <button type="button" class="btn btn-sm btn-secondary" id="btnVolverCarrito">Volver atras</button>
       </div>
 
-      <div id="costoEnvioMostrado" class="mt-2" style="font-size:0.9rem;"></div>
-      <button id="btnSiguienteDatos" class="btn btn-sm btn-primary mt-2" style="display: none;">Siguiente: tus datos</button>
+      <div id="costoEnvioMostrado" class="mt-2 costo-envio-texto"></div>
+      <button id="btnSiguienteDatos" class="btn btn-sm btn-primary mt-2 btn-siguiente-datos">Siguiente: tus datos</button>
     </div>
 
     <div id="pasoDatos" class="paso-datos">
@@ -355,24 +355,17 @@ body.container.py-5.modo-oscuro {
   🛒 <span id="carrito-contador" class="carrito-contador">0</span>
 </button>
 
-<button id="loginToggleBtn" 
-        style="position:fixed; bottom:20px; left:50%; transform:translateX(-50%); 
-               z-index:997; display:none; background:rgba(0,0,0,0.8); color:white; 
-               border:none; padding:10px 20px; border-radius:20px;">
-  🔐 Admin
-</button>  
-  
-<div id="avisoPrecio" class="alert alert-success text-center" role="alert"
-     style="display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 9999;">
+<button id="loginToggleBtn" class="admin-toggle-btn">🔐 Admin</button>
+
+<div id="avisoPrecio" class="alert alert-success text-center aviso-flotante aviso-precio" role="alert">
   ✔ Precio actualizado
 </div>
-  
-<div id="avisoTalle" class="alert alert-info text-center" role="alert"
-     style="display: none; position: fixed; bottom: 60px; left: 50%; transform: translateX(-50%); z-index: 9999;">
+
+<div id="avisoTalle" class="alert alert-info text-center aviso-flotante aviso-talle" role="alert">
   ✔ Talle actualizado
 </div>
-  
-<div id="imgModal" class="modal-overlay" style="display:none;">
+
+<div id="imgModal" class="modal-overlay modal-hidden">
   <span id="modalClose" class="close">&times;</span>
   <img id="modal-img" class="modal-img">
 </div>
