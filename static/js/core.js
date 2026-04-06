@@ -1277,6 +1277,22 @@ document.addEventListener('DOMContentLoaded', () => {
   // ============================================================
   // 1. CONFIGURACIÓN DEL CARRITO Y ENVÍOS
   // ============================================================
+  const btnProductos = document.getElementById('btnProductosNav');
+  if (btnProductos) btnProductos.addEventListener('click', mostrarTodos);
+
+  const btnContacto = document.getElementById('btnContactoNav');
+  if (btnContacto) btnContacto.addEventListener('click', irAContacto);
+
+  const btnVaciar = document.getElementById('btnVaciarCarrito');
+  if (btnVaciar) btnVaciar.addEventListener('click', vaciarCarrito);
+
+  const modalClose = document.getElementById('modalClose');
+  if (modalClose) modalClose.addEventListener('click', closeModal);
+
+  const modalOverlay = document.getElementById('imgModal');
+  if (modalOverlay) modalOverlay.addEventListener('click', (e) => {
+    if (e.target === modalOverlay) closeModal();
+    
   const btnContinuar = document.getElementById('btnContinuar');
   if (btnContinuar) btnContinuar.addEventListener('click', mostrarPasoDireccion);
 
