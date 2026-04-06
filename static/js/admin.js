@@ -262,10 +262,23 @@ function duplicarProductoDesdeCard(id_base) {
 }
 
 
-function abrirConfigMercadoPago() {
+async function abrirConfigMercadoPago() {
   const urlRetorno = window.location.href;
-  const configUrl = `/conectar_mp?email=${encodeURIComponent(window.cliente.email)}&url_retorno=${encodeURIComponent(urlRetorno)}`;
-  window.location.href = configUrl;
+  try {
+    const response = await fetch('/api/conectar_mp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url_retorno: urlRetorno })
+    });
+    const data = await response.json();
+    if (data.auth_url) {
+      window.location.href = data.auth_url;
+    } else {
+      alert('Error: ' + (data.error || 'No se pudo obtener la URL de autorización'));
+    }
+  } catch (err) {
+    alert('Error de red: ' + err.message);
+  }
 }
 
 
