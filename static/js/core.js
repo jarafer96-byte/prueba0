@@ -182,12 +182,12 @@ function renderPaginacion(productosFiltrados) {
     if (i === paginaActual) {
       btn.classList.add("active");
     }
-    btn.onclick = () => {
+    btn.addEventListener('click', () => {
       paginaActual = i;
       renderPagina(i, productosFiltrados);
       renderPaginacion(productosFiltrados);
       window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
+    });
     pagDiv.appendChild(btn);
   }
 }
