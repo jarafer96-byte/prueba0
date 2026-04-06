@@ -53,6 +53,22 @@ body.container.py-5.modo-oscuro {
 
 
 
+/* Estado oculto del modal */
+.modal-hidden {
+  display: none;
+}
+
+/* Estado visible del modal */
+.modal-visible {
+  display: flex;
+}
+
+/* (Opcional) Clase para la animación de entrada/salida */
+.modal-overlay.show {
+  /* Define aquí la transición o animación que tenías, por ejemplo: */
+  opacity: 1;
+  /* etc. */
+}
 .btn-whatsapp-personalizado {
   background-color: #0c6909;
   color: white;
