@@ -574,11 +574,11 @@ function renderTablaProductos() {
   let html = `
     <div class="row">
       <div class="col-12">
-        <div class="admin-grupos-bar" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; align-items: center; overflow-x: auto; padding-bottom: 5px;">
+        <div class="admin-grupos-bar">
           <button id="adminBtnNuevoGrupo" class="btn btn-sm btn-success">+ Nuevo grupo</button>
           ${renderGruposHorizontal(productos)}
         </div>
-        <div id="adminSubgruposBar" class="admin-subgrupos-bar" style="display: none; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px;"></div>
+        <div id="adminSubgruposBar" class="admin-subgrupos-bar"></div>
       </div>
       <div class="col-12">
         <div class="d-flex justify-content-between mb-2">
@@ -587,17 +587,17 @@ function renderTablaProductos() {
             <button id="guardarTodosTablaBtn" class="btn btn-sm btn-primary">💾 Guardar todos</button>
           </div>
         </div>
-        <div style="overflow-x: auto;">
-          <table class="table table-striped table-hover" style="min-width: 800px;">
+        <div class="tabla-responsive">
+          <table class="table table-striped table-hover tabla-productos-admin">
             <thead>
               <tr>
-                <th style="width: 60px;">Imagen</th>
-                <th style="width: 80px;">Fotos extra</th>
-                <th style="width: 200px;">Producto</th>
-                <th style="width: 80px;">Precio</th>
-                <th style="min-width: 300px;">Colores / Talles / Stock</th>
-                <th style="min-width: 200px;">Descripción</th>
-                <th style="width: 120px;">Acciones</th>
+                <th class="th-imagen">Imagen</th>
+                <th class="th-fotos-extra">Fotos extra</th>
+                <th class="th-producto">Producto</th>
+                <th class="th-precio">Precio</th>
+                <th class="th-colores">Colores / Talles / Stock</th>
+                <th class="th-descripcion">Descripción</th>
+                <th class="th-acciones">Acciones</th>
               </tr>
             </thead>
             <tbody id="tabla-productos-body">
