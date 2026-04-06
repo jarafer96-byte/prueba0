@@ -236,7 +236,10 @@ function resetEnvio() {
   const costoEnvioSpan = document.getElementById('costoEnvioMostrado');
   if (costoEnvioSpan) costoEnvioSpan.innerHTML = '';
   const btnSiguiente = document.getElementById('btnSiguienteDatos');
-  if (btnSiguiente) btnSiguiente.style.display = 'none';
+  if (btnSiguiente) {
+    btnSiguiente.classList.remove('paso-visible');
+    btnSiguiente.classList.add('paso-oculto');
+  }
 }
 
 function renderProducto(p, esLCP = false) {
