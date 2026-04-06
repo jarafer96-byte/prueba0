@@ -9,7 +9,7 @@ let productosFiltradosActuales = [];
 let isMobile = window.matchMedia("(max-width: 767px)").matches;
 let scrollTimer;
 let isScrolling = false;
-let urlProductos = `/api/productos?usuario=${encodeURIComponent(email)}`;
+let urlProductos = `/api/productos`;
 let pasoActual = 1;    
 let envioCalculado = false;
 let resizeTimer;  
