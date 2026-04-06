@@ -512,13 +512,12 @@ function parsearTallesStock(cadena) {
 function agregarFilaColor(btn) {
   const contenedor = btn.closest('.colores-stock-container');
   const nuevaFila = document.createElement('div');
-  nuevaFila.className = 'fila-color d-flex align-items-center mb-1';
-  nuevaFila.style.gap = '5px';
+  nuevaFila.className = 'fila-color d-flex align-items-center mb-1'; // la clase .fila-color ya tiene gap:5px en CSS
   nuevaFila.innerHTML = `
-    <input type="text" class="form-control form-control-sm color-input" placeholder="Color" style="width: 100px;">
-    <input type="checkbox" class="talle-toggle" style="margin: 0 5px;">
+    <input type="text" class="form-control form-control-sm color-input" placeholder="Color">
+    <input type="checkbox" class="talle-toggle">
     <span class="small">Talles</span>
-    <input type="number" class="form-control form-control-sm stock-input" placeholder="Stock" style="flex: 1;">
+    <input type="number" class="form-control form-control-sm stock-input" placeholder="Stock">
     <button class="btn btn-sm btn-outline-danger eliminar-color" title="Eliminar color">✖</button>
   `;
   
