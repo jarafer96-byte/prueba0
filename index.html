@@ -1,326 +1,322 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Vista previa</title>
-  <meta name="description" content="">
-  <meta property="og:title" content="">
-  <meta property="og:description" content="">
-  <meta property="og:image" content="">
-  <meta property="og:image:type" content="image/jpeg">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-  <meta property="og:url" content="">
-  <meta property="og:type" content="website">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, minimum-scale=1.0, viewport-fit=cover">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="format-detection" content="telephone=no">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="UTF-8">
+    <title>Vista previa</title>
+    <meta name="description" content="">
+    <meta property="og:title" content="">
+    <meta property="og:description" content="">
+    <meta property="og:image" content="">
+    <meta property="og:image:type" content="image/jpeg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:url" content="">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, minimum-scale=1.0, viewport-fit=cover">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://sdk.mercadopago.com">
+    <link rel="preconnect" href="https://pub-715efd970fe0495b9f12469499d2ce20.r2.dev" crossorigin>
   
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preconnect" href="https://cdn.jsdelivr.net">
-  <link rel="preconnect" href="https://sdk.mercadopago.com">
-  <link rel="preconnect" href="https://pub-715efd970fe0495b9f12469499d2ce20.r2.dev" crossorigin>
+    <link rel="stylesheet" href="static/css/estilos.min.css">
+    <link rel="stylesheet" href="static/css/bootstrap.min.css">
   
-  <link rel="stylesheet" href="static/css/estilos.min.css">
-  <link rel="stylesheet" href="static/css/bootstrap.min.css">
-  
-  <link rel="preload" as="image" href="/static/img/logo123.webp" fetchpriority="high">
+    <link rel="preload" as="image" href="/static/img/logo123.webp" fetchpriority="high">
 
-  <link href="https://fonts.googleapis.com/css2?family=Roboto&family=Playfair+Display&family=Raleway&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&family=Playfair+Display&family=Raleway&display=swap" rel="stylesheet">
   
-  
-  <link rel="icon" type="image/png" sizes="32x32" href="/static/img/favicon32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/static/img/favicon16.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="/static/img/faviconmovil.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/img/favicon32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/img/favicon16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/img/faviconmovil.png">
 
-<script src="static/js/interceptor.js" defer></script>
 </head>
 <body class="container modo-oscuro">
-  <div class="fondo"></div>
-  <div class="main-content">
-  <main>  
-  <div class="text-center logo-wrapper">
-    <img src="/static/img/logo123.webp"
-         alt="Logo"
-         loading="eager"
-         class="img-fluid logo"
-         fetchpriority="high"
-         decoding="async">
-  </div>
-
-
-
-  <div class="text-center mb-4">
-    <div class="descripcion-emprendimiento">
-       sadsa
+    <div class="fondo"></div>
+    <div class="main-content">
+    <main>  
+    <div class="text-center logo-wrapper">
+      <img src="/static/img/logo123.webp"
+           alt="Logo"
+           loading="eager"
+           class="img-fluid logo"
+           fetchpriority="high"
+           decoding="async">
     </div>
-  </div>
+
+
+
+    <div class="text-center mb-4">
+      <div class="descripcion-emprendimiento">
+         sadsa
+      </div>
+    </div>
  
   
-<div id="configurarMP" class="d-none mt-10">
-  <button id="btnConfigurarMP" class="btn btn-sm btn-primary">
-    ⚙️ Configurar Mercado Pago
-  </button>
-</div>
-
-<div id="configurarCA" class="d-none mt-10">
-  <button id="btnConfigurarCA" class="btn btn-sm btn-primary">
-    📦 Configurar Correo Argentino
-  </button>
-</div> 
-
-<div id="modalConfigCA" class="modal-config-ca">
-  <div class="modal-config-ca-content">
-    <h3>📦 Configurar Correo Argentino</h3>
-    <form id="formConfigCA">
-      <h4>Credenciales Paq.ar</h4>
-      <input type="text" id="ca_agreement" placeholder="Agreement (código de acuerdo)" class="form-control mb-2" required>
-      <input type="text" id="ca_api_key" placeholder="API Key" class="form-control mb-2" required>
-      
-      <h4>Credenciales MiCorreo</h4>
-      <input type="text" id="ca_micorreo_user" placeholder="Usuario MiCorreo (email)" class="form-control mb-2" required autocomplete="username">
-      <input type="password" id="ca_micorreo_password" placeholder="Contraseña MiCorreo" class="form-control mb-2" required autocomplete="new-password">
-      
-      <h4>Datos del remitente (quien envía)</h4>
-      <input type="text" id="ca_nombre" placeholder="Nombre completo" class="form-control mb-2" required>
-      <input type="text" id="ca_calle" placeholder="Calle" class="form-control mb-2" required>
-      <input type="text" id="ca_altura" placeholder="Altura" class="form-control mb-2" required>
-      <input type="text" id="ca_localidad" placeholder="Localidad" class="form-control mb-2" required>
-      <input type="text" id="ca_provincia_codigo" placeholder="Código provincia (ej: C, B, X)" class="form-control mb-2" required>
-      <input type="text" id="ca_codigo_postal" placeholder="Código postal" class="form-control mb-2" required>
-      
-      <div class="mb-2">
-        <label><input type="checkbox" id="ca_test_mode" checked> Modo de pruebas (TEST)</label>
-      </div>
-      
-      <div class="mt-3">
-        <button type="submit" id="btnGuardarConfigCA" class="btn btn-primary">Guardar configuración</button>
-        <button type="button" id="btnCerrarModalCA" class="btn btn-secondary">Cancelar</button>
-      </div>
-    </form>
+  <div id="configurarMP" class="d-none mt-10">
+    <button id="btnConfigurarMP" class="btn btn-sm btn-primary">
+      ⚙️ Configurar Mercado Pago
+    </button>
   </div>
-</div>
+
+  <div id="configurarCA" class="d-none mt-10">
+    <button id="btnConfigurarCA" class="btn btn-sm btn-primary">
+      📦 Configurar Correo Argentino
+    </button>
+  </div> 
+
+  <div id="modalConfigCA" class="modal-config-ca">
+    <div class="modal-config-ca-content">
+      <h3>📦 Configurar Correo Argentino</h3>
+      <form id="formConfigCA">
+        <h4>Credenciales Paq.ar</h4>
+        <input type="text" id="ca_agreement" placeholder="Agreement (código de acuerdo)" class="form-control mb-2" required>
+        <input type="text" id="ca_api_key" placeholder="API Key" class="form-control mb-2" required>
+      
+        <h4>Credenciales MiCorreo</h4>
+        <input type="text" id="ca_micorreo_user" placeholder="Usuario MiCorreo (email)" class="form-control mb-2" required autocomplete="username">
+        <input type="password" id="ca_micorreo_password" placeholder="Contraseña MiCorreo" class="form-control mb-2" required autocomplete="new-password">
+      
+        <h4>Datos del remitente (quien envía)</h4>
+        <input type="text" id="ca_nombre" placeholder="Nombre completo" class="form-control mb-2" required>
+        <input type="text" id="ca_calle" placeholder="Calle" class="form-control mb-2" required>
+        <input type="text" id="ca_altura" placeholder="Altura" class="form-control mb-2" required>
+        <input type="text" id="ca_localidad" placeholder="Localidad" class="form-control mb-2" required>
+        <input type="text" id="ca_provincia_codigo" placeholder="Código provincia (ej: C, B, X)" class="form-control mb-2" required>
+        <input type="text" id="ca_codigo_postal" placeholder="Código postal" class="form-control mb-2" required>
+      
+        <div class="mb-2">
+          <label><input type="checkbox" id="ca_test_mode" checked> Modo de pruebas (TEST)</label>
+        </div>
+      
+        <div class="mt-3">
+          <button type="submit" id="btnGuardarConfigCA" class="btn btn-primary">Guardar configuración</button>
+          <button type="button" id="btnCerrarModalCA" class="btn btn-secondary">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
   
-<div class="text-center mt-5 mb-1">
-  <select id="ordenPrecio" class="form-select w-auto d-inline-block orden-precio-select" aria-label="Ordenar productos por precio">
-    <option value="asc" selected>Precio: Menor a mayor</option>
-    <option value="desc">Precio: Mayor a menor</option>
-  </select>
-</div>
+  <div class="text-center mt-5 mb-1">
+    <select id="ordenPrecio" class="form-select w-auto d-inline-block orden-precio-select" aria-label="Ordenar productos por precio">
+      <option value="asc" selected>Precio: Menor a mayor</option>
+      <option value="desc">Precio: Mayor a menor</option>
+    </select>
+  </div>
   
-<div class="barra-wrapper">
-  <nav class="barra-navegacion">
-    <button id="btnProductosNav" class="btn-nav">Productos</button>
-    <button id="btnContactoNav" class="btn-nav">Contacto</button>
-  </nav>
+  <div class="barra-wrapper">
+    <nav class="barra-navegacion">
+      <button id="btnProductosNav" class="btn-nav">Productos</button>
+      <button id="btnContactoNav" class="btn-nav">Contacto</button>
+    </nav>
     
-  <div class="contenedor-panel">
-      <button class="flecha-scroll flecha-izq flecha-oculta">‹</button>
-      <div id="panelGrupos" class="panel-grupos oculta"></div>
-      <button class="flecha-scroll flecha-der flecha-oculta">›</button>
+    <div class="contenedor-panel">
+        <button class="flecha-scroll flecha-izq flecha-oculta">‹</button>
+        <div id="panelGrupos" class="panel-grupos oculta"></div>
+        <button class="flecha-scroll flecha-der flecha-oculta">›</button>
+    </div>
+
+    <div class="contenedor-panel">
+        <button class="flecha-scroll flecha-izq flecha-oculta">‹</button>
+        <div id="panelSubcategorias" class="panel-subcategorias oculta"></div>
+        <button class="flecha-scroll flecha-der flecha-oculta">›</button>
+    </div>
   </div>
 
-  <div class="contenedor-panel">
-      <button class="flecha-scroll flecha-izq flecha-oculta">‹</button>
-      <div id="panelSubcategorias" class="panel-subcategorias oculta"></div>
-      <button class="flecha-scroll flecha-der flecha-oculta">›</button>
-  </div>
-</div>
+  <div id="productos" class="row productos-container"></div>
 
-<div id="productos" class="row productos-container"></div>
-
-<template id="producto-template">
-  <div class="col-lg-4 col-md-6 col-sm-12 mb-4 fade-reorder card-producto">
-    <div class="card-giratoria">
-      <div class="card-contenedor">
-        <div class="card-front">
-          <div class="oferta-badge"></div>
-          <button class="btn-girar">🔄</button>
-          <img class="lazy-image producto-img" alt="" width="300" height="180">
-          <div class="card-body">
-            <h5 class="card-title"></h5>
-            <p class="mb-2">
-              <span class="precio-anterior-tachado"></span>
-              $<span class="precio-actual"></span>
-              <small class="ahorro"></small>
-            </p>
-            <div class="selectores-container"></div>
-            <div class="mt-3 d-flex align-items-center gap-2">
-              <input type="number" min="1" value="1" class="form-control form-control-sm producto-cantidad">
-              <button type="button" class="btn btn-secondary btn-sm">Agregar al carrito</button>
+  <template id="producto-template">
+    <div class="col-lg-4 col-md-6 col-sm-12 mb-4 fade-reorder card-producto">
+      <div class="card-giratoria">
+        <div class="card-contenedor">
+          <div class="card-front">
+            <div class="oferta-badge"></div>
+            <button class="btn-girar">🔄</button>
+            <img class="lazy-image producto-img" alt="" width="300" height="180">
+            <div class="card-body">
+              <h5 class="card-title"></h5>
+              <p class="mb-2">
+                <span class="precio-anterior-tachado"></span>
+                $<span class="precio-actual"></span>
+                <small class="ahorro"></small>
+              </p>
+              <div class="selectores-container"></div>
+              <div class="mt-3 d-flex align-items-center gap-2">
+                <input type="number" min="1" value="1" class="form-control form-control-sm producto-cantidad">
+                <button type="button" class="btn btn-secondary btn-sm">Agregar al carrito</button>
+              </div>
+              <div class="fotos-adicionales mt-2"></div>
+              <div class="mt-2 whatsapp-container"></div>
             </div>
-            <div class="fotos-adicionales mt-2"></div>
-            <div class="mt-2 whatsapp-container"></div>
           </div>
-        </div>
  
-        <div class="card-back">
-          <button class="btn-reversa">↩️</button>
-          <div class="descripcion-area">
-            <div class="descripcion-texto"></div>
-          </div>
-          <div class="card-back-footer">
-            <div class="colores-info"></div>
-            <div class="talles-info"></div>
-            <button class="btn btn-secondary btn-sm w-100">🔄 Volver al frente</button>
+          <div class="card-back">
+            <button class="btn-reversa">↩️</button>
+            <div class="descripcion-area">
+              <div class="descripcion-texto"></div>
+            </div>
+            <div class="card-back-footer">
+              <div class="colores-info"></div>
+              <div class="talles-info"></div>
+              <button class="btn btn-secondary btn-sm w-100">🔄 Volver al frente</button>
+            </div>
           </div>
         </div>
       </div>
     </div>
+  </template>
+    
+  <button id="volverArriba" class="btn-volver-arriba">↑</button>
+
+  <div id="contenedor-grupos"></div>
+    
+  <div id="adminFormsContainer" class="d-none admin-forms-container">
+    <div id="tableView"></div>
   </div>
-</template>
-    
-<button id="volverArriba" class="btn-volver-arriba">↑</button>
+  
+  <div id="paginacion" class="text-center mt-3"></div>
 
-<div id="contenedor-grupos"></div>
-    
-<div id="adminFormsContainer" class="d-none admin-forms-container">
-  <div id="tableView"></div>
-</div>
+  <div class="social-icons">
   
-<div id="paginacion" class="text-center mt-3"></div>
-
-<div class="social-icons">
+      <a href="https://www.facebook.com/laanonimaoficial/?locale=es_LA" target="_blank">
+        <img src="/static/img/facebook.webp" alt="Facebook" width="40" height="40" loading="lazy">
+      </a>
   
-    <a href="https://www.facebook.com/laanonimaoficial/?locale=es_LA" target="_blank">
-      <img src="/static/img/facebook.webp" alt="Facebook" width="40" height="40" loading="lazy">
-    </a>
-  
-  
-    <a href="https://www.instagram.com/laanonimaoficial/" target="_blank">
-      <img src="/static/img/instagram.webp" alt="Instagram" width="40" height="40" loading="lazy">
-    </a>
-  
-  
-    <a href="https://wa.me/5492975158178" target="_blank">
-      <img src="/static/img/whatsapp.webp" alt="WhatsApp" width="40" height="40" loading="lazy">
-    </a>
-  
-</div>
-
-
-  <div id="ubicacion" class="bloque-ubicacion text-center mt-4">
-    <span>📍 Corrientes 731 (Local 4) </span>
-    
-      <a href="https://www.google.com/maps/place/ushuaia/data=!4m2!3m1!1s0xbc4c22b5bad109bf:0x5498473dba43ebfc?sa=X&amp;ved=1t:155783&amp;ictx=111">
-        <span>➜</span>
-        <img src="/static/img/map.webp"
-             alt="Ver en Google Maps" 
-             loading="lazy"
-             width="24"
-             height="24">
+      <a href="https://www.instagram.com/laanonimaoficial/" target="_blank">
+        <img src="/static/img/instagram.webp" alt="Instagram" width="40" height="40" loading="lazy">
       </a>
     
+      <a href="https://wa.me/5492975158178" target="_blank">
+        <img src="/static/img/whatsapp.webp" alt="WhatsApp" width="40" height="40" loading="lazy">
+      </a>
+  
   </div>
 
-  
-<div id="loginFloatingForm" class="login-floating-form d-none">
-  <form id="loginAdminForm">
-    <input type="text" id="usuario_login" placeholder="Usuario" required class="form-control mb-2" autocomplete="username">
-    <input type="password" id="clave_login" placeholder="Contraseña" required class="form-control mb-2" autocomplete="current-password">
-    <button type="submit" class="btn-grupo w-100">Entrar</button>
-  </form>
-</div>
 
-<div id="logoutAdminWrapper" class="text-center mt-4 d-none">
-  <button id="btnSalirAdmin" class="btn-grupo">🚪 Salir de Admin</button>
-</div>
-  
-<div id="carrito">
-  <div class="carrito-contenido">
-    <div id="pasoCarrito">
-      <h3 class="carrito-titulo">🛒 Tu carrito</h3>
-      <ul id="listaCarrito"></ul>
-      <p><strong>Total:</strong> $<span id="totalCarrito">0</span></p>
-      <div class="d-grid gap-2 mt-3">
-        <button id="btnVaciarCarrito" class="btn btn-sm btn-danger">Vaciar carrito</button>
-        <button id="btnContinuar" class="btn btn-sm btn-success">Continuar con la compra</button>
-      </div>
+    <div id="ubicacion" class="bloque-ubicacion text-center mt-4">
+      <span>📍 Corrientes 731 (Local 4) </span>
+    
+        <a href="https://www.google.com/maps/place/ushuaia/data=!4m2!3m1!1s0xbc4c22b5bad109bf:0x5498473dba43ebfc?sa=X&amp;ved=1t:155783&amp;ictx=111">
+          <span>➜</span>
+          <img src="/static/img/map.webp"
+               alt="Ver en Google Maps" 
+               loading="lazy"
+               width="24"
+               height="24">
+        </a>
+    
     </div>
 
-    <div id="pasoDireccion" class="paso-direccion">
-      <h4 class="mt-3">📍 Dirección de envío</h4>
-      <input type="text" id="calle" placeholder="Calle" class="form-control mb-2" required>
-      <input type="text" id="numero" placeholder="Número" class="form-control mb-2" required>
-      <input type="text" id="localidad" placeholder="Localidad" class="form-control mb-2" required>
-      <select id="provincia_codigo" class="form-control mb-2" required>
-        <option value="">Seleccioná provincia</option>
-        <option value="A">Salta</option>
-        <option value="B">Provincia de Buenos Aires</option>
-        <option value="C">Ciudad Autónoma de Buenos Aires</option>
-        <option value="D">San Luis</option>
-        <option value="E">Entre Ríos</option>
-        <option value="F">La Rioja</option>
-        <option value="G">Santiago del Estero</option>
-        <option value="H">Chaco</option>
-        <option value="J">San Juan</option>
-        <option value="K">Catamarca</option>
-        <option value="L">La Pampa</option>
-        <option value="M">Mendoza</option>
-        <option value="N">Misiones</option>
-        <option value="P">Formosa</option>
-        <option value="Q">Neuquén</option>
-        <option value="R">Río Negro</option>
-        <option value="S">Santa Fe</option>
-        <option value="T">Tucumán</option>
-        <option value="U">Chubut</option>
-        <option value="V">Tierra del Fuego</option>
-        <option value="W">Corrientes</option>
-        <option value="X">Córdoba</option>
-        <option value="Y">Jujuy</option>
-        <option value="Z">Santa Cruz</option>
-      </select>
-      <input type="text" id="codigo_postal" placeholder="Código postal" class="form-control mb-2" required>
+  
+  <div id="loginFloatingForm" class="login-floating-form d-none">
+    <form id="loginAdminForm">
+      <input type="text" id="usuario_login" placeholder="Usuario" required class="form-control mb-2" autocomplete="username">
+      <input type="password" id="clave_login" placeholder="Contraseña" required class="form-control mb-2" autocomplete="current-password">
+      <button type="submit" class="btn-grupo w-100">Entrar</button>
+    </form>
+  </div>
 
-      <div class="d-flex flex-wrap gap-2 mb-2">
-        <button type="button" class="btn btn-sm btn-info" id="btnCalcularEnvioPaso">Calcular envío</button>
-        <button type="button" class="btn btn-sm btn-secondary" id="btnSinEnvio">Omitir</button>
-        <button type="button" class="btn btn-sm btn-secondary" id="btnVolverCarrito">Volver atras</button>
+  <div id="logoutAdminWrapper" class="text-center mt-4 d-none">
+    <button id="btnSalirAdmin" class="btn-grupo">🚪 Salir de Admin</button>
+  </div>
+  
+  <div id="carrito">
+    <div class="carrito-contenido">
+      <div id="pasoCarrito">
+        <h3 class="carrito-titulo">🛒 Tu carrito</h3>
+        <ul id="listaCarrito"></ul>
+        <p><strong>Total:</strong> $<span id="totalCarrito">0</span></p>
+        <div class="d-grid gap-2 mt-3">
+          <button id="btnVaciarCarrito" class="btn btn-sm btn-danger">Vaciar carrito</button>
+          <button id="btnContinuar" class="btn btn-sm btn-success">Continuar con la compra</button>
+        </div>
       </div>
 
-      <div id="costoEnvioMostrado" class="mt-2 costo-envio-texto"></div>
-      <button id="btnSiguienteDatos" class="btn btn-sm btn-primary mt-2 btn-siguiente-datos">Siguiente: tus datos</button>
-    </div>
+      <div id="pasoDireccion" class="paso-direccion">
+        <h4 class="mt-3">📍 Dirección de envío</h4>
+        <input type="text" id="calle" placeholder="Calle" class="form-control mb-2" required>
+        <input type="text" id="numero" placeholder="Número" class="form-control mb-2" required>
+        <input type="text" id="localidad" placeholder="Localidad" class="form-control mb-2" required>
+        <select id="provincia_codigo" class="form-control mb-2" required>
+          <option value="">Seleccioná provincia</option>
+          <option value="A">Salta</option>
+          <option value="B">Provincia de Buenos Aires</option>
+          <option value="C">Ciudad Autónoma de Buenos Aires</option>
+          <option value="D">San Luis</option>
+          <option value="E">Entre Ríos</option>
+          <option value="F">La Rioja</option>
+          <option value="G">Santiago del Estero</option>
+          <option value="H">Chaco</option>
+          <option value="J">San Juan</option>
+          <option value="K">Catamarca</option>
+          <option value="L">La Pampa</option>
+          <option value="M">Mendoza</option>
+          <option value="N">Misiones</option>
+          <option value="P">Formosa</option>
+          <option value="Q">Neuquén</option>
+          <option value="R">Río Negro</option>
+          <option value="S">Santa Fe</option>
+          <option value="T">Tucumán</option>
+          <option value="U">Chubut</option>
+          <option value="V">Tierra del Fuego</option>
+          <option value="W">Corrientes</option>
+          <option value="X">Córdoba</option>
+          <option value="Y">Jujuy</option>
+          <option value="Z">Santa Cruz</option>
+        </select>
+        <input type="text" id="codigo_postal" placeholder="Código postal" class="form-control mb-2" required>
 
-    <div id="pasoDatos" class="paso-datos">
-      <h4>📝 Tus datos</h4>
-      <input type="text" id="nombre" placeholder="Nombre" class="form-control mb-2" required>
-      <input type="text" id="apellido" placeholder="Apellido" class="form-control mb-2" required>
-      <input type="email" id="email_cliente" placeholder="Email" class="form-control mb-2" required>
-      <input type="tel" id="telefono" placeholder="Teléfono" class="form-control mb-2">
+        <div class="d-flex flex-wrap gap-2 mb-2">
+          <button type="button" class="btn btn-sm btn-info" id="btnCalcularEnvioPaso">Calcular envío</button>
+          <button type="button" class="btn btn-sm btn-secondary" id="btnSinEnvio">Omitir</button>
+          <button type="button" class="btn btn-sm btn-secondary" id="btnVolverCarrito">Volver atras</button>
+        </div>
 
-      <div class="d-flex flex-wrap gap-2 mt-2">
-        <button id="btnPagarFinal" class="btn btn-sm btn-primary">Pagar con Mercado Pago</button>
-        <button id="btnVolverDireccion" class="btn btn-sm btn-secondary">Volver atras</button>
+        <div id="costoEnvioMostrado" class="mt-2 costo-envio-texto"></div>
+        <button id="btnSiguienteDatos" class="btn btn-sm btn-primary mt-2 btn-siguiente-datos">Siguiente: tus datos</button>
+      </div>
+
+      <div id="pasoDatos" class="paso-datos">
+        <h4>📝 Tus datos</h4>
+        <input type="text" id="nombre" placeholder="Nombre" class="form-control mb-2" required>
+        <input type="text" id="apellido" placeholder="Apellido" class="form-control mb-2" required>
+        <input type="email" id="email_cliente" placeholder="Email" class="form-control mb-2" required>
+        <input type="tel" id="telefono" placeholder="Teléfono" class="form-control mb-2">
+
+        <div class="d-flex flex-wrap gap-2 mt-2">
+          <button id="btnPagarFinal" class="btn btn-sm btn-primary">Pagar con Mercado Pago</button>
+          <button id="btnVolverDireccion" class="btn btn-sm btn-secondary">Volver atras</button>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<button id="toggleCarrito">
-  🛒 <span id="carrito-contador" class="carrito-contador">0</span>
-</button>
+  <button id="toggleCarrito">
+    🛒 <span id="carrito-contador" class="carrito-contador">0</span>
+  </button>
 
-<button id="loginToggleBtn" class="admin-toggle-btn">🔐 Admin</button>
+  <button id="loginToggleBtn" class="admin-toggle-btn">🔐 Admin</button>
 
-<div id="avisoPrecio" class="alert alert-success text-center aviso-flotante aviso-precio" role="alert">
-  ✔ Precio actualizado
-</div>
+  <div id="avisoPrecio" class="alert alert-success text-center aviso-flotante aviso-precio" role="alert">
+    ✔ Precio actualizado
+  </div>
 
-<div id="avisoTalle" class="alert alert-info text-center aviso-flotante aviso-talle" role="alert">
-  ✔ Talle actualizado
-</div>
+  <div id="avisoTalle" class="alert alert-info text-center aviso-flotante aviso-talle" role="alert">
+    ✔ Talle actualizado
+  </div>
 
-<div id="imgModal" class="modal-overlay modal-hidden">
-  <span id="modalClose" class="close">&times;</span>
-  <img id="modal-img" class="modal-img">
-</div>
+  <div id="imgModal" class="modal-overlay modal-hidden">
+    <span id="modalClose" class="close">&times;</span>
+    <img id="modal-img" class="modal-img">
+  </div>
 
-<script src="static/js/core.js" defer></script>
-  
+<script src="static/js/interceptor.js" defer></script>
+<script src="static/js/core.js" defer></script>  
 </body>
 </html>
