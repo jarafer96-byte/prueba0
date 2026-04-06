@@ -15,33 +15,43 @@ let envioCalculado = false;
 let resizeTimer;  
 
 function volverAlCarrito() {
-  document.getElementById('pasoDireccion').style.display = 'none';
-  document.getElementById('pasoCarrito').style.display = 'block';
+  const pasoDireccion = document.getElementById('pasoDireccion');
+  const pasoCarrito = document.getElementById('pasoCarrito');
+  if (pasoDireccion) pasoDireccion.classList.remove('paso-visible');
+  if (pasoCarrito) pasoCarrito.classList.add('paso-visible');
   pasoActual = 1;
 }
 
 function volverADireccion() {
-  document.getElementById('pasoDatos').style.display = 'none';
-  document.getElementById('pasoDireccion').style.display = 'block';
+  const pasoDatos = document.getElementById('pasoDatos');
+  const pasoDireccion = document.getElementById('pasoDireccion');
+  if (pasoDatos) pasoDatos.classList.remove('paso-visible');
+  if (pasoDireccion) pasoDireccion.classList.add('paso-visible');
   pasoActual = 2;
 }
 
 function vaciarCarrito() {
   window.carrito = [];
   actualizarCarrito();
-  document.getElementById('pasoCarrito').style.display = 'block';
-  document.getElementById('pasoDireccion').style.display = 'none';
-  document.getElementById('pasoDatos').style.display = 'none';
+  const pasoCarrito = document.getElementById('pasoCarrito');
+  const pasoDireccion = document.getElementById('pasoDireccion');
+  const pasoDatos = document.getElementById('pasoDatos');
+  if (pasoCarrito) pasoCarrito.classList.add('paso-visible');
+  if (pasoDireccion) pasoDireccion.classList.remove('paso-visible');
+  if (pasoDatos) pasoDatos.classList.remove('paso-visible');
   document.getElementById('costoEnvioMostrado').innerHTML = '';
-  document.getElementById('btnSiguienteDatos').style.display = 'none';
+  const btnSiguiente = document.getElementById('btnSiguienteDatos');
+  if (btnSiguiente) btnSiguiente.classList.remove('paso-visible');
   envioCalculado = false;
   pasoActual = 1;
   if (typeof window.resetEnvio === 'function') window.resetEnvio();
 }
 
 function mostrarPasoDireccion() {
-  document.getElementById('pasoCarrito').style.display = 'none';
-  document.getElementById('pasoDireccion').style.display = 'block';
+  const pasoCarrito = document.getElementById('pasoCarrito');
+  const pasoDireccion = document.getElementById('pasoDireccion');
+  if (pasoCarrito) pasoCarrito.classList.remove('paso-visible');
+  if (pasoDireccion) pasoDireccion.classList.add('paso-visible');
   pasoActual = 2;
 }
 
@@ -50,8 +60,10 @@ function mostrarPasoDatos() {
     alert("Primero calculá el costo de envío.");
     return;
   }
-  document.getElementById('pasoDireccion').style.display = 'none';
-  document.getElementById('pasoDatos').style.display = 'block';
+  const pasoDireccion = document.getElementById('pasoDireccion');
+  const pasoDatos = document.getElementById('pasoDatos');
+  if (pasoDireccion) pasoDireccion.classList.remove('paso-visible');
+  if (pasoDatos) pasoDatos.classList.add('paso-visible');
   pasoActual = 3;
 }
 
