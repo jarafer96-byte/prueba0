@@ -1036,7 +1036,7 @@ function gestionarFlechas(panelId) {
   };
 
   panel.onscroll = actualizarVisibilidad;
-  window.onresize = actualizarVisibilidad; 
+  window.onresize = actualizarVisibilidad;
 
   flechaIzq.onclick = () => panel.scrollBy({ left: -200, behavior: 'smooth' });
   flechaDer.onclick = () => panel.scrollBy({ left: 200, behavior: 'smooth' });
@@ -1048,8 +1048,7 @@ function gestionarFlechas(panelId) {
 function girarCard(elemento) {
   const cardContenedor = elemento.closest('.card-contenedor');
   if (cardContenedor) {
-    const estaGirada = cardContenedor.style.transform === 'rotateY(180deg)';
-    cardContenedor.style.transform = estaGirada ? 'rotateY(0deg)' : 'rotateY(180deg)';
+    cardContenedor.classList.toggle('card-girada');
   }
 }
 
@@ -1061,27 +1060,12 @@ function mostrarToast(mensaje) {
   const toast = document.createElement('div');
   toast.className = 'toast-notificacion';
   toast.textContent = mensaje;
-  toast.style.cssText = `
-    position: fixed;
-    bottom: 90px;
-    right: 20px;
-    background: rgba(0, 0, 0, 0.9);
-    backdrop-filter: blur(10px);
-    color: white;
-    padding: 12px 20px;
-    border-radius: 30px;
-    font-family: 'Raleway', sans-serif;
-    font-size: 14px;
-    z-index: 9999;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    border: 1px solid rgba(255,255,255,0.1);
-    transform: translateX(400px);
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  `;
   document.body.appendChild(toast);
 
-  toast.offsetHeight;
-  toast.style.transform = 'translateX(0)';
+  // Pequeño retardo para aplicar la animación de entrada
+  setTimeout(() => {
+    toast.style.transform = 'translateX(0)';
+  }, 10);
 
   setTimeout(() => {
     toast.style.transform = 'translateX(400px)';
@@ -1091,18 +1075,18 @@ function mostrarToast(mensaje) {
 
 
 function mostrarTodos() {
-    const panelGrupos = document.getElementById('panelGrupos');
-    const panelSub = document.getElementById('panelSubcategorias');
-    if (!panelGrupos || !panelSub) return;
+  const panelGrupos = document.getElementById('panelGrupos');
+  const panelSub = document.getElementById('panelSubcategorias');
+  if (!panelGrupos || !panelSub) return;
 
-    panelGrupos.classList.toggle('oculta');
-    
-    if (!panelSub.classList.contains('oculta')) {
-        panelSub.classList.add('oculta');
-    }
-    gestionarFlechas('panelGrupos');
-    gestionarFlechas('panelSubcategorias');
-    ajustarPosicionesPaneles();
+  panelGrupos.classList.toggle('oculta');
+
+  if (!panelSub.classList.contains('oculta')) {
+    panelSub.classList.add('oculta');
+  }
+  gestionarFlechas('panelGrupos');
+  gestionarFlechas('panelSubcategorias');
+  ajustarPosicionesPaneles();
 }
 
 
@@ -1133,7 +1117,7 @@ function ajustarPosicionesPaneles() {
 
     if (flechaIzqGrupos) {
       flechaIzqGrupos.style.top = (alturaBarra + 2) + 'px';
-      flechaIzqGrupos.style.display = 'flex'; 
+      flechaIzqGrupos.style.display = 'flex';
     }
     if (flechaDerGrupos) {
       flechaDerGrupos.style.top = (alturaBarra + 2) + 'px';
