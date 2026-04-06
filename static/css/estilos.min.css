@@ -10,6 +10,9 @@
   display: inline-flex;
   align-items: center;
 }
+.carrito-titulo {
+  font-size: 1.40rem !important;
+}
 .btn-visible { display: block; }
 .btn-hidden { display: none; }
 .btn-volver-arriba {
