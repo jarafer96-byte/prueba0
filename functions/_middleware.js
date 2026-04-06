@@ -6,7 +6,6 @@ export async function onRequest(context) {
   const path = url.pathname;
   const method = request.method;
 
-  // Lista de rutas que deben ir al backend
   const backendRoutes = [
     '/api/',
     '/pagar',
@@ -21,12 +20,10 @@ export async function onRequest(context) {
     '/callback_mp'
   ];
 
-  // Determinar si la ruta actual debe ser manejada por el backend
   const shouldGoToBackend = backendRoutes.some(route =>
     path === route || (route.endsWith('/') && path.startsWith(route))
   );
 
-  // Manejar preflight OPTIONS (necesario para CORS con credenciales)
   if (method === 'OPTIONS' && shouldGoToBackend) {
     return new Response(null, {
       status: 204,
@@ -40,33 +37,36 @@ export async function onRequest(context) {
     });
   }
 
-  // Si la ruta es del backend, redirigir a Render
   if (shouldGoToBackend) {
     const backendUrl = `https://mpagina.onrender.com${path}${url.search}`;
-    
-    // Copiar cabeceras originales (incluye Cookie, etc.)
-    const headers = new Headers(request.headers);
-    // No elimines 'origin' porque lo usaremos para CORS; pero lo dejamos.
-    // Si quieres eliminar alguna cabecera problemática, puedes hacerlo.
-    
     const newRequest = new Request(backendUrl, {
       method: method,
-      headers: headers,
+      headers: request.headers,
       body: request.body,
       redirect: 'follow'
     });
     
-    // Obtener respuesta del backend
     const response = await fetch(newRequest);
-    
-    // Preparar cabeceras de respuesta con CORS adecuado
     const responseHeaders = new Headers(response.headers);
+    
+    // ========== CORREGIR LA COOKIE ==========
+    // Obtener la cabecera Set-Cookie original
+    let setCookie = responseHeaders.get('set-cookie');
+    if (setCookie) {
+      // Reemplazar Domain=onrender.com por Domain=.pages.dev (dominio del frontend)
+      setCookie = setCookie.replace(/Domain=onrender\.com;?/i, 'Domain=.pages.dev;');
+      // Asegurar SameSite=None (necesario para cross-site, aunque ahora el dominio es el mismo, pero por seguridad)
+      setCookie = setCookie.replace(/SameSite=Lax;?/i, 'SameSite=None;');
+      // Asegurar Secure (ya lo está)
+      // Eliminar cualquier otro atributo problemático (opcional)
+      responseHeaders.set('set-cookie', setCookie);
+    }
+    
+    // Añadir cabeceras CORS
     responseHeaders.set('Access-Control-Allow-Origin', request.headers.get('origin') || '*');
     responseHeaders.set('Access-Control-Allow-Credentials', 'true');
-    // Exponer cabeceras personalizadas al frontend
     responseHeaders.set('Access-Control-Expose-Headers', 'Content-Type, X-Vendor-Email');
     
-    // Devolver la respuesta modificada
     return new Response(response.body, {
       status: response.status,
       statusText: response.statusText,
@@ -74,6 +74,5 @@ export async function onRequest(context) {
     });
   }
 
-  // Para el resto de rutas (archivos estáticos), continuar normalmente
   return next();
 }
