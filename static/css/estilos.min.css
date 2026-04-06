@@ -1,4 +1,23 @@
 /* Reemplaza style="margin-top:10px;" */
+.btn-volver-arriba {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  display: none;
+  z-index: 1000;
+}
+.login-floating-form {
+  position: fixed;
+  bottom: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 999;
+  background: rgba(0,0,0,0.9);
+  padding: 15px;
+  border-radius: 10px;
+  width: 250px;
+}
+/* etc. */
 .mt-10 {
   margin-top: 10px;
 }
