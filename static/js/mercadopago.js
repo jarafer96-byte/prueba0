@@ -153,23 +153,28 @@
     let total = subtotal + envio;
     const totalSpan = document.getElementById('totalCarrito');
     if (totalSpan) totalSpan.textContent = total.toFixed(2);
+    
     let envioLinea = document.getElementById('envioLinea');
     if (!envioLinea && window.carrito.length) {
       const lista = document.getElementById('listaCarrito');
       if (lista) {
         envioLinea = document.createElement('li');
         envioLinea.id = 'envioLinea';
-        envioLinea.style.listStyle = 'none';
-        envioLinea.style.marginTop = '8px';
-        envioLinea.style.borderTop = '1px solid #ccc';
+        envioLinea.className = 'envio-linea'; 
         lista.appendChild(envioLinea);
       }
     }
     if (envioLinea) {
-      envioLinea.innerHTML = `<div style="display:flex; justify-content:space-between;">
-        <span>Envío</span>
-        <span>$${envio.toFixed(2)}</span>
-      </div>`;
+      envioLinea.innerHTML = '';
+      const div = document.createElement('div');
+      div.className = 'envio-linea-contenido';
+      const spanLabel = document.createElement('span');
+      spanLabel.textContent = 'Envío';
+      const spanValue = document.createElement('span');
+      spanValue.textContent = `$${envio.toFixed(2)}`;
+      div.appendChild(spanLabel);
+      div.appendChild(spanValue);
+      envioLinea.appendChild(div);
     }
   }
   window.actualizarCarritoConEnvio = actualizarCarritoConEnvio;
