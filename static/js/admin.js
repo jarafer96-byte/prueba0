@@ -340,6 +340,7 @@ function loginAdmin(event) {
   fetch("/login-admin", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
+    credentials: 'include', 
     body: JSON.stringify({ usuario, clave })
   })
     .then(res => res.json())
