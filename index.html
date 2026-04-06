@@ -106,6 +106,7 @@ body.container.py-5.modo-oscuro {
         mercado_pago: ""
       };
 
+      window.CSRF_TOKEN = "{{ session.get('csrf_token') }}";
       window.VENDOR_EMAIL = window.cliente.email;
 
       const originalFetch = window.fetch;
@@ -113,6 +114,9 @@ body.container.py-5.modo-oscuro {
         options.headers = options.headers || {};
         if (window.VENDOR_EMAIL) {
           options.headers['X-Vendor-Email'] = window.VENDOR_EMAIL;
+        }
+        if (window.CSRF_TOKEN) {
+          options.headers['X-CSRF-Token'] = window.CSRF_TOKEN;
         }
         options.credentials = 'same-origin';
         return originalFetch(url, options);
