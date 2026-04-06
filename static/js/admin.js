@@ -294,20 +294,16 @@ function loginAdmin(event) {
   fetch("/login-admin", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    credentials: 'include', 
     body: JSON.stringify({ usuario, clave })
   })
     .then(res => res.json())
     .then(data => {
       if (data.status === "ok" && data.token) {
+        sessionStorage.setItem('adminToken', data.token);
         alert("✅ Acceso concedido");
-        const loginToggleBtn = document.getElementById("loginToggleBtn");
-        if (loginToggleBtn) loginToggleBtn.style.display = "none";
-        const loginForm = document.getElementById("loginFloatingForm");
-        if (loginForm) loginForm.style.display = "none";
-        window.location.search = `?token=${data.token}`;
+        window.location.href = window.location.pathname; 
       } else {
-        alert("❌ " + data.message);
+        alert("❌ " + (data.message || "Error desconocido"));
       }
     })
     .catch(() => {
