@@ -352,7 +352,6 @@ function renderProducto(p, esLCP = false) {
   if (stockInicial <= 0) agregarBtn.style.opacity = '0.5';
   agregarBtn.textContent = stockInicial > 0 ? "Agregar al carrito" : "❌ Sin stock";
 
-  // Evento de agregar al carrito (onclick dinámico)
   const nombreEscapado = p.nombre.replace(/'/g, "\\'").replace(/"/g, '\\"');
   const imagenGrandeEscapada = imagenGrande.replace(/'/g, "\\'");
   const grupoEscapado = (p.grupo || "").replace(/'/g, "\\'");
