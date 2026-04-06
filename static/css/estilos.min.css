@@ -11,6 +11,20 @@
   align-items: center;
 }
 
+/* Estado oculto por defecto (ya lo tenías) */
+.admin-subgrupos-bar {
+  display: none;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 15px;
+  overflow-x: auto;
+  padding-bottom: 5px;
+}
+
+/* Estado visible */
+.admin-subgrupos-bar-visible {
+  display: flex;
+}
 .subgrupo-toggle-btn {
   padding: 0 5px;
 }
