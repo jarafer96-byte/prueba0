@@ -2,6 +2,14 @@
 .mt-10 {
   margin-top: 10px;
 }
+.img-lazy {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.img-lazy.loaded {
+  opacity: 1;
+}
 
 /* Estilos para el modal de imagen (reemplaza style="display:none; max-width:90%; max-height:90%;" y el fondo) */
 .modal-overlay {
