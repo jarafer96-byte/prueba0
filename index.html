@@ -107,51 +107,86 @@ body.container.py-5.modo-oscuro {
       };
 
       window.VENDOR_EMAIL = window.cliente.email;
+      window.carrito = [];
 
+      // --- Gestión de modo admin (sin token en URL) ---
+      // Usamos sessionStorage para persistir el estado admin durante la sesión
+      const adminToken = sessionStorage.getItem('adminToken');
+      const urlToken = new URLSearchParams(window.location.search).get('token');
+      
+      // Priorizamos sessionStorage, luego URL (para compatibilidad)
+      if (adminToken) {
+        window.modoAdmin = true;
+        window.tokenAdmin = adminToken;
+        // Limpiar token de la URL si existe (más seguro)
+        if (urlToken) {
+          const cleanUrl = window.location.pathname + window.location.search.replace(/[?&]token=[^&]*/, '').replace(/^&/, '?');
+          history.replaceState(null, '', cleanUrl);
+        }
+      } else if (urlToken) {
+        window.modoAdmin = true;
+        window.tokenAdmin = urlToken;
+        sessionStorage.setItem('adminToken', urlToken);
+        // Limpiar URL
+        history.replaceState(null, '', window.location.pathname);
+      } else {
+        window.modoAdmin = false;
+        window.tokenAdmin = null;
+      }
+
+      // --- CSRF: solo se carga si es necesario (modo admin) ---
+      let csrfPromise = null;
       async function loadCSRFToken() {
+        if (!window.modoAdmin) {
+          window.CSRF_TOKEN = null;
+          return null;
+        }
         try {
           const res = await fetch('/api/csrf-token', { credentials: 'include' });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
           const data = await res.json();
           window.CSRF_TOKEN = data.csrf_token;
+          return window.CSRF_TOKEN;
         } catch(e) {
           console.error('Error al obtener CSRF token', e);
           window.CSRF_TOKEN = null;
+          return null;
         }
       }
 
+      // --- Interceptor fetch mejorado ---
       const originalFetch = window.fetch;
       window.fetch = function(url, options = {}) {
-        // NO convertir la URL a absoluta; mantener relativa para que el middleware la capture
         options.headers = options.headers || {};
+        // Agregar cabeceras necesarias
         if (window.VENDOR_EMAIL) {
           options.headers['X-Vendor-Email'] = window.VENDOR_EMAIL;
         }
-        if (window.CSRF_TOKEN) {
+        if (window.modoAdmin && window.CSRF_TOKEN) {
           options.headers['X-CSRF-Token'] = window.CSRF_TOKEN;
         }
         options.credentials = 'include';
         return originalFetch(url, options);
       };
-      
-      window.URL_BACKEND = "https://mpagina.onrender.com";  // ya no se usa para fetch, pero puede servir para otra cosa
-      window.carrito = [];
-      
-      const urlParams = new URLSearchParams(window.location.search);
-      window.modoAdmin = urlParams.has("token");
-      window.tokenAdmin = urlParams.get("token");
-      
+
+      // --- Inicialización asíncrona ---
       const style = document.createElement('style');
       style.textContent = '#productos { min-height: 500px; }';
       document.head.appendChild(style);
 
+      // Cargar admin.js si corresponde (síncrono, pero aseguramos que el token CSRF esté listo después)
       if (window.modoAdmin) {
-        const script = document.createElement('script');
-        script.src = 'static/js/admin.js';
-        script.defer = true;
-        document.head.appendChild(script);
+        // Primero cargamos CSRF, luego el script admin (que necesita el token)
+        loadCSRFToken().then(() => {
+          const script = document.createElement('script');
+          script.src = 'static/js/admin.js';
+          script.defer = true;
+          document.head.appendChild(script);
+        });
+      } else {
+        // Modo visitante: no necesitamos CSRF
+        window.CSRF_TOKEN = null;
       }
-
-      loadCSRFToken();
     })();
 </script>
 </head>
