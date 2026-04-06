@@ -534,16 +534,22 @@ function renderProducto(p, esLCP = false) {
 
 function openModal(src) {
   const modal = document.getElementById("imgModal");
-  document.getElementById("modal-img").src = src;
-  modal.style.display = "flex";
-  setTimeout(() => modal.classList.add("show"), 10); 
+  const modalImg = document.getElementById("modal-img");
+  if (!modal || !modalImg) return;
+  modalImg.src = src;
+  modal.classList.remove('modal-hidden');
+  modal.classList.add('modal-visible');
+  setTimeout(() => modal.classList.add("show"), 10);
 }
-   
 
 function closeModal() {
   const modal = document.getElementById("imgModal");
+  if (!modal) return;
   modal.classList.remove("show");
-  setTimeout(() => modal.style.display = "none", 300);
+  setTimeout(() => {
+    modal.classList.remove('modal-visible');
+    modal.classList.add('modal-hidden');
+  }, 300);
 }
 
 
