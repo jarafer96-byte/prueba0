@@ -10,6 +10,28 @@
   display: inline-flex;
   align-items: center;
 }
+.btn-volver-arriba {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  display: none;
+  z-index: 1000;
+  /* Opcional: añade estilos de apariencia si no los tiene */
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+.admin-forms-container {
+  background: linear-gradient(135deg, rgb(255 248 248 / 40%) 0%, rgb(0 0 0 / 60%) 100%),
+              radial-gradient(circle at 15% 15%, rgb(0 0 0) 0%, #00000078 30%),
+              radial-gradient(circle at 85% 85%, rgb(0 0 0 / 54%) 0%, #000000c4 30%);
+}
 .orden-precio-select {
   min-width: 210px;
 }
