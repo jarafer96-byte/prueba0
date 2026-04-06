@@ -1,6 +1,7 @@
 // functions/_middleware.js
 
 export async function onRequest(context) {
+  console.log('Middleware ejecutado para:', context.request.url);
   const { request, next } = context;
   const url = new URL(request.url);
   const path = url.pathname;
