@@ -14,10 +14,6 @@ let pasoActual = 1;
 let envioCalculado = false;
 let resizeTimer;  
 
-if (window.modoAdmin && window.tokenAdmin) {
-  urlProductos += `&token=${encodeURIComponent(window.tokenAdmin)}`;
-}
-
 function volverAlCarrito() {
   document.getElementById('pasoDireccion').style.display = 'none';
   document.getElementById('pasoCarrito').style.display = 'block';
