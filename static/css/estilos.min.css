@@ -10,7 +10,14 @@
   display: inline-flex;
   align-items: center;
 }
+/* Bootstrap ya tiene .d-none y .d-block, pero por si acaso: */
+.d-none { display: none !important; }
+.d-block { display: block !important; }
 
+/* Para la barra de subgrupos (ya definida) */
+.admin-subgrupos-bar-visible {
+  display: flex;
+}
 /* Estado oculto por defecto (ya lo tenías) */
 .admin-subgrupos-bar {
   display: none;
