@@ -1197,11 +1197,7 @@ function loadVisibleImagesFirst() {
       img.src = img.dataset.src;
       img.onload = () => {
         img.removeAttribute('data-src');
-        img.style.opacity = '0';
-        setTimeout(() => {
-          img.style.opacity = '1';
-          img.style.transition = 'opacity 0.3s ease';
-        }, 10);
+        img.classList.add('loaded');  
       };
       loadedCount++;
       if (window.innerWidth < 768 && loadedCount >= 3) return;
