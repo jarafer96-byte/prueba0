@@ -276,14 +276,14 @@ body.container.py-5.modo-oscuro {
   </form>
 </div>
 
-<div id="logoutAdminWrapper" class="text-center mt-4" style="display:none;">
+<div id="logoutAdminWrapper" class="text-center mt-4 d-none">
   <button id="btnSalirAdmin" class="btn-grupo">🚪 Salir de Admin</button>
 </div>
   
 <div id="carrito">
   <div class="carrito-contenido">
     <div id="pasoCarrito">
-      <h3 style="font-size: 1.40rem !important;">🛒 Tu carrito</h3>
+      <h3 class="carrito-titulo">🛒 Tu carrito</h3>
       <ul id="listaCarrito"></ul>
       <p><strong>Total:</strong> $<span id="totalCarrito">0</span></p>
       <div class="d-grid gap-2 mt-3">
@@ -292,7 +292,7 @@ body.container.py-5.modo-oscuro {
       </div>
     </div>
 
-    <div id="pasoDireccion" style="display: none; margin-top: 20px;">
+    <div id="pasoDireccion" class="paso-direccion">
       <h4 class="mt-3">📍 Dirección de envío</h4>
       <input type="text" id="calle" placeholder="Calle" class="form-control mb-2" required>
       <input type="text" id="numero" placeholder="Número" class="form-control mb-2" required>
@@ -336,7 +336,7 @@ body.container.py-5.modo-oscuro {
       <button id="btnSiguienteDatos" class="btn btn-sm btn-primary mt-2" style="display: none;">Siguiente: tus datos</button>
     </div>
 
-    <div id="pasoDatos" style="display: none; margin-top: 20px;">
+    <div id="pasoDatos" class="paso-datos">
       <h4>📝 Tus datos</h4>
       <input type="text" id="nombre" placeholder="Nombre" class="form-control mb-2" required>
       <input type="text" id="apellido" placeholder="Apellido" class="form-control mb-2" required>
