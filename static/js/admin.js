@@ -424,6 +424,16 @@ async function agregarFotoExtra(btn) {
 }
 
 
+adminContainer.addEventListener('click', (e) => {
+  const target = e.target;
+  if (target.classList.contains('admin-img-thumb')) {
+    const url = target.getAttribute('data-modal-url');
+    if (url) openModal(url);
+  }
+  // ... resto de delegaciones existentes
+});
+
+
 async function eliminarFotoExtra(idBase, url) {
   const producto = window.todosLosProductos.find(p => p.id_base === idBase);
   if (producto && producto.fotos_adicionales) {
