@@ -356,14 +356,14 @@ function renderProducto(p, esLCP = false) {
   if (tieneColores) {
     selectoresHTML += `<div class="mb-2 d-flex align-items-center gap-2">
       <span id="color-label-${p.id_base}" class="mb-0"><strong>Color:</strong></span>
-      <select id="color_${p.id_base}" class="form-select form-select-sm w-auto" style="min-width:190px;" aria-labelledby="color-label-${p.id_base}">
+      <select id="color_${p.id_base}" class="form-select form-select-sm w-auto selector-ancho" aria-labelledby="color-label-${p.id_base}">
         ${colores.map(color => `<option value="${color}">${color}</option>`).join('')}
       </select>
     </div>`;
   }
   selectoresHTML += `<div class="mb-2 d-flex align-items-center gap-2">
     <span id="talle-label-${p.id_base}" class="mb-0"><strong>Talle:</strong></span>
-    <select id="talle_${p.id_base}" class="form-select form-select-sm w-auto" style="min-width:190px;" aria-labelledby="talle-label-${p.id_base}">
+    <select id="talle_${p.id_base}" class="form-select form-select-sm w-auto selector-ancho" aria-labelledby="talle-label-${p.id_base}">
       ${opcionesTallesIniciales || '<option>Sin talles disponibles</option>'}
     </select>
   </div>`;
