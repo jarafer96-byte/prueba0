@@ -162,8 +162,8 @@ body.container.py-5.modo-oscuro {
   /* etc. */
 }
 .btn-whatsapp-personalizado {
-  background-color: #0c6909;
-  color: white;
+  background-color: #0c6909 !important;
+  color: white !important;
 }
 
 .whatsapp-icono {
