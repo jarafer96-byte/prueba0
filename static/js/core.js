@@ -376,7 +376,11 @@ function renderProducto(p, esLCP = false) {
   cantidadInput.disabled = stockInicial <= 0;
   agregarBtn.id = `btn_agregar_${p.id_base}`;
   agregarBtn.disabled = stockInicial <= 0;
-  if (stockInicial <= 0) agregarBtn.style.opacity = '0.5';
+  if (stockInicial <= 0) {
+    agregarBtn.classList.add('btn-sin-stock');
+  } else {
+    agregarBtn.classList.remove('btn-sin-stock');
+  }
   agregarBtn.textContent = stockInicial > 0 ? "Agregar al carrito" : "❌ Sin stock";
 
   const nombreEscapado = p.nombre.replace(/'/g, "\\'").replace(/"/g, '\\"');
