@@ -10,6 +10,12 @@
   display: inline-flex;
   align-items: center;
 }
+.orden-precio-select {
+  min-width: 210px;
+}
+.flecha-oculta {
+  display: none;
+}
 /* Bootstrap ya tiene .d-none y .d-block, pero por si acaso: */
 .d-none { display: none !important; }
 .d-block { display: block !important; }
