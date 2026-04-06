@@ -363,18 +363,26 @@ function renderProducto(p, esLCP = false) {
 
   // Fotos adicionales
   if (p.fotos_adicionales && p.fotos_adicionales.length) {
-    let fotosHTML = '<div class="d-flex flex-wrap mt-1" style="gap:3px;">';
+  // Crear contenedor con clase CSS
+    const fotosContainer = document.createElement('div');
+    fotosContainer.className = 'fotos-adicionales-grid';
+  
     p.fotos_adicionales.forEach(foto => {
       const miniatura = getVersionUrl(foto, '58');
-      fotosHTML += `<img src="${miniatura}" alt="Foto adicional de ${p.nombre}" style="width:40px; height:40px; object-fit:cover; border-radius:3px; cursor:pointer;" onclick="openModal('${foto}')">`;
+      const img = document.createElement('img');
+      img.src = miniatura;
+      img.alt = `Foto adicional de ${p.nombre}`;
+      img.className = 'foto-adicional-thumb';
+      img.addEventListener('click', () => openModal(foto));
+      fotosContainer.appendChild(img);
     });
-    fotosHTML += '</div>';
-    fotosAdicionalesDiv.innerHTML = fotosHTML;
+  
+    fotosAdicionalesDiv.innerHTML = '';
+    fotosAdicionalesDiv.appendChild(fotosContainer);
   } else {
     fotosAdicionalesDiv.innerHTML = '';
   }
 
-  // WhatsApp
   let whatsappUrl = configWhatsApp;
   if (configWhatsApp && configWhatsApp.includes("wa.me")) {
     const mensaje = encodeURIComponent(`Hola! Me interesa el producto: "${p.nombre}" - Precio: $${p.precio}\n\n¿Podrías darme más información?`);
