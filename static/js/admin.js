@@ -918,7 +918,6 @@ function obtenerProductoDesdeFila(fila, idBase) {
   producto.colores = Array.from(coloresSet);
   producto.stock = Object.values(variantes).reduce((sum, v) => sum + (v.stock || 0), 0);
 
-  // Extraer fotos adicionales usando el atributo data-modal-url (sin depender de onclick)
   const fotosContainer = fila.querySelector('.fotos-extra-container');
   if (fotosContainer) {
     const imagenes = fotosContainer.querySelectorAll('img.admin-img-thumb');
