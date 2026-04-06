@@ -918,16 +918,14 @@ function obtenerProductoDesdeFila(fila, idBase) {
   producto.colores = Array.from(coloresSet);
   producto.stock = Object.values(variantes).reduce((sum, v) => sum + (v.stock || 0), 0);
 
+  // Extraer fotos adicionales usando el atributo data-modal-url (sin depender de onclick)
   const fotosContainer = fila.querySelector('.fotos-extra-container');
   if (fotosContainer) {
-    const imagenes = fotosContainer.querySelectorAll('img');
+    const imagenes = fotosContainer.querySelectorAll('img.admin-img-thumb');
     const fotosUrls = [];
     imagenes.forEach(img => {
-      const onclick = img.getAttribute('onclick');
-      if (onclick) {
-        const match = onclick.match(/openModal\('([^']+)'\)/);
-        if (match) fotosUrls.push(match[1]);
-      }
+      const url = img.getAttribute('data-modal-url');
+      if (url) fotosUrls.push(url);
     });
     producto.fotos_adicionales = fotosUrls;
   }
