@@ -1,4 +1,4 @@
-console.log = function() {};
+
 const configWhatsApp = window.cliente?.whatsapp;
 const email = window.cliente?.email;
 const usarFirestore = false;
