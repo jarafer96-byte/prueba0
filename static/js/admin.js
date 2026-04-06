@@ -464,7 +464,13 @@ async function agregarImagenPrincipal(btn) {
       const img = fila.querySelector('td:first-child img');
       if (img) {
         img.src = getVersionUrl(url, '58');
-        img.onclick = () => openModal(url);
+        // Eliminar listener anterior si existe (para evitar duplicados)
+        if (img._clickHandler) {
+          img.removeEventListener('click', img._clickHandler);
+        }
+        const handler = () => openModal(url);
+        img.addEventListener('click', handler);
+        img._clickHandler = handler; // guardar referencia
       }
 
       if (typeof mostrarToast === 'function') mostrarToast('✅ Imagen principal actualizada');
