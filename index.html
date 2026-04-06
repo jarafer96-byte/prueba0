@@ -122,17 +122,17 @@ body.container.py-5.modo-oscuro {
   </div>
  
   
-<div id="configurarMP" class="d-none" style="margin-top:10px;">
-  <button class="btn btn-sm btn-primary" onclick="abrirConfigMercadoPago()">
+<div id="configurarMP" class="d-none mt-10">
+  <button id="btnConfigurarMP" class="btn btn-sm btn-primary">
     ⚙️ Configurar Mercado Pago
   </button>
 </div>
 
-<div id="configurarCA" class="d-none" style="margin-top:10px;">
-  <button class="btn btn-sm btn-primary" onclick="abrirConfigCorreoArgentino()">
+<div id="configurarCA" class="d-none mt-10">
+  <button id="btnConfigurarCA" class="btn btn-sm btn-primary">
     📦 Configurar Correo Argentino
   </button>
-</div>    
+</div> 
 
 <div id="modalConfigCA" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:10001; justify-content:center; align-items:center;">
   <div style="background:#fff; color:#000; padding:20px; border-radius:10px; max-width:500px; width:90%; max-height:80%; overflow:auto;">
@@ -159,8 +159,8 @@ body.container.py-5.modo-oscuro {
       </div>
       
       <div class="mt-3">
-        <button type="submit" class="btn btn-primary">Guardar configuración</button>
-        <button type="button" class="btn btn-secondary" onclick="cerrarModalConfigCA()">Cancelar</button>
+        <button type="submit" id="btnGuardarConfigCA" class="btn btn-primary">Guardar configuración</button>
+        <button type="button" id="btnCerrarModalCA" class="btn btn-secondary">Cancelar</button>
       </div>
     </form>
   </div>
@@ -175,8 +175,8 @@ body.container.py-5.modo-oscuro {
   
 <div class="barra-wrapper">
   <nav class="barra-navegacion">
-    <button id="btnProductos" onclick="mostrarTodos()">Productos</button>
-    <button id="btnContacto" onclick="irAContacto()">Contacto</button>
+    <button id="btnProductosNav" class="btn-nav">Productos</button>
+    <button id="btnContactoNav" class="btn-nav">Contacto</button>
   </nav>
     
   <div class="contenedor-panel">
@@ -292,8 +292,8 @@ body.container.py-5.modo-oscuro {
   </form>
 </div>
 
-<div class="text-center mt-4" id="logoutAdminWrapper" style="display:none;">
-  <button type="button" class="btn-grupo" onclick="salirAdmin()">🚪 Salir de Admin</button>
+<div id="logoutAdminWrapper" class="text-center mt-4" style="display:none;">
+  <button id="btnSalirAdmin" class="btn-grupo">🚪 Salir de Admin</button>
 </div>
   
 <div id="carrito">
@@ -303,7 +303,7 @@ body.container.py-5.modo-oscuro {
       <ul id="listaCarrito"></ul>
       <p><strong>Total:</strong> $<span id="totalCarrito">0</span></p>
       <div class="d-grid gap-2 mt-3">
-        <button class="btn btn-sm btn-danger" onclick="vaciarCarrito()">Vaciar carrito</button>
+        <button id="btnVaciarCarrito" class="btn btn-sm btn-danger">Vaciar carrito</button>
         <button id="btnContinuar" class="btn btn-sm btn-success">Continuar con la compra</button>
       </div>
     </div>
@@ -388,9 +388,9 @@ body.container.py-5.modo-oscuro {
   ✔ Talle actualizado
 </div>
   
-<div id="imgModal" style="display:none;" onclick="closeModal()">
-  <span class="close">&times;</span>
-  <img id="modal-img" style="max-width:90%; max-height:90%;">
+<div id="imgModal" class="modal-overlay" style="display:none;">
+  <span id="modalClose" class="close">&times;</span>
+  <img id="modal-img" class="modal-img">
 </div>
 
 <script src="static/js/core.js" defer></script>
