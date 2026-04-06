@@ -106,8 +106,18 @@ body.container.py-5.modo-oscuro {
         mercado_pago: ""
       };
 
-      window.CSRF_TOKEN = "{{ session.get('csrf_token') }}";
       window.VENDOR_EMAIL = window.cliente.email;
+
+      async function loadCSRFToken() {
+        try {
+          const res = await fetch('https://mpagina.onrender.com/api/csrf-token', { credentials: 'include' });
+          const data = await res.json();
+          window.CSRF_TOKEN = data.csrf_token;
+        } catch(e) {
+          console.error('Error al obtener CSRF token', e);
+          window.CSRF_TOKEN = null;
+        }
+      }
 
       const originalFetch = window.fetch;
       window.fetch = function(url, options = {}) {
@@ -139,8 +149,10 @@ body.container.py-5.modo-oscuro {
         script.defer = true;
         document.head.appendChild(script);
       }
+
+      loadCSRFToken();
     })();
-</script>  
+</script>
 </head>
 <body class="container modo-oscuro">
   <div class="fondo"></div>
