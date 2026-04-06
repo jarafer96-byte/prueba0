@@ -1290,9 +1290,12 @@ document.addEventListener('DOMContentLoaded', () => {
   if (modalClose) modalClose.addEventListener('click', closeModal);
 
   const modalOverlay = document.getElementById('imgModal');
-  if (modalOverlay) modalOverlay.addEventListener('click', (e) => {
-    if (e.target === modalOverlay) closeModal();
-    
+  if (modalOverlay) {
+    modalOverlay.addEventListener('click', (e) => {
+      if (e.target === modalOverlay) closeModal();
+    });
+  }
+
   const btnContinuar = document.getElementById('btnContinuar');
   if (btnContinuar) btnContinuar.addEventListener('click', mostrarPasoDireccion);
 
@@ -1482,7 +1485,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // ============================================================
   const volverArribaBtn = document.getElementById('volverArriba');
   if (volverArribaBtn) {
-    volverArribaBtn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+    volverArribaBtn.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
   }
 
   // ============================================================
@@ -1490,7 +1495,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ============================================================
   const loginToggleBtn = document.getElementById('loginToggleBtn');
   if (loginToggleBtn) {
-    loginToggleBtn.onclick = () => {
+    loginToggleBtn.addEventListener('click', () => {
       const form = document.getElementById('loginFloatingForm');
       if (form) {
         form.style.display = form.style.display === 'none' ? 'block' : 'none';
@@ -1501,7 +1506,7 @@ document.addEventListener('DOMContentLoaded', () => {
           document.head.appendChild(script);
         }
       }
-    };
+    });
   }
 
   // ============================================================
