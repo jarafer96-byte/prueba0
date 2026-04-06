@@ -424,15 +424,6 @@ async function agregarFotoExtra(btn) {
 }
 
 
-adminContainer.addEventListener('click', (e) => {
-  const target = e.target;
-  if (target.classList.contains('admin-img-thumb')) {
-    const url = target.getAttribute('data-modal-url');
-    if (url) openModal(url);
-  }
-  // ... resto de delegaciones existentes
-});
-
 
 async function eliminarFotoExtra(idBase, url) {
   const producto = window.todosLosProductos.find(p => p.id_base === idBase);
@@ -448,6 +439,7 @@ async function eliminarFotoExtra(idBase, url) {
 
   if (typeof mostrarToast === 'function') mostrarToast('✅ Foto extra eliminada');
 }
+
 
 
 async function agregarImagenPrincipal(btn) {
@@ -1092,6 +1084,13 @@ if (window.modoAdmin) {
   if (adminContainer) {
     adminContainer.addEventListener('click', async (e) => {
       const target = e.target;
+
+      if (target.classList.contains('admin-img-thumb')) {
+        e.preventDefault();
+        const url = target.getAttribute('data-modal-url');
+        if (url) openModal(url);
+        return;
+      }
 
       if (target.id === 'guardarTodosTablaBtn') {
         e.preventDefault();
