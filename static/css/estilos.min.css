@@ -54,8 +54,44 @@ body.container.py-5.modo-oscuro {
 
 
 
+.producto-descripcion {
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #f8f9fa;
+  white-space: pre-line;
+}
 
+.producto-descripcion-vacio {
+  font-size: 1rem;
+  color: #adb5bd;
+  font-style: italic;
+}
+/* Precio anterior (tachado) */
+.precio-anterior-visible {
+  display: inline;
+}
+.precio-anterior-oculto {
+  display: none;
+}
 
+/* Badge de oferta */
+.oferta-badge-visible {
+  display: block;
+}
+.oferta-badge-oculto {
+  display: none;
+}
+
+/* Estilo de precio en oferta */
+.precio-oferta {
+  color: #ff4757;
+  font-weight: bold;
+}
+
+/* Ahorro small (oculto por defecto) */
+.ahorro-oculto {
+  display: none;
+}
 /* Clase base para ocultar una sección (por defecto) */
 .paso-oculto {
   display: none;
