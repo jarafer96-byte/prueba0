@@ -53,8 +53,21 @@ body.container.py-5.modo-oscuro {
 
 
 
+.btn-whatsapp-personalizado {
+  background-color: #0c6909;
+  color: white;
+}
 
-
+.whatsapp-icono {
+  width: 20px;
+  height: 20px;
+}
+.info-visible {
+  display: block;
+}
+.info-hidden {
+  display: none;
+}
 .btn-sin-stock {
   opacity: 0.5;
 }
