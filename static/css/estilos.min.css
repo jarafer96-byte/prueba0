@@ -52,7 +52,57 @@ body.container.py-5.modo-oscuro {
 
 
 
+/* Estilo para el mensaje de carrito vacío */
+.carrito-vacio {
+  /* Puedes personalizar, ejemplo: */
+  text-align: center;
+  padding: 1rem;
+  list-style: none;
+}
 
+/* Cada ítem del carrito */
+.carrito-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  list-style: none;
+}
+
+/* Detalle del ítem (cantidad x precio = subtotal) */
+.carrito-item-detalle {
+  font-size: 0.9em;
+  color: #666;
+}
+
+/* Botón eliminar del carrito */
+.btn-eliminar-carrito {
+  background: none;
+  border: none;
+  color: red;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+/* Colores del contador del carrito */
+.carrito-contador-gris {
+  background: #888;
+}
+.carrito-contador-naranja {
+  background: #ff4757;
+}
+
+/* Animación de pop (si ya la tenías) */
+.pop-animation {
+  /* define la animación aquí, por ejemplo: */
+  animation: pop 0.3s ease;
+}
+@keyframes pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
 /* Estado oculto del modal */
 .modal-hidden {
   display: none;
