@@ -425,23 +425,32 @@ function renderProducto(p, esLCP = false) {
     }
   }
   if (whatsappUrl) {
-    whatsappContainer.innerHTML = `<a href="${whatsappUrl}" class="btn btn-whatsapp btn-sm w-100 d-flex align-items-center justify-content-center gap-2" target="_blank" style="background-color:#0c6909; color:white;"><img src="/static/img/whatsapp.webp" alt="WhatsApp" style="width:20px; height:20px;">Consultar</a>`;
+    whatsappContainer.innerHTML = `
+      <a href="${whatsappUrl}" class="btn btn-whatsapp btn-sm w-100 d-flex align-items-center justify-content-center gap-2 btn-whatsapp-personalizado" target="_blank">
+        <img src="/static/img/whatsapp.webp" alt="WhatsApp" class="whatsapp-icono">
+        Consultar
+      </a>
+    `;
   } else {
     whatsappContainer.innerHTML = '';
   }
 
   // Información de colores/talles en el reverso
   if (tieneColores) {
-    coloresInfo.style.display = 'block';
+    coloresInfo.classList.remove('info-hidden');
+    coloresInfo.classList.add('info-visible');
     coloresInfo.innerHTML = `<strong>Colores:</strong> ${colores.join(", ")}`;
   } else {
-    coloresInfo.style.display = 'none';
+    coloresInfo.classList.remove('info-visible');
+    coloresInfo.classList.add('info-hidden');
   }
   if (tallesUnicos.length > 0 && tallesUnicos[0] !== "unico") {
-    tallesInfo.style.display = 'block';
+    tallesInfo.classList.remove('info-hidden');
+    tallesInfo.classList.add('info-visible');
     tallesInfo.innerHTML = `<strong>Talles:</strong> ${tallesUnicos.join(", ")}`;
   } else {
-    tallesInfo.style.display = 'none';
+    tallesInfo.classList.remove('info-visible');
+    tallesInfo.classList.add('info-hidden');
   }
 
   // Eventos de girar card
