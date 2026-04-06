@@ -264,62 +264,16 @@ function duplicarProductoDesdeCard(id_base) {
 
 function abrirConfigMercadoPago() {
   const urlRetorno = window.location.href;
-  const configUrl = `/conectar_mp?email=${encodeURIComponent(window.cliente.email)}&url_retorno=${encodeURIComponent(urlRetorno)}&token=${encodeURIComponent(window.tokenAdmin)}`;
+  const configUrl = `/conectar_mp?email=${encodeURIComponent(window.cliente.email)}&url_retorno=${encodeURIComponent(urlRetorno)}`;
   window.location.href = configUrl;
 }
 
 
 function salirAdmin() {
-  window.modoAdmin = false;
-  window.tokenAdmin = null;
-  history.replaceState(null, "", window.location.pathname);
-
-  const adminContainer = document.getElementById('adminFormsContainer');
-  if (adminContainer) adminContainer.classList.add('d-none');
-
-  const formsList = document.getElementById('formsList');
-  if (formsList) formsList.style.display = 'block'; 
-
-  const logoutWrapper = document.getElementById('logoutAdminWrapper');
-  if (logoutWrapper) logoutWrapper.style.display = 'none';
-
-  const configurarMP = document.getElementById('configurarMP');
-  if (configurarMP) configurarMP.classList.add('d-none');
-
-  const configurarCA = document.getElementById('configurarCA');
-  if (configurarCA) configurarCA.classList.add('d-none');
-
-  const loginToggleBtn = document.getElementById('loginToggleBtn');
-  if (loginToggleBtn) loginToggleBtn.style.display = 'block';
-
-  if (window.currentGrupo) {
-    const btnGrupo = Array.from(document.querySelectorAll('.btn-grupo'))
-      .find(b => b.textContent.trim().toLowerCase() === window.currentGrupo.toLowerCase());
-    if (btnGrupo) {
-      mostrarGrupo(window.currentGrupo, { target: btnGrupo });
-      if (window.currentSub) {
-        setTimeout(() => {
-          const btnSub = Array.from(document.querySelectorAll('.btn-subgrupo'))
-            .find(b => b.textContent.trim().toLowerCase() === window.currentSub.toLowerCase());
-          if (btnSub) mostrarSubgrupo(window.currentSub, { target: btnSub });
-          else {
-            const subgrupos = [...new Set(window.todosLosProductos
-              .filter(p => p.grupo?.toLowerCase() === window.currentGrupo.toLowerCase())
-              .map(p => p.subgrupo).filter(Boolean))];
-            if (subgrupos.length > 0) filtrarSubcategoria(window.currentGrupo, subgrupos[0]);
-          }
-        }, 100);
-      }
-    } else {
-      const primerGrupo = document.querySelector('.btn-grupo');
-      if (primerGrupo) mostrarGrupo(primerGrupo.textContent.trim(), { target: primerGrupo });
-    }
-  } else {
-    const primerGrupo = document.querySelector('.btn-grupo');
-    if (primerGrupo) mostrarGrupo(primerGrupo.textContent.trim(), { target: primerGrupo });
-  }
-  location.reload();
+  sessionStorage.removeItem('adminToken');
+  window.location.href = window.location.pathname;
 }
+
 
 function loginAdmin(event) {
   event.preventDefault();
