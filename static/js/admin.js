@@ -56,14 +56,14 @@ async function guardarProducto(producto, formDiv, skipReload = false) {
 function abrirConfigCorreoArgentino() {
   const modal = document.getElementById('modalConfigCA');
   if (modal) {
-    modal.style.display = 'flex';
+    modal.classList.add('modal-visible');
   }
 }
 
 function cerrarModalConfigCA() {
   const modal = document.getElementById('modalConfigCA');
   if (modal) {
-    modal.style.display = 'none';
+    modal.classList.remove('modal-visible');
   }
 }
 
