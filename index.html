@@ -99,95 +99,104 @@ body.container.py-5.modo-oscuro {
 <link rel="preload" href="static/css/estilos.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="static/css/estilos.min.css"></noscript>  
 <script>
-    (function() {
-      window.cliente = {
-        email: "ferj.9622@gmail.com",
-        whatsapp: "https://wa.me/5492975158178",
-        mercado_pago: ""
-      };
+(function() {
+  const API_BASE = 'https://mpagina.onrender.com';
+  const backendRoutes = [
+    '/api/', '/pagar', '/verificar-stock', '/login-admin',
+    '/guardar-producto', '/eliminar-producto', '/subir-foto',
+    '/conectar_mp', '/actualizar-stock-talle', '/guardar-talles-stock',
+    '/callback_mp', '/api/csrf-token'
+  ];
 
-      window.VENDOR_EMAIL = window.cliente.email;
-      window.carrito = [];
+  window.cliente = {
+    email: "ferj.9622@gmail.com",
+    whatsapp: "https://wa.me/5492975158178",
+    mercado_pago: ""
+  };
+  window.VENDOR_EMAIL = window.cliente.email;
+  window.carrito = [];
 
-      // --- Gestión de modo admin (sin token en URL) ---
-      // Usamos sessionStorage para persistir el estado admin durante la sesión
-      const adminToken = sessionStorage.getItem('adminToken');
-      const urlToken = new URLSearchParams(window.location.search).get('token');
-      
-      // Priorizamos sessionStorage, luego URL (para compatibilidad)
-      if (adminToken) {
-        window.modoAdmin = true;
-        window.tokenAdmin = adminToken;
-        // Limpiar token de la URL si existe (más seguro)
-        if (urlToken) {
-          const cleanUrl = window.location.pathname + window.location.search.replace(/[?&]token=[^&]*/, '').replace(/^&/, '?');
-          history.replaceState(null, '', cleanUrl);
-        }
-      } else if (urlToken) {
-        window.modoAdmin = true;
-        window.tokenAdmin = urlToken;
-        sessionStorage.setItem('adminToken', urlToken);
-        // Limpiar URL
-        history.replaceState(null, '', window.location.pathname);
-      } else {
-        window.modoAdmin = false;
-        window.tokenAdmin = null;
+  const adminToken = sessionStorage.getItem('adminToken');
+  const urlToken = new URLSearchParams(window.location.search).get('token');
+  
+  if (adminToken) {
+    window.modoAdmin = true;
+    window.adminToken = adminToken;
+    if (urlToken) {
+      const cleanUrl = window.location.pathname + window.location.search.replace(/[?&]token=[^&]*/, '').replace(/^&/, '?');
+      history.replaceState(null, '', cleanUrl);
+    }
+  } else if (urlToken) {
+    window.modoAdmin = true;
+    window.adminToken = urlToken;
+    sessionStorage.setItem('adminToken', urlToken);
+    history.replaceState(null, '', window.location.pathname);
+  } else {
+    window.modoAdmin = false;
+    window.adminToken = null;
+  }
+
+  async function loadCSRFToken() {
+    if (!window.modoAdmin) {
+      window.CSRF_TOKEN = null;
+      return null;
+    }
+    try {
+      const res = await fetch('/api/csrf-token'); 
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      window.CSRF_TOKEN = data.csrf_token;
+      return window.CSRF_TOKEN;
+    } catch(e) {
+      console.error('Error al obtener CSRF token', e);
+      window.CSRF_TOKEN = null;
+      return null;
+    }
+  }
+
+  const originalFetch = window.fetch;
+  window.fetch = function(url, options = {}) {
+    options.headers = options.headers || {};
+
+    let finalUrl = url;
+    const isRelative = !url.startsWith('http://') && !url.startsWith('https://');
+    if (isRelative) {
+      const shouldProxy = backendRoutes.some(route => 
+        url === route || (route.endsWith('/') && url.startsWith(route))
+      );
+      if (shouldProxy) {
+        finalUrl = API_BASE + url;
       }
+    }
+    if (window.VENDOR_EMAIL) {
+      options.headers['X-Vendor-Email'] = window.VENDOR_EMAIL;
+    }
+    if (window.modoAdmin && window.adminToken) {
+      options.headers['Authorization'] = `Bearer ${window.adminToken}`;
+    }
+    if (window.modoAdmin && window.CSRF_TOKEN) {
+      options.headers['X-CSRF-Token'] = window.CSRF_TOKEN;
+    }
+    options.credentials = 'omit'; 
+    
+    return originalFetch(finalUrl, options);
+  };
 
-      // --- CSRF: solo se carga si es necesario (modo admin) ---
-      let csrfPromise = null;
-      async function loadCSRFToken() {
-        if (!window.modoAdmin) {
-          window.CSRF_TOKEN = null;
-          return null;
-        }
-        try {
-          const res = await fetch('/api/csrf-token', { credentials: 'include' });
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          const data = await res.json();
-          window.CSRF_TOKEN = data.csrf_token;
-          return window.CSRF_TOKEN;
-        } catch(e) {
-          console.error('Error al obtener CSRF token', e);
-          window.CSRF_TOKEN = null;
-          return null;
-        }
-      }
+  const style = document.createElement('style');
+  style.textContent = '#productos { min-height: 500px; }';
+  document.head.appendChild(style);
 
-      // --- Interceptor fetch mejorado ---
-      const originalFetch = window.fetch;
-      window.fetch = function(url, options = {}) {
-        options.headers = options.headers || {};
-        // Agregar cabeceras necesarias
-        if (window.VENDOR_EMAIL) {
-          options.headers['X-Vendor-Email'] = window.VENDOR_EMAIL;
-        }
-        if (window.modoAdmin && window.CSRF_TOKEN) {
-          options.headers['X-CSRF-Token'] = window.CSRF_TOKEN;
-        }
-        options.credentials = 'include';
-        return originalFetch(url, options);
-      };
-
-      // --- Inicialización asíncrona ---
-      const style = document.createElement('style');
-      style.textContent = '#productos { min-height: 500px; }';
-      document.head.appendChild(style);
-
-      // Cargar admin.js si corresponde (síncrono, pero aseguramos que el token CSRF esté listo después)
-      if (window.modoAdmin) {
-        // Primero cargamos CSRF, luego el script admin (que necesita el token)
-        loadCSRFToken().then(() => {
-          const script = document.createElement('script');
-          script.src = 'static/js/admin.js';
-          script.defer = true;
-          document.head.appendChild(script);
-        });
-      } else {
-        // Modo visitante: no necesitamos CSRF
-        window.CSRF_TOKEN = null;
-      }
-    })();
+  if (window.modoAdmin) {
+    loadCSRFToken().then(() => {
+      const script = document.createElement('script');
+      script.src = 'static/js/admin.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    });
+  } else {
+    window.CSRF_TOKEN = null;
+  }
+})();
 </script>
 </head>
 <body class="container modo-oscuro">
