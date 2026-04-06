@@ -10,6 +10,8 @@
   display: inline-flex;
   align-items: center;
 }
+.btn-visible { display: block; }
+.btn-hidden { display: none; }
 .btn-volver-arriba {
   position: fixed;
   bottom: 20px;
