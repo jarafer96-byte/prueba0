@@ -10,6 +10,12 @@
 .img-lazy.loaded {
   opacity: 1;
 }
+.login-form-visible {
+  display: block !important;
+}
+.login-form-hidden {
+  display: none !important;
+}
 
 /* Estilos para el modal de imagen (reemplaza style="display:none; max-width:90%; max-height:90%;" y el fondo) */
 .modal-overlay {
