@@ -116,6 +116,7 @@ body.container.py-5.modo-oscuro {
   window.VENDOR_EMAIL = window.cliente.email;
   window.carrito = [];
 
+  // --- Token JWT (admin) ---
   const adminToken = sessionStorage.getItem('adminToken');
   const urlToken = new URLSearchParams(window.location.search).get('token');
   
@@ -136,13 +137,14 @@ body.container.py-5.modo-oscuro {
     window.adminToken = null;
   }
 
+  // --- CSRF (opcional, solo si el backend lo exige) ---
   async function loadCSRFToken() {
     if (!window.modoAdmin) {
       window.CSRF_TOKEN = null;
       return null;
     }
     try {
-      const res = await fetch('/api/csrf-token'); 
+      const res = await fetch(API_BASE + '/api/csrf-token');
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       window.CSRF_TOKEN = data.csrf_token;
@@ -154,34 +156,45 @@ body.container.py-5.modo-oscuro {
     }
   }
 
+  // --- Interceptor fetch ---
   const originalFetch = window.fetch;
   window.fetch = function(url, options = {}) {
     options.headers = options.headers || {};
-
+    
+    // Redirigir rutas de backend a Render
     let finalUrl = url;
     const isRelative = !url.startsWith('http://') && !url.startsWith('https://');
     if (isRelative) {
-      const shouldProxy = backendRoutes.some(route => 
+      const shouldProxy = backendRoutes.some(route =>
         url === route || (route.endsWith('/') && url.startsWith(route))
       );
       if (shouldProxy) {
         finalUrl = API_BASE + url;
       }
     }
+
+    // Cabeceras fijas
     if (window.VENDOR_EMAIL) {
       options.headers['X-Vendor-Email'] = window.VENDOR_EMAIL;
     }
+    
+    // Token JWT si estamos en modo admin
     if (window.modoAdmin && window.adminToken) {
       options.headers['Authorization'] = `Bearer ${window.adminToken}`;
     }
+    
+    // CSRF (si existe)
     if (window.modoAdmin && window.CSRF_TOKEN) {
       options.headers['X-CSRF-Token'] = window.CSRF_TOKEN;
     }
-    options.credentials = 'omit'; 
+    
+    // No enviamos cookies porque usamos JWT
+    options.credentials = 'omit';
     
     return originalFetch(finalUrl, options);
   };
 
+  // --- Inicialización ---
   const style = document.createElement('style');
   style.textContent = '#productos { min-height: 500px; }';
   document.head.appendChild(style);
