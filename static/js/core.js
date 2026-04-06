@@ -1385,12 +1385,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     const btnArriba = document.getElementById('volverArriba');
     if (btnArriba) {
-      btnArriba.style.display = window.scrollY > 300 ? 'block' : 'none';
+      btnArriba.classList.toggle('btn-visible', window.scrollY > 300);
+      btnArriba.classList.toggle('btn-hidden', window.scrollY <= 300);
     }
     const btnLogin = document.getElementById('loginToggleBtn');
     if (btnLogin && !window.modoAdmin) {
       const isBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 100;
-      btnLogin.style.display = isBottom ? 'block' : 'none';
+      btnLogin.classList.toggle('btn-visible', isBottom);
+      btnLogin.classList.toggle('btn-hidden', !isBottom);
     }
   }, { passive: true });
 
