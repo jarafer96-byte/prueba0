@@ -1521,55 +1521,29 @@ document.addEventListener('DOMContentLoaded', () => {
   if (logoElement) {
     logoElement.addEventListener('click', function() {
       const logo = this;
-      logo.style.pointerEvents = 'none';
-      logo.style.transition = 'transform 0.8s ease, opacity 0.4s ease';
-      logo.style.transform = 'rotateY(360deg)';
-      logo.style.opacity = '0.7';
-      
+      logo.classList.add('logo-anim-start');
+    
       const mensaje = document.createElement('div');
       mensaje.textContent = 'Gracias por la visita! ❤️';
-      mensaje.style.position = 'fixed';
-      mensaje.style.top = '50%';
-      mensaje.style.left = '50%';
-      mensaje.style.transform = 'translate(-50%, -50%) scale(0.8)';
-      mensaje.style.backgroundColor = 'rgba(0, 0, 0, 0.9)';
-      mensaje.style.color = 'white';
-      mensaje.style.padding = '15px 25px';
-      mensaje.style.borderRadius = '20px';
-      mensaje.style.fontFamily = "'Raleway', sans-serif";
-      mensaje.style.fontSize = '1.2rem';
-      mensaje.style.fontWeight = 'bold';
-      mensaje.style.zIndex = '999999';
-      mensaje.style.opacity = '0';
-      mensaje.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-      mensaje.style.boxShadow = '0 0 30px rgba(255, 255, 255, 0.7), 0 0 60px rgba(139, 92, 246, 0.5)';
-      mensaje.style.backdropFilter = 'blur(10px)';
-      mensaje.style.border = '2px solid rgba(255, 255, 255, 0.3)';
+      mensaje.className = 'toast-message';
       document.body.appendChild(mensaje);
-      
+    
       setTimeout(() => {
-        mensaje.style.opacity = '1';
-        mensaje.style.transform = 'translate(-50%, -50%) scale(1.1)';
+        mensaje.classList.add('toast-message-visible');
         setTimeout(() => {
-          mensaje.style.transform = 'translate(-50%, -50%) scale(1)';
+          mensaje.classList.remove('toast-message-visible');
           setTimeout(() => {
-            mensaje.style.opacity = '0';
-            mensaje.style.transform = 'translate(-50%, -50%) scale(0.8)';
+            mensaje.remove();
+            logo.classList.remove('logo-anim-start');
+            logo.classList.add('logo-anim-end');
             setTimeout(() => {
-              mensaje.remove();
-            }, 500);
-            logo.style.transform = 'rotateY(0deg)';
-            logo.style.opacity = '1';
-            setTimeout(() => {
-              logo.style.pointerEvents = 'auto';
-              logo.style.transition = '';
+              logo.classList.remove('logo-anim-end');
             }, 800);
           }, 1500);
         }, 300);
       }, 400);
     });
   }
-
   // ============================================================
   // 8. CAMBIO DE TALLE (actualizar stock)
   // ============================================================
