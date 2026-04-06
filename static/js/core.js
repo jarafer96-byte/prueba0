@@ -727,12 +727,13 @@ function actualizarCarrito(conAnimacion = false) {
   let suma = 0;
 
   if (window.carrito.length === 0) {
-    lista.innerHTML = "<li>🛒 Carrito vacío</li>";
-    totalSpan.textContent = "0.00";
+    lista.innerHTML = '<li class="carrito-vacio">🛒 Carrito vacío</li>';
+    totalSpan.textContent = '0.00';
     const contadorSpan = document.getElementById('carrito-contador');
     if (contadorSpan) {
       contadorSpan.textContent = '0';
-      contadorSpan.style.background = '#888';
+      contadorSpan.classList.remove('carrito-contador-naranja');
+      contadorSpan.classList.add('carrito-contador-gris');
     }
     return;
   }
@@ -756,19 +757,30 @@ function actualizarCarrito(conAnimacion = false) {
       descripcion += ` (Talle: ${item.talle})`;
     }
 
-    lista.insertAdjacentHTML("beforeend", `
-      <li style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-        <div>
-          <div><strong>${descripcion}</strong></div>
-          <div style="font-size: 0.9em; color: #666;">
-            ${item.cantidad} x $${item.precio.toFixed(2)} = $${subtotal.toFixed(2)}
-          </div>
-        </div>
-        <button onmousedown="eliminarDelCarrito('${escape(item.id_base)}', '${escape(item.talle)}', '${escape(item.color)}', event)" 
-                style="background: none; border: none; color: red; font-weight: bold; font-size: 16px; cursor: pointer;">
-          ❌
-        </button>
-      </li>`);
+    // Se crea el elemento con clases, sin estilos inline y sin onmousedown
+    const li = document.createElement('li');
+    li.className = 'carrito-item';
+
+    const divInfo = document.createElement('div');
+    const strong = document.createElement('strong');
+    strong.textContent = descripcion;
+    divInfo.appendChild(strong);
+    const detalle = document.createElement('div');
+    detalle.className = 'carrito-item-detalle';
+    detalle.textContent = `${item.cantidad} x $${item.precio.toFixed(2)} = $${subtotal.toFixed(2)}`;
+    divInfo.appendChild(detalle);
+
+    const btnEliminar = document.createElement('button');
+    btnEliminar.className = 'btn-eliminar-carrito';
+    btnEliminar.textContent = '❌';
+    btnEliminar.setAttribute('data-id', item.id_base);
+    btnEliminar.setAttribute('data-talle', item.talle || '');
+    btnEliminar.setAttribute('data-color', item.color || '');
+    // El evento se asigna por delegación en el contenedor del carrito (ver nota abajo)
+
+    li.appendChild(divInfo);
+    li.appendChild(btnEliminar);
+    lista.appendChild(li);
   });
 
   totalSpan.textContent = fmt.format(suma);
@@ -777,7 +789,12 @@ function actualizarCarrito(conAnimacion = false) {
   if (contadorSpan) {
     const totalItems = window.carrito.reduce((acc, item) => acc + item.cantidad, 0);
     contadorSpan.textContent = totalItems;
-    contadorSpan.style.background = totalItems > 0 ? '#ff4757' : '#888';
+    contadorSpan.classList.remove('carrito-contador-gris', 'carrito-contador-naranja');
+    if (totalItems > 0) {
+      contadorSpan.classList.add('carrito-contador-naranja');
+    } else {
+      contadorSpan.classList.add('carrito-contador-gris');
+    }
 
     if (conAnimacion) {
       contadorSpan.classList.add('pop-animation');
