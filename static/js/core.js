@@ -607,17 +607,23 @@ window.filtrarSubcategoria = filtrarSubcategoria;
 
   const toggleBtn = document.getElementById('toggleCarrito');
   if (toggleBtn) {
-    toggleBtn.onclick = function() {
+    toggleBtn.addEventListener('click', function() {
       const carritoDiv = document.getElementById('carrito');
       if (!carritoDiv) return;
 
-      const isVisible = window.getComputedStyle(carritoDiv).display !== 'none';
-      carritoDiv.style.display = isVisible ? 'none' : 'block';
-    };
+      const isVisible = carritoDiv.classList.contains('carrito-visible');
+      if (isVisible) {
+        carritoDiv.classList.remove('carrito-visible');
+        carritoDiv.classList.add('carrito-hidden');
+      } else {
+        carritoDiv.classList.remove('carrito-hidden');
+        carritoDiv.classList.add('carrito-visible');
+      }
+    });
   } else {
     setTimeout(setupImmediate, 50);
   }
-})();  
+})();
 
 
 function mostrarSubgrupo(subgrupo, event) {
