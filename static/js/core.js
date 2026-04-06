@@ -1406,16 +1406,17 @@ document.addEventListener('DOMContentLoaded', () => {
   // 3. EVENTOS DE CLICK GLOBAL (cerrar carrito/paneles y girar cards)
   // ============================================================
   document.addEventListener('click', (e) => {
-    // Cerrar carrito si se clic fuera
     const carritoDiv = document.getElementById("carrito");
     const toggleBtn = document.getElementById("toggleCarrito");
     if (carritoDiv && toggleBtn) {
-      const visible = carritoDiv.style.display === "block";
+      const visible = carritoDiv.classList.contains('carrito-visible');
       const clicFueraCarrito = !carritoDiv.contains(e.target) && !toggleBtn.contains(e.target);
-      if (visible && clicFueraCarrito) carritoDiv.style.display = "none";
+      if (visible && clicFueraCarrito) {
+        carritoDiv.classList.remove('carrito-visible');
+        carritoDiv.classList.add('carrito-hidden');
+      }
     }
 
-    // Cerrar paneles de grupos/subcategorías si se clic fuera
     const panelGrupos = document.getElementById("panelGrupos");
     const panelSub = document.getElementById("panelSubcategorias");
     if (panelGrupos && panelSub) {
@@ -1436,7 +1437,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // Girar cards al hacer clic en los botones correspondientes
     if (e.target.classList.contains('btn-girar') || e.target.classList.contains('btn-reversa')) {
       const card = e.target.closest('.card-giratoria');
       if (card) {
