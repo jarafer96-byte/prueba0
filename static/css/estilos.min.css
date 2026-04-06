@@ -54,6 +54,10 @@ body.container.py-5.modo-oscuro {
 
 
 
+
+.btn-sin-stock {
+  opacity: 0.5;
+}
 .selector-ancho {
   min-width: 190px;
 }
