@@ -1215,6 +1215,7 @@ function setupEnhancedLazyLoading() {
       if (img.dataset.src) {
         img.src = img.dataset.src;
         img.removeAttribute('data-src');
+        img.classList.add('loaded'); 
       }
     });
     return;
@@ -1230,7 +1231,7 @@ function setupEnhancedLazyLoading() {
             tempImg.onload = () => {
               img.src = img.dataset.src;
               img.removeAttribute('data-src');
-              img.style.opacity = '1';
+              img.classList.add('loaded'); 
             };
           }
           observer.unobserve(img);
