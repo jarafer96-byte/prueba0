@@ -1,3 +1,66 @@
+/* Reemplaza style="margin-top:10px;" */
+.mt-10 {
+  margin-top: 10px;
+}
+
+/* Estilos para el modal de imagen (reemplaza style="display:none; max-width:90%; max-height:90%;" y el fondo) */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+}
+
+.modal-img {
+  max-width: 90%;
+  max-height: 90%;
+  object-fit: contain;
+}
+
+/* Estilo para el botón de cerrar modal (la "X") */
+.close {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  color: white;
+  font-size: 40px;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 10001;
+}
+
+/* Opcional: si no usas Bootstrap, define la clase d-none */
+.d-none {
+  display: none !important;
+}
+
+/* Estilos para los botones de navegación (reemplaza los estilos que tenían inline en .barra-navegacion button) */
+.btn-nav {
+  font-family: 'Raleway', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 8px 15px;
+  border-radius: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.2);
+  transition: transform 0.3s ease, background-color 0.2s ease, color 0.2s ease;
+  cursor: pointer;
+}
+
+.btn-nav:hover {
+  background-color: #fff;
+  color: #333;
+  transform: scale(1.05);
+}
+
 .card-front img, .card-back img {
     border-radius: 16px;
     object-fit: cover;
