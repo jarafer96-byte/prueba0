@@ -765,17 +765,17 @@ function mostrarSubgruposHorizontal(grupo) {
       </button>
     `).join('');
   }
-  html += `<button class="btn btn-sm btn-success agregar-subgrupo-btn" data-grupo="${grupo}" style="margin-left: 8px;">+ Subgrupo</button>`;
+  html += `<button class="btn btn-sm btn-success agregar-subgrupo-btn" data-grupo="${grupo}">+ Subgrupo</button>`;
 
   barraSub.innerHTML = html;
-  barraSub.style.display = 'flex';
+  barraSub.classList.add('admin-subgrupos-bar-visible');
   barraSub.dataset.currentGroup = grupo;
 }
 
 
 function ocultarSubgrupos() {
   const barraSub = document.getElementById('adminSubgruposBar');
-  if (barraSub) barraSub.style.display = 'none';
+  if (barraSub) barraSub.classList.remove('admin-subgrupos-bar-visible');
 }
 
 
