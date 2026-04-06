@@ -926,17 +926,16 @@ function actualizarStockPorTalle(idProducto, talleSeleccionado) {
     const valorActual = parseInt(cantidadInput.value) || 1;
     cantidadInput.value = Math.min(valorActual, stockDisponible);
     agregarBtn.disabled = false;
-    agregarBtn.style.opacity = "1";
+    agregarBtn.classList.remove('btn-sin-stock');
     agregarBtn.textContent = "Agregar al carrito";
   } else {
     cantidadInput.disabled = true;
     cantidadInput.value = 0;
     agregarBtn.disabled = true;
-    agregarBtn.style.opacity = "0.5";
+    agregarBtn.classList.add('btn-sin-stock');
     agregarBtn.textContent = "❌ Sin stock";
   }
 }
-
 
 function habilitarScrollHorizontal(selector) {
   const panel = document.querySelector(selector);
