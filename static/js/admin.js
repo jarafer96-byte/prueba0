@@ -914,7 +914,7 @@ async function recargarProductos() {
   try {
     const email = window.cliente?.email;
     if (!email) return;
-    const resp = await fetch(`/api/productos?usuario=${encodeURIComponent(email)}`);
+    const resp = await fetch(`/api/productos`);
     const data = await resp.json();
     window.todosLosProductos = Array.isArray(data) ? data : [];
   } catch (err) {
