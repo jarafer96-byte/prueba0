@@ -1,11 +1,14 @@
-export async function onRequest(context) {
-  const url = new URL(context.request.url);
-  const path = url.pathname;
-  const method = context.request.method;
+// functions/_middleware.js
 
-  // Rutas que deben ir al backend (incluye todas las que usas)
+export async function onRequest(context) {
+  const { request, next } = context;
+  const url = new URL(request.url);
+  const path = url.pathname;
+  const method = request.method;
+
+  // Lista de rutas que deben ir al backend
   const backendRoutes = [
-    '/api/',               // cualquier ruta que empiece con /api/
+    '/api/',
     '/pagar',
     '/verificar-stock',
     '/login-admin',
@@ -18,47 +21,52 @@ export async function onRequest(context) {
     '/callback_mp'
   ];
 
-  // Determinar si la petición debe ir al backend
-  const shouldGoToBackend = backendRoutes.some(route => 
+  // Determinar si la ruta actual debe ser manejada por el backend
+  const shouldGoToBackend = backendRoutes.some(route =>
     path === route || (route.endsWith('/') && path.startsWith(route))
   );
 
-  // Manejar preflight OPTIONS (necesario para credenciales y cabeceras personalizadas)
+  // Manejar preflight OPTIONS (necesario para CORS con credenciales)
   if (method === 'OPTIONS' && shouldGoToBackend) {
     return new Response(null, {
       status: 204,
       headers: {
-        'Access-Control-Allow-Origin': context.request.headers.get('origin') || '*',
+        'Access-Control-Allow-Origin': request.headers.get('origin') || '*',
         'Access-Control-Allow-Credentials': 'true',
         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, X-Vendor-Email, X-CSRF-Token',
-        'Access-Control-Max-Age': '86400',
+        'Access-Control-Max-Age': '86400'
       }
     });
   }
 
+  // Si la ruta es del backend, redirigir a Render
   if (shouldGoToBackend) {
     const backendUrl = `https://mpagina.onrender.com${path}${url.search}`;
     
-    // Reenviar la petición con las mismas cabeceras y cuerpo
+    // Copiar cabeceras originales (incluye Cookie, etc.)
+    const headers = new Headers(request.headers);
+    // No elimines 'origin' porque lo usaremos para CORS; pero lo dejamos.
+    // Si quieres eliminar alguna cabecera problemática, puedes hacerlo.
+    
     const newRequest = new Request(backendUrl, {
       method: method,
-      headers: context.request.headers,   // Conserva todas las cabeceras (incluye Cookie)
-      body: context.request.body,
+      headers: headers,
+      body: request.body,
       redirect: 'follow'
     });
     
     // Obtener respuesta del backend
     const response = await fetch(newRequest);
     
-    // Crear una nueva respuesta con las cabeceras originales + CORS
+    // Preparar cabeceras de respuesta con CORS adecuado
     const responseHeaders = new Headers(response.headers);
-    // Añadir cabeceras CORS para que el navegador acepte la respuesta con credenciales
-    responseHeaders.set('Access-Control-Allow-Origin', context.request.headers.get('origin') || '*');
+    responseHeaders.set('Access-Control-Allow-Origin', request.headers.get('origin') || '*');
     responseHeaders.set('Access-Control-Allow-Credentials', 'true');
-    // También permitir que el navegador vea las cabeceras personalizadas
+    // Exponer cabeceras personalizadas al frontend
     responseHeaders.set('Access-Control-Expose-Headers', 'Content-Type, X-Vendor-Email');
     
+    // Devolver la respuesta modificada
     return new Response(response.body, {
       status: response.status,
       statusText: response.statusText,
@@ -66,6 +74,6 @@ export async function onRequest(context) {
     });
   }
 
-  // Si no es ruta de backend, servir contenido estático (index.html, CSS, JS, etc.)
-  return context.next();
+  // Para el resto de rutas (archivos estáticos), continuar normalmente
+  return next();
 }
