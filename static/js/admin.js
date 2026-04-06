@@ -392,12 +392,27 @@ async function agregarFotoExtra(btn) {
 
       const contenedor = btn.closest('.fotos-extra-container');
       const listaFotos = contenedor.querySelector('.fotos-extra-list');
+
+      // Crear contenedor de la foto extra
       const nuevaFoto = document.createElement('div');
       nuevaFoto.className = 'foto-extra-item d-flex align-items-center justify-content-between mb-1 p-1 border rounded';
-      nuevaFoto.innerHTML = `
-        <img src="${getVersionUrl(url, '58')}" style="width:40px; height:40px; object-fit:cover; border-radius:4px; cursor:pointer;" onclick="openModal('${url}')">
-        <button class="btn btn-sm btn-outline-danger eliminar-foto-extra" data-url="${url}" data-id="${idBase}" style="padding: 2px 8px;">✖</button>
-      `;
+
+      // Crear imagen
+      const img = document.createElement('img');
+      img.src = getVersionUrl(url, '58');
+      img.className = 'foto-extra-thumb';
+      img.alt = 'Foto adicional';
+      img.addEventListener('click', () => openModal(url));
+
+      // Crear botón eliminar
+      const deleteBtn = document.createElement('button');
+      deleteBtn.className = 'btn btn-sm btn-outline-danger eliminar-foto-extra';
+      deleteBtn.setAttribute('data-url', url);
+      deleteBtn.setAttribute('data-id', idBase);
+      deleteBtn.textContent = '✖';
+
+      nuevaFoto.appendChild(img);
+      nuevaFoto.appendChild(deleteBtn);
       listaFotos.appendChild(nuevaFoto);
 
       if (typeof mostrarToast === 'function') mostrarToast('✅ Foto adicional agregada');
