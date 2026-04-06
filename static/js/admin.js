@@ -1061,13 +1061,13 @@ if (window.modoAdmin) {
   if (container) container.classList.remove('d-none');
 
   const formsList = document.getElementById('formsList');
-  if (formsList) formsList.style.display = 'none';
+  if (formsList) formsList.classList.add('d-none');
 
   const configurarCA = document.getElementById('configurarCA');
   if (configurarCA) configurarCA.classList.remove('d-none');
 
   const tableView = document.getElementById('tableView');
-  if (tableView) tableView.style.display = 'block';
+  if (tableView) tableView.classList.add('d-block');
 
   recargarProductos().then(() => {
     renderTablaProductos();
@@ -1080,13 +1080,13 @@ if (window.modoAdmin) {
   });
 
   const logoutWrapper = document.getElementById('logoutAdminWrapper');
-  if (logoutWrapper) logoutWrapper.style.display = 'block';
+  if (logoutWrapper) logoutWrapper.classList.add('d-block');
 
   const configurarMP = document.getElementById('configurarMP');
   if (configurarMP) configurarMP.classList.remove('d-none');
 
   const loginToggleBtn = document.getElementById('loginToggleBtn');
-  if (loginToggleBtn) loginToggleBtn.style.display = 'none';
+  if (loginToggleBtn) loginToggleBtn.classList.add('d-none');
 
   const adminContainer = document.getElementById('adminFormsContainer');
   if (adminContainer) {
@@ -1190,11 +1190,11 @@ if (window.modoAdmin) {
         const grupo = target.dataset.grupo;
         if (grupo) {
           const barraSub = document.getElementById('adminSubgruposBar');
-          if (barraSub.style.display === 'flex' && barraSub.dataset.currentGroup === grupo) {
+          if (barraSub && barraSub.classList.contains('admin-subgrupos-bar-visible') && barraSub.dataset.currentGroup === grupo) {
             ocultarSubgrupos();
           } else {
             mostrarSubgruposHorizontal(grupo);
-            barraSub.dataset.currentGroup = grupo;
+            if (barraSub) barraSub.dataset.currentGroup = grupo;
           }
         }
         return;
