@@ -9,6 +9,19 @@
 .card-pressed {
   transform: scale(0.98);
 }
+.fila-color {
+  gap: 5px;
+}
+.color-input {
+  width: 100px;
+}
+.talle-toggle {
+  margin: 0 5px;
+}
+.stock-input,
+.talles-input {
+  flex: 1;
+}
 /* Estilos base del modal (reemplazan los inline) */
 .modal-config-ca {
   display: none;
