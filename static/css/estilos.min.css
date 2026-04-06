@@ -12,6 +12,45 @@
 .fila-color {
   gap: 5px;
 }
+/* Barra de grupos de administración */
+.admin-grupos-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 15px;
+  align-items: center;
+  overflow-x: auto;
+  padding-bottom: 5px;
+}
+
+/* Barra de subgrupos (oculta por defecto) */
+.admin-subgrupos-bar {
+  display: none;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 15px;
+  overflow-x: auto;
+  padding-bottom: 5px;
+}
+
+/* Contenedor responsivo para la tabla */
+.tabla-responsive {
+  overflow-x: auto;
+}
+
+/* Tabla de productos */
+.tabla-productos-admin {
+  min-width: 800px;
+}
+
+/* Anchos de columnas */
+.th-imagen { width: 60px; }
+.th-fotos-extra { width: 80px; }
+.th-producto { width: 200px; }
+.th-precio { width: 80px; }
+.th-colores { min-width: 300px; }
+.th-descripcion { min-width: 200px; }
+.th-acciones { width: 120px; }
 .color-input {
   width: 100px;
 }
