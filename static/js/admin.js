@@ -640,29 +640,24 @@ function renderFilasTabla(productos) {
     const imagenMiniatura = getVersionUrl(p.imagen_url || '/static/img/fallback.webp', '58');
 
     const imagenPrincipalHTML = `
-      <div style="display: flex; flex-direction: column; align-items: center; gap: 6px;">
-        <button class="btn btn-sm btn-outline-secondary agregar-imagen-principal w-100" data-id="${idBase}" title="Cambiar imagen principal">
-          + 
-        </button>
-        <img src="${imagenMiniatura}" style="width:58px; height:58px; object-fit:cover; border-radius:4px; cursor:pointer;" onclick="openModal('${p.imagen_url || ''}')">
+      <div class="admin-img-principal-container">
+        <button class="btn btn-sm btn-outline-secondary agregar-imagen-principal w-100" data-id="${idBase}" title="Cambiar imagen principal">+</button>
+        <img src="${imagenMiniatura}" class="admin-img-thumb" data-modal-url="${p.imagen_url || ''}">
       </div>
     `;
-    let fotosExtraHTML = '';
-    fotosExtraHTML += `
+    
+    let fotosExtraHTML = `
       <div class="fotos-extra-header">
-        <button class="btn btn-sm btn-outline-secondary agregar-foto-extra w-100" data-id="${idBase}">
-          + 
-        </button>
+        <button class="btn btn-sm btn-outline-secondary agregar-foto-extra w-100" data-id="${idBase}">+</button>
       </div>
+      <div class="fotos-extra-list" data-id="${idBase}">
     `;
-
-    fotosExtraHTML += `<div class="fotos-extra-list" data-id="${idBase}">`;
 
     if (p.fotos_adicionales && p.fotos_adicionales.length) {
-       p.fotos_adicionales.forEach(url => {
+      p.fotos_adicionales.forEach(url => {
         fotosExtraHTML += `
           <div class="foto-extra-item d-flex align-items-center justify-content-between mb-1 p-1 border rounded">
-            <img src="${getVersionUrl(url, '58')}" style="width:58px; height:58px; object-fit:cover; border-radius:4px; cursor:pointer;" onclick="openModal('${url}')">
+            <img src="${getVersionUrl(url, '58')}" class="admin-img-thumb" data-modal-url="${url}">
             <button class="btn btn-sm btn-outline-danger eliminar-foto-extra" data-url="${url}" data-id="${idBase}">✖</button>
           </div>
         `;
@@ -688,30 +683,30 @@ function renderFilasTabla(productos) {
         const stockUnico = !tieneTalles ? (tallesObj['unico'] || 0) : 0;
 
         filasColoresHTML += `
-          <div class="fila-color d-flex align-items-center mb-1" style="gap: 5px;">
-            <input type="text" class="form-control form-control-sm color-input" value="${color.replace(/"/g, '&quot;')}" placeholder="Color" style="width: 100px;">
-            <input type="checkbox" class="talle-toggle" ${tieneTalles ? 'checked' : ''} style="margin: 0 5px;">
+          <div class="fila-color d-flex align-items-center mb-1 fila-color-gap">
+            <input type="text" class="form-control form-control-sm color-input" value="${color.replace(/"/g, '&quot;')}" placeholder="Color">
+            <input type="checkbox" class="talle-toggle">
             <span class="small">Talles</span>
             <input type="${tieneTalles ? 'text' : 'number'}" class="form-control form-control-sm ${tieneTalles ? 'talles-input' : 'stock-input'}" 
                    value="${tieneTalles ? tallesStr.replace(/"/g, '&quot;') : stockUnico}" 
-                   placeholder="${tieneTalles ? 'S:30, M:20' : 'Stock'}" style="flex: 1;">
-            <button class="btn btn-sm btn-outline-danger eliminar-fila-color" title="Eliminar color" style="color: red;">✖</button>
+                   placeholder="${tieneTalles ? 'S:30, M:20' : 'Stock'}">
+            <button class="btn btn-sm btn-outline-danger eliminar-fila-color" title="Eliminar color">✖</button>
           </div>
         `;
       });
     } else {
       filasColoresHTML = `
-        <div class="fila-color d-flex align-items-center mb-1" style="gap: 5px;">
-          <input type="text" class="form-control form-control-sm color-input" placeholder="Color" style="width: 100px;">
-          <input type="checkbox" class="talle-toggle" style="margin: 0 5px;">
+        <div class="fila-color d-flex align-items-center mb-1 fila-color-gap">
+          <input type="text" class="form-control form-control-sm color-input" placeholder="Color">
+          <input type="checkbox" class="talle-toggle">
           <span class="small">Talles</span>
-          <input type="number" class="form-control form-control-sm stock-input" placeholder="Stock" style="flex: 1;">
+          <input type="number" class="form-control form-control-sm stock-input" placeholder="Stock">
           <button class="btn btn-sm btn-outline-danger eliminar-color" title="Eliminar color">✖</button>
         </div>
       `;
     }
 
-    const agregarColorBtn = `<button class="btn btn-sm btn-outline-success agregar-fila-color mt-1" data-id="${idBase}" style="color: white;">➕ Agregar color</button>`;
+    const agregarColorBtn = `<button class="btn btn-sm btn-outline-success agregar-fila-color mt-1" data-id="${idBase}">➕ Agregar color</button>`;
 
     const coloresCellHTML = `
       <div class="colores-stock-container" data-id="${idBase}">
@@ -724,28 +719,24 @@ function renderFilasTabla(productos) {
 
     return `
       <tr data-id-base="${idBase}">
-         <td>${imagenPrincipalHTML}</td>
-        
-         <td>
-           <div class="fotos-extra-container" data-id="${idBase}">
-             ${fotosExtraHTML}
-           </div>
-         </td>
-         <td><input type="text" class="editable-input nombre-input form-control form-control-sm" value="${nombre.replace(/"/g, '&quot;')}" data-id="${idBase}" data-campo="nombre" style="border-color: white;"></td>
-         <td><input type="number" class="editable-input precio-input form-control form-control-sm" value="${precio}" data-id="${idBase}" data-campo="precio" step="0.01" min="0" style="width:80px; border-color: white;"></td>
-          <td>${coloresCellHTML}</td>
-          <td>${descripcionHTML}</td>
-          <td>
-            <div class="btn-group btn-group-sm">
-              <button class="btn btn-warning btn-sm guardar-producto" data-id="${idBase}" title="Guardar">💾</button>
-              <button class="btn btn-info btn-sm duplicar-producto" data-id="${idBase}" style="background-color:azure;" title="Duplicar">📋</button>
-              <button class="btn btn-danger btn-sm eliminar-producto" data-id="${idBase}" title="Eliminar">🗑️</button>
-            </div>
-          </td>
-        </tr>
+        <td>${imagenPrincipalHTML}</td>
+        <td><div class="fotos-extra-container" data-id="${idBase}">${fotosExtraHTML}</div></td>
+        <td><input type="text" class="editable-input nombre-input form-control form-control-sm" value="${nombre.replace(/"/g, '&quot;')}" data-id="${idBase}" data-campo="nombre"></td>
+        <td><input type="number" class="editable-input precio-input form-control form-control-sm" value="${precio}" data-id="${idBase}" data-campo="precio" step="0.01" min="0"></td>
+        <td>${coloresCellHTML}</td>
+        <td>${descripcionHTML}</td>
+        <td>
+          <div class="btn-group btn-group-sm">
+            <button class="btn btn-warning btn-sm guardar-producto" data-id="${idBase}" title="Guardar">💾</button>
+            <button class="btn btn-info btn-sm duplicar-producto" data-id="${idBase}" title="Duplicar">📋</button>
+            <button class="btn btn-danger btn-sm eliminar-producto" data-id="${idBase}" title="Eliminar">🗑️</button>
+          </div>
+        </td>
+      </tr>
     `;
   }).join('');
 }
+
 
 function mostrarSubgruposHorizontal(grupo) {
   const productos = window.todosLosProductos || [];
