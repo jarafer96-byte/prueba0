@@ -1332,10 +1332,10 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.card-giratoria').forEach(card => {
     card.addEventListener('touchstart', (e) => {
       e.preventDefault();
-      card.style.transform = 'scale(0.98)';
+      card.classList.add('card-pressed');
     }, { passive: false });
     card.addEventListener('touchend', () => {
-      card.style.transform = '';
+      card.classList.remove('card-pressed');
     });
 
     let touchStartTime, touchStartX, touchStartY;
