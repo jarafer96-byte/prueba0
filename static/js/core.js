@@ -1213,20 +1213,28 @@ async function calcularEnvioPaso() {
     if (data.ok && data.costo) {
       window.costoEnvio = data.costo;
       document.getElementById("costoEnvioMostrado").innerHTML = `<strong>Envío:</strong> $${data.costo.toFixed(2)}`;
-      actualizarCarritoConEnvio(); 
+      actualizarCarritoConEnvio();
       envioCalculado = true;
-      document.getElementById('btnSiguienteDatos').style.display = 'block';
+      // Mostrar botón siguiente usando clase (en lugar de style.display)
+      const btnSiguiente = document.getElementById('btnSiguienteDatos');
+      if (btnSiguiente) {
+        btnSiguiente.classList.remove('paso-oculto');
+      }
     } else {
       alert("No se pudo calcular el envío: " + (data.error || "Error desconocido"));
       window.costoEnvio = 0;
       document.getElementById("costoEnvioMostrado").innerHTML = "";
       envioCalculado = false;
+      const btnSiguiente = document.getElementById('btnSiguienteDatos');
+      if (btnSiguiente) btnSiguiente.classList.add('paso-oculto');
     }
   } catch (err) {
     console.error(err);
     alert("Error al calcular envío. Verifica tu conexión.");
     window.costoEnvio = 0;
     envioCalculado = false;
+    const btnSiguiente = document.getElementById('btnSiguienteDatos');
+    if (btnSiguiente) btnSiguiente.classList.add('paso-oculto');
   } finally {
     if (btnCalcular) {
       btnCalcular.disabled = false;
