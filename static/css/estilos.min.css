@@ -57,7 +57,16 @@ body.container.py-5.modo-oscuro {
 
 
 
+.envio-linea {
+  list-style: none;
+  margin-top: 8px;
+  border-top: 1px solid #ccc;
+}
 
+.envio-linea-contenido {
+  display: flex;
+  justify-content: space-between;
+}
 /* Reemplaza style="margin-top:10px;" */
 .btn-volver-arriba {
   position: fixed;
