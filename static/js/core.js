@@ -259,21 +259,20 @@ function renderProducto(p, esLCP = false) {
   const tallesInfo = card.querySelector('.talles-info');
   const btnVolver = card.querySelector('.card-back-footer .btn-secondary');
 
-  // Configurar imagen
   const imagenGrande = p.imagen_url || '/static/img/fallback.webp';
   const imagenCard = getVersionUrl(imagenGrande, '180');
   img.src = imagenCard;
   if (!esLCP) img.setAttribute('data-src', imagenCard);
   img.alt = p.nombre;
-  img.onload = function() { this.style.opacity = '1'; };
+  img.onload = function() {
+    this.classList.add('img-loaded');
+  };
   img.onclick = () => openModal(imagenGrande);
   if (esLCP) img.loading = 'eager';
   else img.loading = 'lazy';
 
-  // Título
   titulo.textContent = p.nombre;
 
-  // Precios y oferta
   precioSpan.textContent = p.precio;
   precioSpan.id = `precio_${p.id_base}`; 
   if (esOferta) {
