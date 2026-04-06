@@ -6,6 +6,9 @@
   display: none;
   z-index: 1000;
 }
+.card-pressed {
+  transform: scale(0.98);
+}
 .btn-visible { display: block; }
 .btn-hidden { display: none; }
 .login-floating-form {
