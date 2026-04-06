@@ -10,6 +10,64 @@
   display: inline-flex;
   align-items: center;
 }
+.costo-envio-texto {
+  font-size: 0.9rem;
+}
+/* Botón de administrador */
+.admin-toggle-btn {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 997;
+  display: none;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+/* Avisos flotantes (base común) */
+.aviso-flotante {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  display: none;
+}
+
+.aviso-precio {
+  bottom: 20px;
+}
+
+.aviso-talle {
+  bottom: 60px;
+}
+
+/* Modal (fondo oscuro) - ya tienes .modal-overlay, añadimos .modal-hidden */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+}
+
+.modal-hidden {
+  display: none !important;
+}
+
+/* Si ya tienes .modal-overlay con display: flex, .modal-hidden lo anula */
+.btn-siguiente-datos {
+  display: none;
+}
 .carrito-titulo {
   font-size: 1.40rem !important;
 }
