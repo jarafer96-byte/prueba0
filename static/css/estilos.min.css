@@ -491,6 +491,7 @@ body.container.py-5.modo-oscuro {
 .stock-input,
 .talles-input {
   flex: 1;
+  width: 126px !important;
 }
 /* Estilos base del modal (reemplazan los inline) */
 .modal-config-ca {
