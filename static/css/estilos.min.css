@@ -401,7 +401,7 @@ body.container.py-5.modo-oscuro {
 
 /* Input de cantidad */
 .producto-cantidad {
-  width: 70px;
+  width: 70px !important;
 }
 
 /* Reverso de la tarjeta */
