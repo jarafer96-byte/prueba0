@@ -1556,15 +1556,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   // ============================================================
-  // 3.5. FORMULARIO DE LOGIN ADMIN (evitar recarga)
-  // ============================================================
-  const loginAdminForm = document.getElementById('loginAdminForm');
-  if (loginAdminForm) {
-      // Eliminar cualquier listener anterior (por si acaso)
-      loginAdminForm.removeEventListener('submit', loginAdmin);
-      loginAdminForm.addEventListener('submit', loginAdmin);
-  }
-  // ============================================================
   // 4. CARDS, LAZY LOADING, EVENTOS TÁCTILES Y SCROLL
   // ============================================================
   document.querySelectorAll('.card-giratoria').forEach(card => {
