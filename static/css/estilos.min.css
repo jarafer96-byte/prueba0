@@ -47,7 +47,11 @@ body.container.py-5.modo-oscuro {
 
 
 
-
+.eliminar-foto-extra {
+    font-family: "Segoe UI", "Arial", sans-serif;  /* Evita fuentes de emoji */
+    font-style: normal;
+    font-weight: normal;
+}
 
 
 
