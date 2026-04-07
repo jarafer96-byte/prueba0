@@ -1383,7 +1383,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const adminToken = sessionStorage.getItem('adminToken');
   if (adminToken) {
     window.modoAdmin = true;
-    // Opcional: si quieres cargar admin.js de inmediato
+    // Cargar admin.js si aún no está (opcional)
     if (!window.adminScriptCargado) {
       const script = document.createElement('script');
       script.src = 'static/js/admin.js';
@@ -1393,102 +1393,23 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ============================================================
-  // 1. FUNCIÓN CENTRAL PARA CAMBIAR DE PASO (carrito/dirección/datos)
+  // 1. CONFIGURACIÓN DEL CARRITO Y ENVÍOS (original)
   // ============================================================
-  function cambiarPaso(paso) {
-    const pasoCarrito = document.getElementById('pasoCarrito');
-    const pasoDireccion = document.getElementById('pasoDireccion');
-    const pasoDatos = document.getElementById('pasoDatos');
-
-    // Ocultar todos
-    [pasoCarrito, pasoDireccion, pasoDatos].forEach(p => {
-      if (p) {
-        p.classList.remove('paso-visible');
-        p.classList.add('paso-oculto');
-      }
-    });
-
-    // Mostrar el solicitado
-    let pasoMostrar = null;
-    if (paso === 1) pasoMostrar = pasoCarrito;
-    else if (paso === 2) pasoMostrar = pasoDireccion;
-    else if (paso === 3) pasoMostrar = pasoDatos;
-
-    if (pasoMostrar) {
-      pasoMostrar.classList.remove('paso-oculto');
-      pasoMostrar.classList.add('paso-visible');
-    }
-
-    window.pasoActual = paso;
-  }
-
-  // ============================================================
-  // 2. CONFIGURACIÓN DEL CARRITO Y ENVÍOS
-  // ============================================================
-  const btnProductos = document.getElementById('btnProductosNav');
-  if (btnProductos) btnProductos.addEventListener('click', mostrarTodos);
-
-  const btnContacto = document.getElementById('btnContactoNav');
-  if (btnContacto) btnContacto.addEventListener('click', irAContacto);
-
-  const btnVaciar = document.getElementById('btnVaciarCarrito');
-  if (btnVaciar) btnVaciar.addEventListener('click', vaciarCarrito);
-
-  const modalClose = document.getElementById('modalClose');
-  if (modalClose) modalClose.addEventListener('click', closeModal);
-
-  const modalOverlay = document.getElementById('imgModal');
-  if (modalOverlay) {
-    modalOverlay.addEventListener('click', (e) => {
-      if (e.target === modalOverlay) closeModal();
-    });
-  }
-
-  // Botón "Continuar con la compra" (paso 1 -> paso 2)
   const btnContinuar = document.getElementById('btnContinuar');
-  if (btnContinuar) {
-    btnContinuar.addEventListener('click', () => cambiarPaso(2));
-  }
+  if (btnContinuar) btnContinuar.addEventListener('click', mostrarPasoDireccion);
 
-  // Botón "Siguiente: tus datos" (paso 2 -> paso 3, con validación de envío)
   const btnSiguienteDatos = document.getElementById('btnSiguienteDatos');
-  if (btnSiguienteDatos) {
-    btnSiguienteDatos.addEventListener('click', () => {
-      if (window.envioCalculado) {
-        cambiarPaso(3);
-      } else {
-        alert("Primero calculá el costo de envío.");
-      }
-    });
-  }
+  if (btnSiguienteDatos) btnSiguienteDatos.addEventListener('click', mostrarPasoDatos);
 
-  // Botón "Volver atrás" desde dirección (paso 2 -> paso 1)
   const btnVolverCarrito = document.getElementById('btnVolverCarrito');
-  if (btnVolverCarrito) {
-    btnVolverCarrito.addEventListener('click', () => cambiarPaso(1));
-  }
+  if (btnVolverCarrito) btnVolverCarrito.addEventListener('click', volverAlCarrito);
 
-  // Botón "Volver atrás" desde datos (paso 3 -> paso 2)
   const btnVolverDireccion = document.getElementById('btnVolverDireccion');
-  if (btnVolverDireccion) {
-    btnVolverDireccion.addEventListener('click', () => cambiarPaso(2));
-  }
+  if (btnVolverDireccion) btnVolverDireccion.addEventListener('click', volverADireccion);
 
-  // Botón "Omitir envío" (calcula envío 0 y pasa a datos)
   const btnSinEnvio = document.getElementById('btnSinEnvio');
-  if (btnSinEnvio) {
-    btnSinEnvio.addEventListener('click', () => {
-      window.costoEnvio = 0;
-      document.getElementById("costoEnvioMostrado").innerHTML = "";
-      if (typeof window.actualizarCarritoConEnvio === 'function') {
-        window.actualizarCarritoConEnvio();
-      }
-      window.envioCalculado = true;
-      cambiarPaso(3);
-    });
-  }
+  if (btnSinEnvio) btnSinEnvio.addEventListener('click', continuarSinEnvio);
 
-  // Botón calcular envío
   const btnCalcular = document.getElementById('btnCalcularEnvioPaso');
   if (btnCalcular) {
     btnCalcular.addEventListener('click', async () => {
@@ -1496,7 +1417,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Botón pagar
   const btnPagar = document.getElementById('btnPagarFinal');
   if (btnPagar) {
     btnPagar.addEventListener('click', () => {
@@ -1509,75 +1429,15 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ============================================================
-  // 3. BOTÓN DEL CARRITO (mostrar/ocultar + carga MP)
-  // ============================================================
-  const toggleCarritoBtn = document.getElementById('toggleCarrito');
-  const carritoDiv = document.getElementById('carrito');
-
-  if (toggleCarritoBtn && carritoDiv) {
-    const clickHandler = (e) => {
-      e.stopPropagation();
-      carritoDiv.classList.toggle('carrito-visible');
-      if (carritoDiv.classList.contains('carrito-visible')) {
-        carritoDiv.classList.remove('carrito-hidden');
-      } else {
-        carritoDiv.classList.add('carrito-hidden');
-      }
-      if (typeof cargarMercadoPagoJS === 'function') {
-        cargarMercadoPagoJS();
-      }
-    };
-
-    toggleCarritoBtn.removeEventListener('click', toggleCarritoBtn._clickHandler);
-    toggleCarritoBtn.addEventListener('click', clickHandler);
-    toggleCarritoBtn._clickHandler = clickHandler;
-
-    if ('IntersectionObserver' in window) {
-      const observer = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting) {
-          if (typeof cargarMercadoPagoJS === 'function') cargarMercadoPagoJS();
-          observer.disconnect();
-        }
-      }, { rootMargin: '300px' });
-      observer.observe(toggleCarritoBtn);
-    }
-  }
-
-  // ============================================================
-  // 4. BOTÓN DE ADMIN (muestra/oculta formulario)
-  // ============================================================
-  const loginToggleBtn = document.getElementById('loginToggleBtn');
-  const loginFormDiv = document.getElementById('loginFloatingForm');
-  if (loginToggleBtn && loginFormDiv) {
-    // Eliminamos la clonación (innecesaria) y usamos un listener directo
-    loginToggleBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      loginFormDiv.classList.toggle('d-none');
-      if (!loginFormDiv.classList.contains('d-none') && !window.adminScriptCargado) {
-        const script = document.createElement('script');
-        script.src = 'static/js/admin.js';
-        script.onload = () => { window.adminScriptCargado = true; };
-        document.head.appendChild(script);
-      }
-    });
-  }
-
-  // Conectar el formulario de login (evento submit)
-  const adminForm = document.getElementById('loginAdminForm');
-  if (adminForm) {
-    adminForm.addEventListener('submit', loginAdmin);
-  }
-
-  // ============================================================
-  // 5. CARDS, LAZY LOADING, EVENTOS TÁCTILES Y SCROLL
+  // 2. CARDS, LAZY LOADING, EVENTOS TÁCTILES Y SCROLL (original)
   // ============================================================
   document.querySelectorAll('.card-giratoria').forEach(card => {
     card.addEventListener('touchstart', (e) => {
       e.preventDefault();
-      card.classList.add('card-pressed');
+      card.style.transform = 'scale(0.98)';
     }, { passive: false });
     card.addEventListener('touchend', () => {
-      card.classList.remove('card-pressed');
+      card.style.transform = '';
     });
 
     let touchStartTime, touchStartX, touchStartY;
@@ -1597,10 +1457,20 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Si modo admin, cargar MP también
-  if (window.modoAdmin && typeof cargarMercadoPagoJS === 'function') {
-    cargarMercadoPagoJS();
+  const toggleCarrito = document.getElementById('toggleCarrito');
+  if (toggleCarrito) {
+    toggleCarrito.addEventListener('click', cargarMercadoPagoJS);
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+          cargarMercadoPagoJS();
+          observer.disconnect();
+        }
+      }, { rootMargin: '300px' });
+      observer.observe(toggleCarrito);
+    }
   }
+  if (window.modoAdmin) cargarMercadoPagoJS();
 
   setTimeout(loadVisibleImagesFirst, 300);
   setTimeout(setupEnhancedLazyLoading, 800);
@@ -1617,14 +1487,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     const btnArriba = document.getElementById('volverArriba');
     if (btnArriba) {
-      btnArriba.classList.toggle('btn-visible', window.scrollY > 300);
-      btnArriba.classList.toggle('btn-hidden', window.scrollY <= 300);
+      btnArriba.style.display = window.scrollY > 300 ? 'block' : 'none';
     }
     const btnLogin = document.getElementById('loginToggleBtn');
     if (btnLogin && !window.modoAdmin) {
       const isBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 100;
-      btnLogin.classList.toggle('btn-visible', isBottom);
-      btnLogin.classList.toggle('btn-hidden', !isBottom);
+      btnLogin.style.display = isBottom ? 'block' : 'none';
     }
   }, { passive: true });
 
@@ -1635,33 +1503,19 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ============================================================
-  // 6. EVENTOS DE CLICK GLOBAL (cerrar carrito/paneles, girar cards y eliminar del carrito)
+  // 3. EVENTOS DE CLICK GLOBAL (original)
   // ============================================================
   document.addEventListener('click', (e) => {
-    // --- 1. Eliminar producto del carrito (botón específico) ---
-    const eliminarBtn = e.target.closest('.btn-eliminar-carrito');
-    if (eliminarBtn) {
-      e.preventDefault();
-      const id_base = eliminarBtn.getAttribute('data-id');
-      const talle = eliminarBtn.getAttribute('data-talle');
-      const color = eliminarBtn.getAttribute('data-color');
-      eliminarDelCarrito(id_base, talle, color, e);
-      return;
+    // Cerrar carrito si se clic fuera
+    const carritoDiv = document.getElementById("carrito");
+    const toggleBtn = document.getElementById("toggleCarrito");
+    if (carritoDiv && toggleBtn) {
+      const visible = carritoDiv.style.display === "block";
+      const clicFueraCarrito = !carritoDiv.contains(e.target) && !toggleBtn.contains(e.target);
+      if (visible && clicFueraCarrito) carritoDiv.style.display = "none";
     }
 
-    // --- 2. Cerrar carrito si se clic fuera ---
-    const carritoDivGlobal = document.getElementById("carrito");
-    const toggleBtnGlobal = document.getElementById("toggleCarrito");
-    if (carritoDivGlobal && toggleBtnGlobal) {
-      const visible = carritoDivGlobal.classList.contains('carrito-visible');
-      const clicFueraCarrito = !carritoDivGlobal.contains(e.target) && !toggleBtnGlobal.contains(e.target);
-      if (visible && clicFueraCarrito) {
-        carritoDivGlobal.classList.remove('carrito-visible');
-        carritoDivGlobal.classList.add('carrito-hidden');
-      }
-    }
-
-    // --- 3. Cerrar paneles de grupos/subcategorías si se clic fuera ---
+    // Cerrar paneles de grupos/subcategorías si se clic fuera
     const panelGrupos = document.getElementById("panelGrupos");
     const panelSub = document.getElementById("panelSubcategorias");
     if (panelGrupos && panelSub) {
@@ -1671,20 +1525,18 @@ document.addEventListener('DOMContentLoaded', () => {
       const esBotonSubgrupo = e.target.classList.contains("btn-subgrupo") || e.target.closest('.btn-subgrupo');
       const esBotonNavegacion = !!e.target.closest(".barra-navegacion");
 
-      if (!esClickDentroGrupos && !esClickDentroSub &&
+      if (!esClickDentroGrupos && !esClickDentroSub && 
           !esBotonGrupo && !esBotonSubgrupo && !esBotonNavegacion) {
         setTimeout(() => {
           panelGrupos.classList.add("oculta");
           panelSub.classList.add("oculta");
-          if (typeof gestionarFlechas === 'function') {
-            gestionarFlechas('panelGrupos');
-            gestionarFlechas('panelSubcategorias');
-          }
+          gestionarFlechas('panelGrupos');
+          gestionarFlechas('panelSubcategorias');
         }, 300);
       }
     }
 
-    // --- 4. Girar cards al hacer clic en los botones correspondientes ---
+    // Girar cards al hacer clic en los botones correspondientes
     if (e.target.classList.contains('btn-girar') || e.target.classList.contains('btn-reversa')) {
       const card = e.target.closest('.card-giratoria');
       if (card) {
@@ -1701,7 +1553,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ============================================================
-  // 7. SELECTOR DE ORDEN POR PRECIO
+  // 4. SELECTOR DE ORDEN POR PRECIO (original)
   // ============================================================
   const ordenSelect = document.getElementById("ordenPrecio");
   if (ordenSelect) {
@@ -1728,39 +1580,93 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ============================================================
-  // 8. BOTÓN VOLVER ARRIBA
+  // 5. BOTÓN VOLVER ARRIBA (original)
   // ============================================================
   const volverArribaBtn = document.getElementById('volverArriba');
   if (volverArribaBtn) {
-    volverArribaBtn.addEventListener('click', () => {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
+    volverArribaBtn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   // ============================================================
-  // 9. EVENTO CLICK EN EL LOGO (animación)
+  // 6. BOTÓN LOGIN ADMIN (original, pero mejorado con addEventListener)
+  // ============================================================
+  const loginToggleBtn = document.getElementById('loginToggleBtn');
+  if (loginToggleBtn) {
+    // Reemplazamos onclick por addEventListener para evitar conflictos
+    loginToggleBtn.removeEventListener('click', loginToggleBtn._oldHandler);
+    const handler = () => {
+      const form = document.getElementById('loginFloatingForm');
+      if (form) {
+        form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        if (form.style.display === 'block' && !window.adminScriptCargado) {
+          const script = document.createElement('script');
+          script.src = 'static/js/admin.js';
+          script.onload = () => { window.adminScriptCargado = true; };
+          document.head.appendChild(script);
+        }
+      }
+    };
+    loginToggleBtn.addEventListener('click', handler);
+    loginToggleBtn._oldHandler = handler;
+  }
+
+  // ============================================================
+  // 7. CONECTAR EL FORMULARIO DE LOGIN (NUEVO - necesario para admin)
+  // ============================================================
+  const loginFormElem = document.getElementById('loginAdminForm');
+  if (loginFormElem) {
+    loginFormElem.addEventListener('submit', loginAdmin);
+  }
+
+  // ============================================================
+  // 8. EVENTO CLICK EN EL LOGO (original)
   // ============================================================
   const logoElement = document.querySelector('.logo');
   if (logoElement) {
     logoElement.addEventListener('click', function() {
       const logo = this;
-      logo.classList.add('logo-anim-start');
-
+      logo.style.pointerEvents = 'none';
+      logo.style.transition = 'transform 0.8s ease, opacity 0.4s ease';
+      logo.style.transform = 'rotateY(360deg)';
+      logo.style.opacity = '0.7';
+      
       const mensaje = document.createElement('div');
       mensaje.textContent = 'Gracias por la visita! ❤️';
-      mensaje.className = 'toast-message';
+      mensaje.style.position = 'fixed';
+      mensaje.style.top = '50%';
+      mensaje.style.left = '50%';
+      mensaje.style.transform = 'translate(-50%, -50%) scale(0.8)';
+      mensaje.style.backgroundColor = 'rgba(0, 0, 0, 0.9)';
+      mensaje.style.color = 'white';
+      mensaje.style.padding = '15px 25px';
+      mensaje.style.borderRadius = '20px';
+      mensaje.style.fontFamily = "'Raleway', sans-serif";
+      mensaje.style.fontSize = '1.2rem';
+      mensaje.style.fontWeight = 'bold';
+      mensaje.style.zIndex = '999999';
+      mensaje.style.opacity = '0';
+      mensaje.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+      mensaje.style.boxShadow = '0 0 30px rgba(255, 255, 255, 0.7), 0 0 60px rgba(139, 92, 246, 0.5)';
+      mensaje.style.backdropFilter = 'blur(10px)';
+      mensaje.style.border = '2px solid rgba(255, 255, 255, 0.3)';
       document.body.appendChild(mensaje);
-
+      
       setTimeout(() => {
-        mensaje.classList.add('toast-message-visible');
+        mensaje.style.opacity = '1';
+        mensaje.style.transform = 'translate(-50%, -50%) scale(1.1)';
         setTimeout(() => {
-          mensaje.classList.remove('toast-message-visible');
+          mensaje.style.transform = 'translate(-50%, -50%) scale(1)';
           setTimeout(() => {
-            mensaje.remove();
-            logo.classList.remove('logo-anim-start');
-            logo.classList.add('logo-anim-end');
+            mensaje.style.opacity = '0';
+            mensaje.style.transform = 'translate(-50%, -50%) scale(0.8)';
             setTimeout(() => {
-              logo.classList.remove('logo-anim-end');
+              mensaje.remove();
+            }, 500);
+            logo.style.transform = 'rotateY(0deg)';
+            logo.style.opacity = '1';
+            setTimeout(() => {
+              logo.style.pointerEvents = 'auto';
+              logo.style.transition = '';
             }, 800);
           }, 1500);
         }, 300);
@@ -1769,15 +1675,13 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ============================================================
-  // 10. CAMBIO DE TALLE (actualizar stock)
+  // 9. CAMBIO DE TALLE (original)
   // ============================================================
   document.addEventListener('change', (e) => {
     if (e.target.id && e.target.id.startsWith('talle_')) {
       const idProducto = e.target.id.replace('talle_', '');
       const talleSeleccionado = e.target.value;
-      if (talleSeleccionado && typeof actualizarStockPorTalle === 'function') {
-        actualizarStockPorTalle(idProducto, talleSeleccionado);
-      }
+      if (talleSeleccionado) actualizarStockPorTalle(idProducto, talleSeleccionado);
     }
   });
 });
