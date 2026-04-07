@@ -234,7 +234,8 @@ body.container.py-5.modo-oscuro {
 #pasoCarrito.paso-visible,
 #pasoDireccion.paso-visible,
 #pasoDatos.paso-visible {
-  display: block !important; /* o el que corresponda */
+  display: block !important;
+  display: none !important;
 }
 .fotos-adicionales-grid {
   display: flex;
