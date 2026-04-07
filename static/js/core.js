@@ -31,19 +31,57 @@ function volverADireccion() {
 }
 
 function vaciarCarrito() {
+  // 1. Vaciar el array del carrito y actualizar la interfaz
   window.carrito = [];
-  actualizarCarrito();
+  actualizarCarrito();   // Tu función que limpia la lista y el contador
+
+  // 2. Ocultar TODOS los pasos (usando las clases correctas)
   const pasoCarrito = document.getElementById('pasoCarrito');
   const pasoDireccion = document.getElementById('pasoDireccion');
   const pasoDatos = document.getElementById('pasoDatos');
-  if (pasoCarrito) pasoCarrito.classList.add('paso-visible');
-  if (pasoDireccion) pasoDireccion.classList.remove('paso-visible');
-  if (pasoDatos) pasoDatos.classList.remove('paso-visible');
-  document.getElementById('costoEnvioMostrado').innerHTML = '';
+  
+  if (pasoCarrito) {
+    pasoCarrito.classList.remove('paso-visible');
+    pasoCarrito.classList.add('paso-oculto');
+  }
+  if (pasoDireccion) {
+    pasoDireccion.classList.remove('paso-visible');
+    pasoDireccion.classList.add('paso-oculto');
+  }
+  if (pasoDatos) {
+    pasoDatos.classList.remove('paso-visible');
+    pasoDatos.classList.add('paso-oculto');
+  }
+
+  // 3. Mostrar únicamente el paso del carrito
+  if (pasoCarrito) {
+    pasoCarrito.classList.remove('paso-oculto');
+    pasoCarrito.classList.add('paso-visible');
+  }
+
+  // 4. Limpiar campos de dirección y datos personales (opcional pero recomendado)
+  const campos = [
+    'calle', 'numero', 'localidad', 'provincia_codigo', 'codigo_postal',
+    'nombre', 'apellido', 'email_cliente', 'telefono'
+  ];
+  campos.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+
+  // 5. Resetear mensaje de envío y ocultar botón "Siguiente: tus datos"
+  const costoDiv = document.getElementById('costoEnvioMostrado');
+  if (costoDiv) costoDiv.innerHTML = '';
+  
   const btnSiguiente = document.getElementById('btnSiguienteDatos');
-  if (btnSiguiente) btnSiguiente.classList.remove('paso-visible');
-  envioCalculado = false;
-  pasoActual = 1;
+  if (btnSiguiente) {
+    btnSiguiente.classList.remove('paso-visible');
+    btnSiguiente.classList.add('paso-oculto');
+  }
+
+  // 6. Resetear variables de estado
+  window.envioCalculado = false;
+  window.pasoActual = 1;   // o la variable global que uses
   if (typeof window.resetEnvio === 'function') window.resetEnvio();
 }
 
