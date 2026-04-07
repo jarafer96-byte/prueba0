@@ -222,7 +222,7 @@ body.container.py-5.modo-oscuro {
 }
 /* Clase base para ocultar una sección (por defecto) */
 .paso-oculto {
-  display: none;
+  display: none !important;
 }
 
 /* Clase para mostrar una sección */
