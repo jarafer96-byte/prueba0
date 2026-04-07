@@ -432,7 +432,7 @@ body.container.py-5.modo-oscuro {
 
 /* Estado visible */
 .admin-subgrupos-bar-visible {
-  display: flex;
+  display: flex !important;
 }
 .subgrupo-toggle-btn {
   padding: 0 5px;
@@ -1184,9 +1184,9 @@ h1, h2, h3, .btn, .card { font-family: 'Raleway', sans-serif; }
 }
 .grupo-btn.active,
 .subgrupo-btn.active {
-  background-color: #0d6efd;
-  color: white;
-  border-color: #0d6efd;
+  background-color: #0d6efd !important;
+  color: white !important;
+  border-color: #0d6efd !important;
 }
 .table-responsive {
   overflow-x: auto;
