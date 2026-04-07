@@ -430,20 +430,6 @@ body.container.py-5.modo-oscuro {
 .d-none { display: none !important; }
 .d-block { display: block !important; }
 
-/* Para la barra de subgrupos (ya definida) */
-.admin-subgrupos-bar-visible {
-  display: flex;
-}
-/* Estado oculto por defecto (ya lo tenías) */
-.admin-subgrupos-bar {
-  display: none;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 15px;
-  overflow-x: auto;
-  padding-bottom: 5px;
-}
-
 /* Estado visible */
 .admin-subgrupos-bar-visible {
   display: flex;
