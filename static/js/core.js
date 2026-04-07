@@ -1378,7 +1378,22 @@ let pagando = false;
 
 document.addEventListener('DOMContentLoaded', () => {
   // ============================================================
-  // 0. FUNCIÓN CENTRAL PARA CAMBIAR DE PASO (carrito/dirección/datos)
+  // 0. RESTAURAR SESIÓN DE ADMIN (al cargar la página)
+  // ============================================================
+  const adminToken = sessionStorage.getItem('adminToken');
+  if (adminToken) {
+    window.modoAdmin = true;
+    // Opcional: si quieres cargar admin.js de inmediato
+    if (!window.adminScriptCargado) {
+      const script = document.createElement('script');
+      script.src = 'static/js/admin.js';
+      script.onload = () => { window.adminScriptCargado = true; };
+      document.head.appendChild(script);
+    }
+  }
+
+  // ============================================================
+  // 1. FUNCIÓN CENTRAL PARA CAMBIAR DE PASO (carrito/dirección/datos)
   // ============================================================
   function cambiarPaso(paso) {
     const pasoCarrito = document.getElementById('pasoCarrito');
@@ -1408,7 +1423,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ============================================================
-  // 1. CONFIGURACIÓN DEL CARRITO Y ENVÍOS
+  // 2. CONFIGURACIÓN DEL CARRITO Y ENVÍOS
   // ============================================================
   const btnProductos = document.getElementById('btnProductosNav');
   if (btnProductos) btnProductos.addEventListener('click', mostrarTodos);
@@ -1494,7 +1509,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ============================================================
-  // 2. BOTÓN DEL CARRITO (mostrar/ocultar + carga MP)
+  // 3. BOTÓN DEL CARRITO (mostrar/ocultar + carga MP)
   // ============================================================
   const toggleCarritoBtn = document.getElementById('toggleCarrito');
   const carritoDiv = document.getElementById('carrito');
@@ -1529,19 +1544,16 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ============================================================
-  // 3. BOTÓN DE ADMIN (muestra/oculta formulario)
+  // 4. BOTÓN DE ADMIN (muestra/oculta formulario)
   // ============================================================
   const loginToggleBtn = document.getElementById('loginToggleBtn');
-  const loginForm = document.getElementById('loginFloatingForm');
-  if (loginToggleBtn && loginForm) {
-    // Clonar para evitar listeners antiguos
-    const newLoginBtn = loginToggleBtn.cloneNode(true);
-    loginToggleBtn.parentNode.replaceChild(newLoginBtn, loginToggleBtn);
-
-    newLoginBtn.addEventListener('click', (e) => {
+  const loginFormDiv = document.getElementById('loginFloatingForm');
+  if (loginToggleBtn && loginFormDiv) {
+    // Eliminamos la clonación (innecesaria) y usamos un listener directo
+    loginToggleBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      loginForm.classList.toggle('d-none');
-      if (!loginForm.classList.contains('d-none') && !window.adminScriptCargado) {
+      loginFormDiv.classList.toggle('d-none');
+      if (!loginFormDiv.classList.contains('d-none') && !window.adminScriptCargado) {
         const script = document.createElement('script');
         script.src = 'static/js/admin.js';
         script.onload = () => { window.adminScriptCargado = true; };
@@ -1550,8 +1562,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Conectar el formulario de login (evento submit)
+  const adminForm = document.getElementById('loginAdminForm');
+  if (adminForm) {
+    adminForm.addEventListener('submit', loginAdmin);
+  }
+
   // ============================================================
-  // 4. CARDS, LAZY LOADING, EVENTOS TÁCTILES Y SCROLL
+  // 5. CARDS, LAZY LOADING, EVENTOS TÁCTILES Y SCROLL
   // ============================================================
   document.querySelectorAll('.card-giratoria').forEach(card => {
     card.addEventListener('touchstart', (e) => {
@@ -1617,7 +1635,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ============================================================
-  // 5. EVENTOS DE CLICK GLOBAL (cerrar carrito/paneles, girar cards y eliminar del carrito)
+  // 6. EVENTOS DE CLICK GLOBAL (cerrar carrito/paneles, girar cards y eliminar del carrito)
   // ============================================================
   document.addEventListener('click', (e) => {
     // --- 1. Eliminar producto del carrito (botón específico) ---
@@ -1683,7 +1701,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ============================================================
-  // 6. SELECTOR DE ORDEN POR PRECIO
+  // 7. SELECTOR DE ORDEN POR PRECIO
   // ============================================================
   const ordenSelect = document.getElementById("ordenPrecio");
   if (ordenSelect) {
@@ -1710,7 +1728,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ============================================================
-  // 7. BOTÓN VOLVER ARRIBA
+  // 8. BOTÓN VOLVER ARRIBA
   // ============================================================
   const volverArribaBtn = document.getElementById('volverArriba');
   if (volverArribaBtn) {
@@ -1720,7 +1738,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ============================================================
-  // 8. EVENTO CLICK EN EL LOGO (animación)
+  // 9. EVENTO CLICK EN EL LOGO (animación)
   // ============================================================
   const logoElement = document.querySelector('.logo');
   if (logoElement) {
@@ -1751,7 +1769,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ============================================================
-  // 9. CAMBIO DE TALLE (actualizar stock)
+  // 10. CAMBIO DE TALLE (actualizar stock)
   // ============================================================
   document.addEventListener('change', (e) => {
     if (e.target.id && e.target.id.startsWith('talle_')) {
