@@ -1065,7 +1065,7 @@ if (window.modoAdmin) {
   });
 
   const logoutWrapper = document.getElementById('logoutAdminWrapper');
-  if (logoutWrapper) logoutWrapper.classList.add('d-block');
+  if (logoutWrapper) logoutWrapper.classList.remove('d-none');
 
   const configurarMP = document.getElementById('configurarMP');
   if (configurarMP) configurarMP.classList.remove('d-none');
