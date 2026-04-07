@@ -1,3 +1,4 @@
+console.log('admin.js ejecutándose...');
 window.todosLosProductos = window.todosLosProductos || [];
 
 async function guardarProducto(producto, formDiv, skipReload = false) {
