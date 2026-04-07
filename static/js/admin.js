@@ -82,11 +82,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnCerrarModalCA = document.getElementById('btnCerrarModalCA');
   if (btnCerrarModalCA) btnCerrarModalCA.addEventListener('click', cerrarModalConfigCA);
 
-  const loginForm = document.getElementById('loginAdminForm');
-  if (loginForm) {
-    loginForm.addEventListener('submit', loginAdmin);
-  }
-
   const btnSalirAdmin = document.getElementById('btnSalirAdmin');
   if (btnSalirAdmin) btnSalirAdmin.addEventListener('click', salirAdmin);
 
