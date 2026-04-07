@@ -1,4 +1,7 @@
 html, body { position: relative; background-color: #64636d; min-height: 100vh; min-height: 100dvh; overflow-x: hidden; }
+body {
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
 body.container.modo-oscuro { position: relative !important; border-radius: 40px !important; padding: 40px !important; margin: 0 auto !important; width: 100% !important; max-width: 1300px !important; box-sizing: border-box !important; }
 body.container.modo-oscuro::before {
   content: '';
