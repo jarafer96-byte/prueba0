@@ -1371,23 +1371,25 @@ document.addEventListener('DOMContentLoaded', () => {
   // ============================================================
   const toggleCarritoBtn = document.getElementById('toggleCarrito');
   const carritoDiv = document.getElementById('carrito');
+
   if (toggleCarritoBtn && carritoDiv) {
-    // Remover listeners anteriores clonando y reemplazando
-    const newToggleBtn = toggleCarritoBtn.cloneNode(true);
-    toggleCarritoBtn.parentNode.replaceChild(newToggleBtn, toggleCarritoBtn);
-    
-    newToggleBtn.addEventListener('click', (e) => {
+    const clickHandler = (e) => {
       e.stopPropagation();
-      // Alternar visibilidad del carrito
       carritoDiv.classList.toggle('carrito-visible');
-      carritoDiv.classList.toggle('carrito-hidden');
-      // Cargar MercadoPago la primera vez que se abre
+      if (carritoDiv.classList.contains('carrito-visible')) {
+        carritoDiv.classList.remove('carrito-hidden');
+      } else {
+        carritoDiv.classList.add('carrito-hidden');
+      }
       if (typeof cargarMercadoPagoJS === 'function') {
         cargarMercadoPagoJS();
       }
-    });
-    
-    // Carga diferida con IntersectionObserver (opcional)
+    };
+
+    toggleCarritoBtn.removeEventListener('click', toggleCarritoBtn._clickHandler);
+    toggleCarritoBtn.addEventListener('click', clickHandler);
+    toggleCarritoBtn._clickHandler = clickHandler; 
+
     if ('IntersectionObserver' in window) {
       const observer = new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting) {
@@ -1395,10 +1397,9 @@ document.addEventListener('DOMContentLoaded', () => {
           observer.disconnect();
         }
       }, { rootMargin: '300px' });
-      observer.observe(newToggleBtn);
+      observer.observe(toggleCarritoBtn);
     }
   }
-
   // ============================================================
   // 3. BOTÓN DE ADMIN (muestra/oculta formulario)
   // ============================================================
