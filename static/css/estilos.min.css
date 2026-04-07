@@ -1311,6 +1311,8 @@ h1, h2, h3, .btn, .card { font-family: 'Raleway', sans-serif; }
 @media (max-width: 768px) {
   .table {
     font-size: 0.85rem;
+    min-width: 1200px;
+    max-width: 1300px;
   }
   .editable-input {
     font-size: 0.8rem;
