@@ -1543,6 +1543,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Función para cargar admin.js (evita duplicados)
   function cargarAdminScript() {
       if (window.adminScriptCargado) return;
+      window.adminScriptCargado = true;
       const script = document.createElement('script');
       script.src = 'static/js/admin.js';
       script.onload = () => { window.adminScriptCargado = true; };
