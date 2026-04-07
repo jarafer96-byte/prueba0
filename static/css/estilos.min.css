@@ -1091,10 +1091,9 @@ h1, h2, h3, .btn, .card { font-family: 'Raleway', sans-serif; }
 
 
 .modo-oscuro #carrito {
-  background-color: rgba(0,0,0,0.85);
+  background-color: rgb(33 36 40);
   color: white;
-  border: 1px solid white;
-  box-shadow: 0 0 10px white;
+  backdrop-filter: blur(120px);
 }
 #toggleCarrito {
   position: fixed;
