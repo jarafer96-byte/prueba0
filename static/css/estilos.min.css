@@ -552,7 +552,15 @@ body.container.py-5.modo-oscuro {
 }
 .editable-input.nombre-input,
 .editable-input.precio-input {
-  border-color: white;
+  border-color: white !important;
+  width: 100%;
+  border: 1px solid transparent;
+  background: transparent;
+  padding: 6px 8px;
+  border-radius: 4px;
+  color: inherit;
+  font-size: 0.95rem;
+  transition: all 0.2s;
 }
 .precio-input {
   width: 80px;
@@ -1032,12 +1040,12 @@ h1, h2, h3, .btn, .card { font-family: 'Raleway', sans-serif; }
   gap: 6px;
 }
 .fotos-extra-header .btn {
-  width: 100%;
-  background: rgba(255,255,255,0.1);
-  border: 1px dashed #aaa;
-  color: white;
-  padding: 6px;
-  font-size: 0.85rem;
+  width: 100% !important;
+  background: rgba(255,255,255,0.1) !important;
+  border: 1px dashed #aaa !important;
+  color: white !important;
+  padding: 6px !important;
+  font-size: 0.85rem !important;
 }
 .fotos-extra-header .btn:hover {
   background: rgba(255,255,255,0.2);
