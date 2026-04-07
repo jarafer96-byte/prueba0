@@ -1550,11 +1550,6 @@ document.addEventListener('DOMContentLoaded', () => {
       document.head.appendChild(script);
   }
 
-  // Si ya estamos en modo admin (por token), cargar admin.js inmediatamente
-  if (window.modoAdmin) {
-      cargarAdminScript();
-  }
-
   // Configurar el botón "Admin" para mostrar/ocultar el formulario y cargar admin.js si es necesario
   if (loginToggleBtn && loginForm) {
       // Clonar para evitar listeners antiguos
