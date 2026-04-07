@@ -14,6 +14,12 @@ let pasoActual = 1;
 let envioCalculado = false;
 let resizeTimer;  
 
+// Verificar si ya hay sesión de admin activa
+const adminToken = sessionStorage.getItem('adminToken');
+if (adminToken) {
+    window.modoAdmin = true;
+}
+
 
 function cambiarPaso(paso) {
   const pasoCarrito = document.getElementById('pasoCarrito');
