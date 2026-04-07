@@ -47,10 +47,6 @@ body.container.py-5.modo-oscuro {
 
 
 
-.eliminar-foto-extra::before {
-    content: "✖";
-    color: #dc3545;
-}
 .flecha-izq, .flecha-der {
   display: none !important;
 }
