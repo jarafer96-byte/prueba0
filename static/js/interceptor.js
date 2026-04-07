@@ -101,14 +101,13 @@
   style.textContent = '#productos { min-height: 500px; }';
   document.head.appendChild(style);
 
-  if (window.modoAdmin) {
+  if (window.modoAdmin && !window.adminScriptLoaded) {
+    window.adminScriptLoaded = true;
     loadCSRFToken().then(() => {
-      const script = document.createElement('script');
-      script.src = 'static/js/admin.js';
-      script.defer = true;
-      document.head.appendChild(script);
+        const script = document.createElement('script');
+        script.src = 'static/js/admin.js';
+        script.defer = true;
+        document.head.appendChild(script);
     });
-  } else {
-    window.CSRF_TOKEN = null;
   }
 })();
