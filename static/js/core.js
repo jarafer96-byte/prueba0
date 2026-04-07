@@ -1365,8 +1365,66 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+
   // ============================================================
-  // 2. CARDS, LAZY LOADING, EVENTOS TÁCTILES Y SCROLL
+  // 2. BOTÓN DEL CARRITO (mostrar/ocultar + carga MP)
+  // ============================================================
+  const toggleCarritoBtn = document.getElementById('toggleCarrito');
+  const carritoDiv = document.getElementById('carrito');
+  if (toggleCarritoBtn && carritoDiv) {
+    // Remover listeners anteriores clonando y reemplazando
+    const newToggleBtn = toggleCarritoBtn.cloneNode(true);
+    toggleCarritoBtn.parentNode.replaceChild(newToggleBtn, toggleCarritoBtn);
+    
+    newToggleBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      // Alternar visibilidad del carrito
+      carritoDiv.classList.toggle('carrito-visible');
+      carritoDiv.classList.toggle('carrito-hidden');
+      // Cargar MercadoPago la primera vez que se abre
+      if (typeof cargarMercadoPagoJS === 'function') {
+        cargarMercadoPagoJS();
+      }
+    });
+    
+    // Carga diferida con IntersectionObserver (opcional)
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+          if (typeof cargarMercadoPagoJS === 'function') cargarMercadoPagoJS();
+          observer.disconnect();
+        }
+      }, { rootMargin: '300px' });
+      observer.observe(newToggleBtn);
+    }
+  }
+
+  // ============================================================
+  // 3. BOTÓN DE ADMIN (muestra/oculta formulario)
+  // ============================================================
+  const loginToggleBtn = document.getElementById('loginToggleBtn');
+  const loginForm = document.getElementById('loginFloatingForm');
+  if (loginToggleBtn && loginForm) {
+    // Clonar para evitar listeners antiguos
+    const newLoginBtn = loginToggleBtn.cloneNode(true);
+    loginToggleBtn.parentNode.replaceChild(newLoginBtn, loginToggleBtn);
+    
+    newLoginBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      // Alternar la clase 'd-none' (display:none)
+      loginForm.classList.toggle('d-none');
+      // Si se muestra y admin.js no está cargado, cargarlo
+      if (!loginForm.classList.contains('d-none') && !window.adminScriptCargado) {
+        const script = document.createElement('script');
+        script.src = 'static/js/admin.js';
+        script.onload = () => { window.adminScriptCargado = true; };
+        document.head.appendChild(script);
+      }
+    });
+  }
+
+  // ============================================================
+  // 4. CARDS, LAZY LOADING, EVENTOS TÁCTILES Y SCROLL
   // ============================================================
   document.querySelectorAll('.card-giratoria').forEach(card => {
     card.addEventListener('touchstart', (e) => {
@@ -1394,20 +1452,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  const toggleCarrito = document.getElementById('toggleCarrito');
-  if (toggleCarrito) {
-    toggleCarrito.addEventListener('click', cargarMercadoPagoJS);
-    if ('IntersectionObserver' in window) {
-      const observer = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting) {
-          cargarMercadoPagoJS();
-          observer.disconnect();
-        }
-      }, { rootMargin: '300px' });
-      observer.observe(toggleCarrito);
-    }
+  // Si modo admin, cargar MP también
+  if (window.modoAdmin && typeof cargarMercadoPagoJS === 'function') {
+    cargarMercadoPagoJS();
   }
-  if (window.modoAdmin) cargarMercadoPagoJS();
 
   setTimeout(loadVisibleImagesFirst, 300);
   setTimeout(setupEnhancedLazyLoading, 800);
@@ -1441,72 +1489,74 @@ document.addEventListener('DOMContentLoaded', () => {
     resizeTimer = setTimeout(() => ajustarPosicionesPaneles(), 150);
   });
 
-
-// ============================================================
-// 3. EVENTOS DE CLICK GLOBAL (cerrar carrito/paneles, girar cards y eliminar del carrito)
-// ============================================================
-document.addEventListener('click', (e) => {
-  // --- 1. Eliminar producto del carrito (botón específico) ---
-  const eliminarBtn = e.target.closest('.btn-eliminar-carrito');
-  if (eliminarBtn) {
-    e.preventDefault();
-    const id_base = eliminarBtn.getAttribute('data-id');
-    const talle = eliminarBtn.getAttribute('data-talle');
-    const color = eliminarBtn.getAttribute('data-color');
-    eliminarDelCarrito(id_base, talle, color, e);
-    return; // Evita que se ejecuten las otras condiciones
-  }
-
-  // --- 2. Cerrar carrito si se clic fuera ---
-  const carritoDiv = document.getElementById("carrito");
-  const toggleBtn = document.getElementById("toggleCarrito");
-  if (carritoDiv && toggleBtn) {
-    const visible = carritoDiv.classList.contains('carrito-visible');
-    const clicFueraCarrito = !carritoDiv.contains(e.target) && !toggleBtn.contains(e.target);
-    if (visible && clicFueraCarrito) {
-      carritoDiv.classList.remove('carrito-visible');
-      carritoDiv.classList.add('carrito-hidden');
-    }
-  }
-
-  // --- 3. Cerrar paneles de grupos/subcategorías si se clic fuera ---
-  const panelGrupos = document.getElementById("panelGrupos");
-  const panelSub = document.getElementById("panelSubcategorias");
-  if (panelGrupos && panelSub) {
-    const esClickDentroGrupos = panelGrupos.contains(e.target);
-    const esClickDentroSub = panelSub.contains(e.target);
-    const esBotonGrupo = e.target.classList.contains("btn-grupo") || e.target.closest('.btn-grupo');
-    const esBotonSubgrupo = e.target.classList.contains("btn-subgrupo") || e.target.closest('.btn-subgrupo');
-    const esBotonNavegacion = !!e.target.closest(".barra-navegacion");
-
-    if (!esClickDentroGrupos && !esClickDentroSub && 
-        !esBotonGrupo && !esBotonSubgrupo && !esBotonNavegacion) {
-      setTimeout(() => {
-        panelGrupos.classList.add("oculta");
-        panelSub.classList.add("oculta");
-        gestionarFlechas('panelGrupos');
-        gestionarFlechas('panelSubcategorias');
-      }, 300);
-    }
-  }
-
-  // --- 4. Girar cards al hacer clic en los botones correspondientes ---
-  if (e.target.classList.contains('btn-girar') || e.target.classList.contains('btn-reversa')) {
-    const card = e.target.closest('.card-giratoria');
-    if (card) {
-      setTimeout(() => {
-        card.querySelectorAll('img[data-src]').forEach(img => {
-          if (img.dataset.src) {
-            img.src = img.dataset.src;
-            img.removeAttribute('data-src');
-          }
-        });
-      }, 100);
-    }
-  }
-});
   // ============================================================
-  // 4. SELECTOR DE ORDEN POR PRECIO
+  // 5. EVENTOS DE CLICK GLOBAL (cerrar carrito/paneles, girar cards y eliminar del carrito)
+  // ============================================================
+  document.addEventListener('click', (e) => {
+    // --- 1. Eliminar producto del carrito (botón específico) ---
+    const eliminarBtn = e.target.closest('.btn-eliminar-carrito');
+    if (eliminarBtn) {
+      e.preventDefault();
+      const id_base = eliminarBtn.getAttribute('data-id');
+      const talle = eliminarBtn.getAttribute('data-talle');
+      const color = eliminarBtn.getAttribute('data-color');
+      eliminarDelCarrito(id_base, talle, color, e);
+      return;
+    }
+
+    // --- 2. Cerrar carrito si se clic fuera ---
+    const carritoDivGlobal = document.getElementById("carrito");
+    const toggleBtnGlobal = document.getElementById("toggleCarrito");
+    if (carritoDivGlobal && toggleBtnGlobal) {
+      const visible = carritoDivGlobal.classList.contains('carrito-visible');
+      const clicFueraCarrito = !carritoDivGlobal.contains(e.target) && !toggleBtnGlobal.contains(e.target);
+      if (visible && clicFueraCarrito) {
+        carritoDivGlobal.classList.remove('carrito-visible');
+        carritoDivGlobal.classList.add('carrito-hidden');
+      }
+    }
+
+    // --- 3. Cerrar paneles de grupos/subcategorías si se clic fuera ---
+    const panelGrupos = document.getElementById("panelGrupos");
+    const panelSub = document.getElementById("panelSubcategorias");
+    if (panelGrupos && panelSub) {
+      const esClickDentroGrupos = panelGrupos.contains(e.target);
+      const esClickDentroSub = panelSub.contains(e.target);
+      const esBotonGrupo = e.target.classList.contains("btn-grupo") || e.target.closest('.btn-grupo');
+      const esBotonSubgrupo = e.target.classList.contains("btn-subgrupo") || e.target.closest('.btn-subgrupo');
+      const esBotonNavegacion = !!e.target.closest(".barra-navegacion");
+
+      if (!esClickDentroGrupos && !esClickDentroSub && 
+          !esBotonGrupo && !esBotonSubgrupo && !esBotonNavegacion) {
+        setTimeout(() => {
+          panelGrupos.classList.add("oculta");
+          panelSub.classList.add("oculta");
+          if (typeof gestionarFlechas === 'function') {
+            gestionarFlechas('panelGrupos');
+            gestionarFlechas('panelSubcategorias');
+          }
+        }, 300);
+      }
+    }
+
+    // --- 4. Girar cards al hacer clic en los botones correspondientes ---
+    if (e.target.classList.contains('btn-girar') || e.target.classList.contains('btn-reversa')) {
+      const card = e.target.closest('.card-giratoria');
+      if (card) {
+        setTimeout(() => {
+          card.querySelectorAll('img[data-src]').forEach(img => {
+            if (img.dataset.src) {
+              img.src = img.dataset.src;
+              img.removeAttribute('data-src');
+            }
+          });
+        }, 100);
+      }
+    }
+  });
+
+  // ============================================================
+  // 6. SELECTOR DE ORDEN POR PRECIO
   // ============================================================
   const ordenSelect = document.getElementById("ordenPrecio");
   if (ordenSelect) {
@@ -1533,7 +1583,7 @@ document.addEventListener('click', (e) => {
   }
 
   // ============================================================
-  // 5. BOTÓN VOLVER ARRIBA
+  // 7. BOTÓN VOLVER ARRIBA
   // ============================================================
   const volverArribaBtn = document.getElementById('volverArriba');
   if (volverArribaBtn) {
@@ -1543,32 +1593,7 @@ document.addEventListener('click', (e) => {
   }
 
   // ============================================================
-  // 6. BOTÓN LOGIN ADMIN (muestra/oculta formulario)
-  // ============================================================
-  const loginToggleBtn = document.getElementById('loginToggleBtn');
-  if (loginToggleBtn) {
-    loginToggleBtn.addEventListener('click', () => {
-      const form = document.getElementById('loginFloatingForm');
-      if (form) {
-        if (form.classList.contains('login-form-hidden')) {
-          form.classList.remove('login-form-hidden');
-          form.classList.add('login-form-visible');
-        } else {
-          form.classList.remove('login-form-visible');
-          form.classList.add('login-form-hidden');
-        }
-        if (form.classList.contains('login-form-visible') && !window.adminScriptCargado) {
-          const script = document.createElement('script');
-          script.src = 'static/js/admin.js';
-          script.onload = () => { window.adminScriptCargado = true; };
-          document.head.appendChild(script);
-        }
-      }
-    });
-  }
-
-  // ============================================================
-  // 7. EVENTO CLICK EN EL LOGO (animación)
+  // 8. EVENTO CLICK EN EL LOGO (animación)
   // ============================================================
   const logoElement = document.querySelector('.logo');
   if (logoElement) {
@@ -1597,14 +1622,17 @@ document.addEventListener('click', (e) => {
       }, 400);
     });
   }
+
   // ============================================================
-  // 8. CAMBIO DE TALLE (actualizar stock)
+  // 9. CAMBIO DE TALLE (actualizar stock)
   // ============================================================
   document.addEventListener('change', (e) => {
     if (e.target.id && e.target.id.startsWith('talle_')) {
       const idProducto = e.target.id.replace('talle_', '');
       const talleSeleccionado = e.target.value;
-      if (talleSeleccionado) actualizarStockPorTalle(idProducto, talleSeleccionado);
+      if (talleSeleccionado && typeof actualizarStockPorTalle === 'function') {
+        actualizarStockPorTalle(idProducto, talleSeleccionado);
+      }
     }
   });
 });
