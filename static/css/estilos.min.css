@@ -227,14 +227,14 @@ body.container.py-5.modo-oscuro {
 
 /* Clase para mostrar una sección */
 .paso-visible {
-  display: block;
+  display: block !important;
 }
 
 /* Si alguna sección debe tener un display específico (por ejemplo, flex), ajusta según necesidad */
 #pasoCarrito.paso-visible,
 #pasoDireccion.paso-visible,
 #pasoDatos.paso-visible {
-  display: block; /* o el que corresponda */
+  display: block !important; /* o el que corresponda */
 }
 .fotos-adicionales-grid {
   display: flex;
