@@ -51,7 +51,9 @@ body.container.py-5.modo-oscuro {
     content: "✖";
     color: #dc3545;
 }
-
+.flecha-izq, .flecha-der {
+  display: none !important;
+}
 
 #carrito.carrito-visible { display: block; }
 .btn-grupo {
