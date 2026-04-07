@@ -14,6 +14,34 @@ let pasoActual = 1;
 let envioCalculado = false;
 let resizeTimer;  
 
+
+function cambiarPaso(paso) {
+  const pasoCarrito = document.getElementById('pasoCarrito');
+  const pasoDireccion = document.getElementById('pasoDireccion');
+  const pasoDatos = document.getElementById('pasoDatos');
+  
+  // Ocultar todos
+  [pasoCarrito, pasoDireccion, pasoDatos].forEach(p => {
+    if (p) {
+      p.classList.remove('paso-visible');
+      p.classList.add('paso-oculto');
+    }
+  });
+  
+  // Mostrar el solicitado
+  let pasoMostrar = null;
+  if (paso === 1) pasoMostrar = pasoCarrito;
+  else if (paso === 2) pasoMostrar = pasoDireccion;
+  else if (paso === 3) pasoMostrar = pasoDatos;
+  
+  if (pasoMostrar) {
+    pasoMostrar.classList.remove('paso-oculto');
+    pasoMostrar.classList.add('paso-visible');
+  }
+  
+  window.pasoActual = paso;
+}
+
 function volverAlCarrito() {
   const pasoDireccion = document.getElementById('pasoDireccion');
   const pasoCarrito = document.getElementById('pasoCarrito');
