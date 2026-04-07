@@ -993,7 +993,7 @@ function habilitarScrollHorizontal(selector) {
       left: e.deltaY,
       behavior: 'smooth' 
     });
-  });
+  }, { passive: false }); 
   let isDown = false;
   let startX;
   let scrollLeft;
