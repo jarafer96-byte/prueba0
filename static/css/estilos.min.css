@@ -483,7 +483,7 @@ body.container.py-5.modo-oscuro {
 .th-descripcion { min-width: 200px; }
 .th-acciones { width: 120px; }
 .color-input {
-  width: 100px;
+  width: 100px !important;
 }
 .talle-toggle {
   margin: 0 5px;
