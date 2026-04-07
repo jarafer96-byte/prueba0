@@ -1378,6 +1378,36 @@ let pagando = false;
 
 document.addEventListener('DOMContentLoaded', () => {
   // ============================================================
+  // 0. FUNCIÓN CENTRAL PARA CAMBIAR DE PASO (carrito/dirección/datos)
+  // ============================================================
+  function cambiarPaso(paso) {
+    const pasoCarrito = document.getElementById('pasoCarrito');
+    const pasoDireccion = document.getElementById('pasoDireccion');
+    const pasoDatos = document.getElementById('pasoDatos');
+
+    // Ocultar todos
+    [pasoCarrito, pasoDireccion, pasoDatos].forEach(p => {
+      if (p) {
+        p.classList.remove('paso-visible');
+        p.classList.add('paso-oculto');
+      }
+    });
+
+    // Mostrar el solicitado
+    let pasoMostrar = null;
+    if (paso === 1) pasoMostrar = pasoCarrito;
+    else if (paso === 2) pasoMostrar = pasoDireccion;
+    else if (paso === 3) pasoMostrar = pasoDatos;
+
+    if (pasoMostrar) {
+      pasoMostrar.classList.remove('paso-oculto');
+      pasoMostrar.classList.add('paso-visible');
+    }
+
+    window.pasoActual = paso;
+  }
+
+  // ============================================================
   // 1. CONFIGURACIÓN DEL CARRITO Y ENVÍOS
   // ============================================================
   const btnProductos = document.getElementById('btnProductosNav');
@@ -1399,21 +1429,51 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Botón "Continuar con la compra" (paso 1 -> paso 2)
   const btnContinuar = document.getElementById('btnContinuar');
-  if (btnContinuar) btnContinuar.addEventListener('click', mostrarPasoDireccion);
+  if (btnContinuar) {
+    btnContinuar.addEventListener('click', () => cambiarPaso(2));
+  }
 
+  // Botón "Siguiente: tus datos" (paso 2 -> paso 3, con validación de envío)
   const btnSiguienteDatos = document.getElementById('btnSiguienteDatos');
-  if (btnSiguienteDatos) btnSiguienteDatos.addEventListener('click', mostrarPasoDatos);
+  if (btnSiguienteDatos) {
+    btnSiguienteDatos.addEventListener('click', () => {
+      if (window.envioCalculado) {
+        cambiarPaso(3);
+      } else {
+        alert("Primero calculá el costo de envío.");
+      }
+    });
+  }
 
+  // Botón "Volver atrás" desde dirección (paso 2 -> paso 1)
   const btnVolverCarrito = document.getElementById('btnVolverCarrito');
-  if (btnVolverCarrito) btnVolverCarrito.addEventListener('click', volverAlCarrito);
+  if (btnVolverCarrito) {
+    btnVolverCarrito.addEventListener('click', () => cambiarPaso(1));
+  }
 
+  // Botón "Volver atrás" desde datos (paso 3 -> paso 2)
   const btnVolverDireccion = document.getElementById('btnVolverDireccion');
-  if (btnVolverDireccion) btnVolverDireccion.addEventListener('click', volverADireccion);
+  if (btnVolverDireccion) {
+    btnVolverDireccion.addEventListener('click', () => cambiarPaso(2));
+  }
 
+  // Botón "Omitir envío" (calcula envío 0 y pasa a datos)
   const btnSinEnvio = document.getElementById('btnSinEnvio');
-  if (btnSinEnvio) btnSinEnvio.addEventListener('click', continuarSinEnvio);
-  
+  if (btnSinEnvio) {
+    btnSinEnvio.addEventListener('click', () => {
+      window.costoEnvio = 0;
+      document.getElementById("costoEnvioMostrado").innerHTML = "";
+      if (typeof window.actualizarCarritoConEnvio === 'function') {
+        window.actualizarCarritoConEnvio();
+      }
+      window.envioCalculado = true;
+      cambiarPaso(3);
+    });
+  }
+
+  // Botón calcular envío
   const btnCalcular = document.getElementById('btnCalcularEnvioPaso');
   if (btnCalcular) {
     btnCalcular.addEventListener('click', async () => {
@@ -1421,6 +1481,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Botón pagar
   const btnPagar = document.getElementById('btnPagarFinal');
   if (btnPagar) {
     btnPagar.addEventListener('click', () => {
@@ -1454,7 +1515,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     toggleCarritoBtn.removeEventListener('click', toggleCarritoBtn._clickHandler);
     toggleCarritoBtn.addEventListener('click', clickHandler);
-    toggleCarritoBtn._clickHandler = clickHandler; 
+    toggleCarritoBtn._clickHandler = clickHandler;
 
     if ('IntersectionObserver' in window) {
       const observer = new IntersectionObserver((entries) => {
@@ -1466,6 +1527,7 @@ document.addEventListener('DOMContentLoaded', () => {
       observer.observe(toggleCarritoBtn);
     }
   }
+
   // ============================================================
   // 3. BOTÓN DE ADMIN (muestra/oculta formulario)
   // ============================================================
@@ -1475,12 +1537,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Clonar para evitar listeners antiguos
     const newLoginBtn = loginToggleBtn.cloneNode(true);
     loginToggleBtn.parentNode.replaceChild(newLoginBtn, loginToggleBtn);
-    
+
     newLoginBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      // Alternar la clase 'd-none' (display:none)
       loginForm.classList.toggle('d-none');
-      // Si se muestra y admin.js no está cargado, cargarlo
       if (!loginForm.classList.contains('d-none') && !window.adminScriptCargado) {
         const script = document.createElement('script');
         script.src = 'static/js/admin.js';
@@ -1593,7 +1653,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const esBotonSubgrupo = e.target.classList.contains("btn-subgrupo") || e.target.closest('.btn-subgrupo');
       const esBotonNavegacion = !!e.target.closest(".barra-navegacion");
 
-      if (!esClickDentroGrupos && !esClickDentroSub && 
+      if (!esClickDentroGrupos && !esClickDentroSub &&
           !esBotonGrupo && !esBotonSubgrupo && !esBotonNavegacion) {
         setTimeout(() => {
           panelGrupos.classList.add("oculta");
@@ -1667,12 +1727,12 @@ document.addEventListener('DOMContentLoaded', () => {
     logoElement.addEventListener('click', function() {
       const logo = this;
       logo.classList.add('logo-anim-start');
-    
+
       const mensaje = document.createElement('div');
       mensaje.textContent = 'Gracias por la visita! ❤️';
       mensaje.className = 'toast-message';
       document.body.appendChild(mensaje);
-    
+
       setTimeout(() => {
         mensaje.classList.add('toast-message-visible');
         setTimeout(() => {
