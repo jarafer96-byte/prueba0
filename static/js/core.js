@@ -1743,6 +1743,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const logoElement = document.querySelector('.logo');
   if (logoElement) {
     logoElement.addEventListener('click', function() {
+      // ✅ Verificar si ya está animando
+      if (this.classList.contains('logo-anim-start')) return;
+
       const logo = this;
       logo.classList.add('logo-anim-start');
 
@@ -1757,17 +1760,19 @@ document.addEventListener('DOMContentLoaded', () => {
           mensaje.classList.remove('toast-message-visible');
           setTimeout(() => {
             mensaje.remove();
-            logo.classList.remove('logo-anim-start');
-            logo.classList.add('logo-anim-end');
-            setTimeout(() => {
-              logo.classList.remove('logo-anim-end');
-            }, 800);
-          }, 1500);
-        }, 300);
+          }, 500);
+        }, 2000);
       }, 400);
+
+      setTimeout(() => {
+        logo.classList.remove('logo-anim-start');
+        logo.classList.add('logo-anim-end');
+        setTimeout(() => {
+          logo.classList.remove('logo-anim-end');
+        }, 800);
+      }, 2600);
     });
   }
-
   // ============================================================
   // 9. CAMBIO DE TALLE (actualizar stock)
   // ============================================================
