@@ -567,7 +567,7 @@ body.container.py-5.modo-oscuro {
   width: 80px;
 }
 .agregar-fila-color {
-  color: white;
+  color: white !important;
 }
 .carrito-visible {
   display: block;
