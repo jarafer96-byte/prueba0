@@ -1087,7 +1087,11 @@ function gestionarFlechas(panelId) {
   flechaIzq.onclick = () => panel.scrollBy({ left: -200, behavior: 'smooth' });
   flechaDer.onclick = () => panel.scrollBy({ left: 200, behavior: 'smooth' });
 
-  actualizarVisibilidad();
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {  // dos frames para mayor seguridad
+      actualizarVisibilidad();
+    });
+  });
 }
 
 
