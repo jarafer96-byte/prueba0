@@ -652,7 +652,7 @@ function renderFilasTabla(productos) {
         fotosExtraHTML += `
           <div class="foto-extra-item d-flex align-items-center justify-content-between mb-1 p-1 border rounded">
             <img src="${getVersionUrl(url, '58')}" class="admin-img-thumb" data-modal-url="${url}">
-            <button class="btn btn-sm btn-outline-danger eliminar-foto-extra" data-url="${url}" data-id="${idBase}">✖</button>
+            <button class="btn btn-sm btn-outline-danger eliminar-foto-extra" data-url="${url}" data-id="${idBase}"></button>
           </div>
         `;
       });
