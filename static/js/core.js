@@ -1535,25 +1535,38 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ============================================================
-  // 3. BOTÓN DE ADMIN (muestra/oculta formulario)
+  // 3. BOTÓN DE ADMIN Y CARGA AUTOMÁTICA SI MODO ADMIN ESTÁ ACTIVO
   // ============================================================
   const loginToggleBtn = document.getElementById('loginToggleBtn');
   const loginForm = document.getElementById('loginFloatingForm');
-  if (loginToggleBtn && loginForm) {
-    // Clonar para evitar listeners antiguos
-    const newLoginBtn = loginToggleBtn.cloneNode(true);
-    loginToggleBtn.parentNode.replaceChild(newLoginBtn, loginToggleBtn);
 
-    newLoginBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      loginForm.classList.toggle('d-none');
-      if (!loginForm.classList.contains('d-none') && !window.adminScriptCargado) {
-        const script = document.createElement('script');
-        script.src = 'static/js/admin.js';
-        script.onload = () => { window.adminScriptCargado = true; };
-        document.head.appendChild(script);
-      }
-    });
+  // Función para cargar admin.js (evita duplicados)
+  function cargarAdminScript() {
+      if (window.adminScriptCargado) return;
+      const script = document.createElement('script');
+      script.src = 'static/js/admin.js';
+      script.onload = () => { window.adminScriptCargado = true; };
+      document.head.appendChild(script);
+  }
+
+  // Si ya estamos en modo admin (por token), cargar admin.js inmediatamente
+  if (window.modoAdmin) {
+      cargarAdminScript();
+  }
+
+  // Configurar el botón "Admin" para mostrar/ocultar el formulario y cargar admin.js si es necesario
+  if (loginToggleBtn && loginForm) {
+      // Clonar para evitar listeners antiguos
+      const newLoginBtn = loginToggleBtn.cloneNode(true);
+      loginToggleBtn.parentNode.replaceChild(newLoginBtn, loginToggleBtn);
+
+      newLoginBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          loginForm.classList.toggle('d-none');
+          if (!loginForm.classList.contains('d-none') && !window.adminScriptCargado) {
+              cargarAdminScript();
+          }
+      });
   }
   // ============================================================
   // 4. CARDS, LAZY LOADING, EVENTOS TÁCTILES Y SCROLL
