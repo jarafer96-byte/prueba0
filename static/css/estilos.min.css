@@ -382,7 +382,7 @@ body.container.py-5.modo-oscuro {
 
 /* Cuerpo de la tarjeta */
 .card-body {
-  padding-top: 1rem;
+  padding-top: 1rem !important;
 }
 /* Badge de oferta (oculto por defecto) */
 .oferta-badge,
