@@ -1347,12 +1347,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const btnSinEnvio = document.getElementById('btnSinEnvio');
   if (btnSinEnvio) btnSinEnvio.addEventListener('click', continuarSinEnvio);
-
-  const loginForm = document.getElementById('loginAdminForm');
-  if (loginForm) {
-    loginForm.addEventListener('submit', loginAdmin);
-  }
-
+  
   const btnCalcular = document.getElementById('btnCalcularEnvioPaso');
   if (btnCalcular) {
     btnCalcular.addEventListener('click', async () => {
@@ -1368,18 +1363,6 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         alert("El módulo de pagos aún no está listo. Intentá de nuevo en unos segundos.");
       }
-    });
-  }
-  
-  const toggleBtn = document.getElementById('toggleCarrito');
-  if (toggleBtn) {
-    toggleBtn.addEventListener('click', () => {
-      const carritoDiv = document.getElementById('carrito');
-      if (carritoDiv) {
-        const isVisible = carritoDiv.classList.contains('carrito-visible');
-        carritoDiv.classList.toggle('carrito-visible', !isVisible);
-        carritoDiv.classList.toggle('carrito-hidden', isVisible);
-       }
     });
   }
   // ============================================================
@@ -1458,10 +1441,8 @@ document.addEventListener('DOMContentLoaded', () => {
     resizeTimer = setTimeout(() => ajustarPosicionesPaneles(), 150);
   });
 
-  // ============================================================
-  // 3. EVENTOS DE CLICK GLOBAL (cerrar carrito/paneles y girar cards)
-  // ============================================================
-  // ============================================================
+
+// ============================================================
 // 3. EVENTOS DE CLICK GLOBAL (cerrar carrito/paneles, girar cards y eliminar del carrito)
 // ============================================================
 document.addEventListener('click', (e) => {
