@@ -1065,6 +1065,7 @@ h1, h2, h3, .btn, .card { font-family: 'Raleway', sans-serif; }
 }
 .foto-extra-item .eliminar-foto-extra {
   padding: 2px 8px;
+  color: black !important;
 }
 .fotos-adicionales {
   margin-top: 10px;
