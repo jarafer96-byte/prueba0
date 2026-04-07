@@ -67,12 +67,7 @@ function cerrarModalConfigCA() {
   }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  // ============================================
-  // 1. Inicializar todos los event listeners (una sola vez)
-  // ============================================
-  
-  // Botones de configuración (fuera del formulario)
+
   const btnConfigMP = document.getElementById('btnConfigurarMP');
   if (btnConfigMP) btnConfigMP.addEventListener('click', abrirConfigMercadoPago);
 
@@ -85,8 +80,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnSalirAdmin = document.getElementById('btnSalirAdmin');
   if (btnSalirAdmin) btnSalirAdmin.addEventListener('click', salirAdmin);
 
-  // Botones de navegación (si están en admin.js, pero normalmente están en core.js)
-  // Los dejo aquí como ejemplo, pero ya deberían estar en core.js
   const btnProductos = document.getElementById('btnProductosNav');
   if (btnProductos) btnProductos.addEventListener('click', mostrarTodos);
   
@@ -96,7 +89,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnVaciarCarrito = document.getElementById('btnVaciarCarrito');
   if (btnVaciarCarrito) btnVaciarCarrito.addEventListener('click', vaciarCarrito);
 
-  // Modal de imagen
   const modalClose = document.getElementById('modalClose');
   if (modalClose) modalClose.addEventListener('click', closeModal);
   
@@ -105,9 +97,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.target === modalOverlay) closeModal();
   });
 
-  // ============================================
-  // 2. Manejador del formulario de Correo Argentino
-  // ============================================
   const form = document.getElementById('formConfigCA');
   if (form) {
     form.addEventListener('submit', async (e) => {
@@ -172,7 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
-});
+
 
 
 async function eliminarProducto(id_base) {
