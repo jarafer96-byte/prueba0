@@ -549,7 +549,7 @@ body.container.py-5.modo-oscuro {
   flex: 1;
 }
 .eliminar-fila-color {
-  color: red;
+  color: red !important;
 }
 .editable-input.nombre-input,
 .editable-input.precio-input {
