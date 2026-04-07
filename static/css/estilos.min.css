@@ -1461,3 +1461,9 @@ h1, h2, h3, .btn, .card { font-family: 'Raleway', sans-serif; }
   border-radius: 0.25rem;
   appearance: none;
 }
+
+
+.eliminar-foto-extra::before,
+.eliminar-foto-extra::after {
+    content: none !important;
+}
