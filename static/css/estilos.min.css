@@ -814,9 +814,9 @@ h1, h2, h3, .btn, .card { font-family: 'Raleway', sans-serif; }
 .w-auto { width: auto; }
 .d-none { display: none; }
 .btn-sm {
-  padding: 0.25rem 0.5rem;
-  font-size: 0.875rem;
-  border-radius: 0.2rem;
+  padding: 0.25rem 0.5rem !important;
+  font-size: 0.875rem !important;
+  border-radius: 0.2rem !important;
 }
 .btn-primary {
   color: #fff;
@@ -1274,12 +1274,12 @@ h1, h2, h3, .btn, .card { font-family: 'Raleway', sans-serif; }
   color: #fff;
 }
 .btn-outline-secondary {
-  border: 1px dashed #aaa;
-  background: transparent;
-  color: #ddd;
-  padding: 2px 6px;
-  font-size: 0.8rem;
-  border-radius: 12px;
+  border: 1px dashed #aaa !important; 
+  background: transparent !important; 
+  color: #ddd !important; 
+  padding: 0.25rem 0.5rem !important; 
+  font-size: 0.875rem !important; 
+  border-radius: 0.2rem !important; 
 }
 .btn-outline-secondary:hover {
   background: rgba(255, 255, 255, 0.1);
