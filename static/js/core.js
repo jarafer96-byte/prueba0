@@ -651,32 +651,6 @@ function filtrarSubcategoria(grupo, subgrupo) {
 window.filtrarSubcategoria = filtrarSubcategoria;
 
 
-(function setupImmediate() {
-  const panelSubcategorias = document.getElementById('panelSubcategorias');
-  const panelGrupos = document.getElementById('panelGrupos');
-  if (panelSubcategorias) panelSubcategorias.classList.add('oculta');
-  if (panelGrupos) panelGrupos.classList.add('oculta');
-
-  const toggleBtn = document.getElementById('toggleCarrito');
-  if (toggleBtn) {
-    toggleBtn.addEventListener('click', function() {
-      const carritoDiv = document.getElementById('carrito');
-      if (!carritoDiv) return;
-
-      const isVisible = carritoDiv.classList.contains('carrito-visible');
-      if (isVisible) {
-        carritoDiv.classList.remove('carrito-visible');
-        carritoDiv.classList.add('carrito-hidden');
-      } else {
-        carritoDiv.classList.remove('carrito-hidden');
-        carritoDiv.classList.add('carrito-visible');
-      }
-    });
-  } else {
-    setTimeout(setupImmediate, 50);
-  }
-})();
-
 
 function mostrarSubgrupo(subgrupo, event) {
   const grupoActivoBtn = document.querySelector('.btn-grupo.active');
@@ -1374,6 +1348,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnSinEnvio = document.getElementById('btnSinEnvio');
   if (btnSinEnvio) btnSinEnvio.addEventListener('click', continuarSinEnvio);
 
+  const loginForm = document.getElementById('loginAdminForm');
+  if (loginForm) {
+    loginForm.addEventListener('submit', loginAdmin);
+  }
+
   const btnCalcular = document.getElementById('btnCalcularEnvioPaso');
   if (btnCalcular) {
     btnCalcular.addEventListener('click', async () => {
@@ -1391,7 +1370,18 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
-
+  
+  const toggleBtn = document.getElementById('toggleCarrito');
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', () => {
+      const carritoDiv = document.getElementById('carrito');
+      if (carritoDiv) {
+        const isVisible = carritoDiv.classList.contains('carrito-visible');
+        carritoDiv.classList.toggle('carrito-visible', !isVisible);
+        carritoDiv.classList.toggle('carrito-hidden', isVisible);
+       }
+    });
+  }
   // ============================================================
   // 2. CARDS, LAZY LOADING, EVENTOS TÁCTILES Y SCROLL
   // ============================================================
