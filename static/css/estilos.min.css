@@ -235,7 +235,6 @@ body.container.py-5.modo-oscuro {
 #pasoDireccion.paso-visible,
 #pasoDatos.paso-visible {
   display: block !important;
-  display: none !important;
 }
 .fotos-adicionales-grid {
   display: flex;
