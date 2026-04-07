@@ -509,7 +509,7 @@ body.container.py-5.modo-oscuro {
 }
 
 /* Clase para mostrar el modal */
-.modal-config-ca.modal-visible {
+#modalConfigCA.modal-visible {
   display: flex;
 }
 
