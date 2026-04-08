@@ -386,18 +386,17 @@ async function agregarFotoExtra(btn) {
       const contenedor = btn.closest('.fotos-extra-container');
       const listaFotos = contenedor.querySelector('.fotos-extra-list');
 
-      // Crear contenedor de la foto extra
       const nuevaFoto = document.createElement('div');
       nuevaFoto.className = 'foto-extra-item d-flex align-items-center justify-content-between mb-1 p-1 border rounded';
 
-      // Crear imagen
+      // Crear imagen con las clases correctas y atributo data-modal-url
       const img = document.createElement('img');
       img.src = getVersionUrl(url, '58');
-      img.className = 'foto-extra-thumb';
+      img.className = 'admin-img-thumb foto-extra-thumb';   // ← clase añadida
+      img.setAttribute('data-modal-url', url);              // ← atributo necesario
       img.alt = 'Foto adicional';
       img.addEventListener('click', () => openModal(url));
 
-      // Crear botón eliminar
       const deleteBtn = document.createElement('button');
       deleteBtn.className = 'btn btn-sm btn-outline-danger eliminar-foto-extra';
       deleteBtn.setAttribute('data-url', url);
