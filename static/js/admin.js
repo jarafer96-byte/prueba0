@@ -675,10 +675,13 @@ function renderFilasTabla(productos) {
           .map(([t, s]) => `${t}:${s}`).join(', ') : '';
         const stockUnico = !tieneTalles ? (tallesObj['unico'] || 0) : 0;
 
+        // Determinar si el checkbox debe estar marcado (checked)
+        const checkedAttr = tieneTalles ? 'checked' : '';
+
         filasColoresHTML += `
           <div class="fila-color d-flex align-items-center mb-1 fila-color-gap">
             <input type="text" class="form-control form-control-sm color-input" value="${color.replace(/"/g, '&quot;')}" placeholder="Color">
-            <input type="checkbox" class="talle-toggle">
+            <input type="checkbox" class="talle-toggle" ${checkedAttr}>
             <span class="small">Talles</span>
             <input type="${tieneTalles ? 'text' : 'number'}" class="form-control form-control-sm ${tieneTalles ? 'talles-input' : 'stock-input'}" 
                    value="${tieneTalles ? tallesStr.replace(/"/g, '&quot;') : stockUnico}" 
@@ -688,6 +691,7 @@ function renderFilasTabla(productos) {
         `;
       });
     } else {
+      // Sin colores: fila por defecto (sin marcar)
       filasColoresHTML = `
         <div class="fila-color d-flex align-items-center mb-1 fila-color-gap">
           <input type="text" class="form-control form-control-sm color-input" placeholder="Color">
