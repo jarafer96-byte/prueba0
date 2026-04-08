@@ -172,7 +172,7 @@
 }
 /* Precio anterior (tachado) */
 .precio-anterior-visible {
-  display: inline;
+  display: inline !important;
 }
 .precio-anterior-oculto {
   display: none;
@@ -180,7 +180,7 @@
 
 /* Badge de oferta */
 .oferta-badge-visible {
-  display: block;
+  display: block !important;
 }
 .oferta-badge-oculto {
   display: none;
