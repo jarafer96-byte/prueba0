@@ -14,7 +14,7 @@
 
   function resetEnvio() {
     costoEnvio = 0;
-    window.costoEnvio = 0;               // Sincronizar variable global
+    window.costoEnvio = 0;
     const divCosto = document.getElementById('costoEnvioMostrado');
     if (divCosto) divCosto.innerHTML = '';
   }
@@ -39,36 +39,32 @@
     }
   }
 
+  // Función auxiliar para actualizar la UI después de verificar stock (opcional)
   function actualizarStockUI(productosConStock) {
     for (const item of productosConStock) {
-      if (window[`stock_por_talle_${item.id_base}`]) {
-        if (item.talle) {
-          window[`stock_por_talle_${item.id_base}`][item.talle] = item.stock_disponible;
-        } else {
-          window[`stock_por_talle_${item.id_base}`] = { unico: item.stock_disponible };
-        }
-      }
       const talleSelect = document.getElementById(`talle_${item.id_base}`);
+      const cantidadInput = document.getElementById(`cantidad_${item.id_base}`);
+      const agregarBtn = document.getElementById(`btn_agregar_${item.id_base}`);
       if (talleSelect && item.talle) {
-        actualizarStockPorTalle(item.id_base, item.talle);
-      } else {
-        const cantidadInput = document.getElementById(`cantidad_${item.id_base}`);
-        const agregarBtn = document.getElementById(`btn_agregar_${item.id_base}`);
-        if (cantidadInput) {
-          cantidadInput.max = item.stock_disponible;
-          if (item.stock_disponible <= 0) {
-            cantidadInput.disabled = true;
-            cantidadInput.value = 0;
-            if (agregarBtn) {
-              agregarBtn.disabled = true;
-              agregarBtn.textContent = '❌ Sin stock';
-            }
-          } else {
-            cantidadInput.disabled = false;
-            if (agregarBtn) {
-              agregarBtn.disabled = false;
-              agregarBtn.textContent = 'Agregar al carrito';
-            }
+        // Si existe selector de talle, actualizar usando la función global actualizarStockPorTalle
+        if (typeof actualizarStockPorTalle === 'function') {
+          actualizarStockPorTalle(item.id_base, item.talle, item.color || null);
+        }
+      } else if (cantidadInput) {
+        // Sin selector de talle (producto único)
+        cantidadInput.max = item.stock_disponible;
+        if (item.stock_disponible <= 0) {
+          cantidadInput.disabled = true;
+          cantidadInput.value = 0;
+          if (agregarBtn) {
+            agregarBtn.disabled = true;
+            agregarBtn.textContent = '❌ Sin stock';
+          }
+        } else {
+          cantidadInput.disabled = false;
+          if (agregarBtn) {
+            agregarBtn.disabled = false;
+            agregarBtn.textContent = 'Agregar al carrito';
           }
         }
       }
@@ -186,7 +182,6 @@
       return;
     }
 
-    // Campos obligatorios siempre
     const nombreInput = document.getElementById('nombre');
     const apellidoInput = document.getElementById('apellido');
     const emailInput = document.getElementById('email_cliente');
@@ -213,9 +208,7 @@
       return;
     }
 
-    // Determinar si hay envío (costo > 0)
     const tieneEnvio = (window.costoEnvio || costoEnvio) > 0;
-
     let calle = "", numero = "", localidad = "", provinciaCodigo = "", codigoPostal = "";
 
     if (tieneEnvio) {
@@ -242,8 +235,6 @@
       }
     }
 
-    // Si no hay envío, aún podemos permitir que el usuario haya ingresado dirección, pero no la usamos.
-    // Para el payload, si no hay envío, enviamos un objeto vacío o null.
     const clienteDireccion = tieneEnvio ? {
       calle,
       numero,
@@ -252,14 +243,17 @@
       codigo_postal: codigoPostal
     } : {};
 
+    // ✅ Incluir color en la verificación de stock
     const itemsVerificar = carrito.filter(item => item.id_base).map(item => ({
       id_base: item.id_base,
       talle: item.talle || 'unico',
+      color: item.color || 'unico',   // <-- Agregado
       cantidad: item.cantidad
     }));
 
     if (itemsVerificar.length === 0) {
       alert("❌ El carrito no contiene productos válidos para procesar el pago.");
+      const btnPagarFinal = document.getElementById('btnPagarFinal');
       if (btnPagarFinal) {
         btnPagarFinal.disabled = false;
         btnPagarFinal.textContent = 'Pagar con Mercado Pago';
@@ -293,7 +287,7 @@
       if (!verifyData.ok) {
         let mensaje = "❌ No hay suficiente stock para:\n";
         verifyData.faltantes.forEach(item => {
-          mensaje += `- ${item.nombre} (talle: ${item.talle}): disponible ${item.stock_disponible}, solicitado ${item.cantidad_solicitada}\n`;
+          mensaje += `- ${item.nombre} (talle: ${item.talle}, color: ${item.color || 'unico'}): disponible ${item.stock_disponible}, solicitado ${item.cantidad_solicitada}\n`;
         });
         alert(mensaje);
 
@@ -347,7 +341,7 @@
           precio: precio,
           cantidad: cantidad,
           talle: item.talle || "",
-          color: item.color || "",
+          color: item.color || "",   // ✅ Ya estaba, pero lo dejamos
           id_base: item.id_base || "",
           grupo: item.grupo || "",
           subgrupo: item.subgrupo || "",
