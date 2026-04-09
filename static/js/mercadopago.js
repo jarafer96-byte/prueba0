@@ -347,6 +347,7 @@
           precio: precio,
           cantidad: cantidad,
           talle: item.talle || "",
+          color: item.color || "",
           id_base: item.id_base || "",
           grupo: item.grupo || "",
           subgrupo: item.subgrupo || "",
