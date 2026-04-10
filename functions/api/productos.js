@@ -18,13 +18,11 @@ export async function onRequest(context) {
     return fetch(`${backendUrl}${url.pathname}${url.search}`, request);
   }
 
-  // ✅ Construir URL de caché sin el parámetro '_'
+  // ✅ Construir URL de caché limpia
   const cacheUrl = new URL(url);
   cacheUrl.searchParams.delete('_');
-  const cacheKey = new Request(
-    `${cacheUrl.toString()}&vendor=${vendorEmail}`,
-    request
-  );
+  cacheUrl.searchParams.set('vendor', vendorEmail);
+  const cacheKey = new Request(cacheUrl.toString(), request);
   const cache = caches.default;
 
   // 1. Intentar obtener de caché
