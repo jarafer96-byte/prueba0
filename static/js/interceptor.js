@@ -58,20 +58,29 @@
     }
   }
 
-  // --- Interceptor fetch ---
+  // --- Interceptor fetch modificado ---
   const originalFetch = window.fetch;
   window.fetch = function(url, options = {}) {
     options.headers = options.headers || {};
     
-    // Redirigir rutas de backend a Render
     let finalUrl = url;
     const isRelative = !url.startsWith('http://') && !url.startsWith('https://');
+    
     if (isRelative) {
-      const shouldProxy = backendRoutes.some(route =>
-        url === route || (route.endsWith('/') && url.startsWith(route))
-      );
-      if (shouldProxy) {
-        finalUrl = API_BASE + url;
+      // ⭐ Excluir /api/productos de la redirección cuando NO hay token de admin
+      const isProductosAPI = url === '/api/productos' || url.startsWith('/api/productos?');
+      
+      if (isProductosAPI && !window.adminToken) {
+        // Mantener URL relativa para que Cloudflare Pages aplique caché edge
+        finalUrl = url;
+      } else {
+        // Para el resto de rutas de backend, redirigir a Render
+        const shouldProxy = backendRoutes.some(route =>
+          url === route || (route.endsWith('/') && url.startsWith(route))
+        );
+        if (shouldProxy) {
+          finalUrl = API_BASE + url;
+        }
       }
     }
 
