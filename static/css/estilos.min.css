@@ -9,9 +9,7 @@
   }
 }
 
-.flecha-izq, .flecha-der {
-  display: none !important;
-}
+
 .numero-producto-back {
     position: absolute;
     top: 10px;
