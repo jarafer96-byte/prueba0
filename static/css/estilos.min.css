@@ -1,9 +1,7 @@
 .toast-message {
   white-space: nowrap;  /* Evita que el texto se divida en varias líneas */
 }
-img:not([width]):not([height]) {
-  aspect-ratio: attr(width) / attr(height);
-}
+
 @media (max-width: 480px) {
   .toast-message {
     font-size: 1rem;      /* Reduce ligeramente la fuente */
@@ -232,7 +230,6 @@ img:not([width]):not([height]) {
 .producto-img {
   opacity: 0;
   transition: opacity 0.3s ease;
-  aspect-ratio: 300 / 180;
 }
 .producto-img.img-loaded {
   opacity: 1;
@@ -839,7 +836,7 @@ h1, h2, h3, .btn, .card { font-family: 'Raleway', sans-serif; }
   width: 100%;
   height: 100%;
   min-height: 100vh;
-  background-image: url('/static/img/mini_2_83838.webp');
+  background-image: url('/static/img/ciudad.webp');
   background-size: cover;
   background-position: center;
   z-index: -2;
@@ -953,7 +950,6 @@ h1, h2, h3, .btn, .card { font-family: 'Raleway', sans-serif; }
 
 .card-giratoria {
   perspective: 1000px;
-  min-height: 560px;
   height: 560px;
   width: 100%;
   overflow: hidden;
