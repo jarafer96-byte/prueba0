@@ -232,6 +232,7 @@ img:not([width]):not([height]) {
 .producto-img {
   opacity: 0;
   transition: opacity 0.3s ease;
+  aspect-ratio: 300 / 180;
 }
 .producto-img.img-loaded {
   opacity: 1;
