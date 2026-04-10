@@ -7,7 +7,6 @@ export async function onRequest(context) {
     return context.next();
   }
 
-  // 管理员请求不缓存
   if (request.headers.has('Authorization')) {
     const backendUrl = env.API_BACKEND_URL || 'https://mpagina.onrender.com';
     return fetch(`${backendUrl}${url.pathname}${url.search}`, request);
@@ -19,14 +18,19 @@ export async function onRequest(context) {
     return fetch(`${backendUrl}${url.pathname}${url.search}`, request);
   }
 
-  const cacheKey = new Request(`${url.toString()}&vendor=${vendorEmail}`, request);
+  // ✅ Construir URL de caché sin el parámetro '_'
+  const cacheUrl = new URL(url);
+  cacheUrl.searchParams.delete('_');
+  const cacheKey = new Request(
+    `${cacheUrl.toString()}&vendor=${vendorEmail}`,
+    request
+  );
   const cache = caches.default;
 
-  // ✅ 1. Intentar obtener de la caché del Worker, ignorando los headers de la petición
+  // 1. Intentar obtener de caché
   let cachedResponse = await cache.match(cacheKey);
   if (cachedResponse) {
-    console.log(`🎯 CACHE HIT (ignoring request cache-control) for ${vendorEmail}`);
-    // Clonar para poder añadir cabeceras de diagnóstico
+    console.log(`🎯 CACHE HIT for ${vendorEmail}`);
     const response = new Response(cachedResponse.body, cachedResponse);
     response.headers.set('X-Cache-Worker', 'HIT');
     return response;
@@ -34,7 +38,7 @@ export async function onRequest(context) {
 
   console.log(`🔄 CACHE MISS for ${vendorEmail}, fetching from Render`);
 
-  // 2. Si no está en caché, consultar a Render
+  // 2. Consultar a Render
   const backendUrl = env.API_BACKEND_URL || 'https://mpagina.onrender.com';
   const backendResponse = await fetch(`${backendUrl}${url.pathname}${url.search}`, request);
 
@@ -42,7 +46,7 @@ export async function onRequest(context) {
     return backendResponse;
   }
 
-  // 3. Limpiar cabeceras problemáticas
+  // 3. Limpiar headers
   const cleanHeaders = new Headers(backendResponse.headers);
   cleanHeaders.delete('set-cookie');
   cleanHeaders.set('vary', 'Accept-Encoding');
@@ -57,7 +61,7 @@ export async function onRequest(context) {
   responseToCache.headers.set('Cache-Tag', `vendor-${vendorEmail}`);
   responseToCache.headers.set('X-Cache-Worker', 'MISS');
 
-  // 4. Guardar en caché para futuras peticiones
+  // 4. Guardar en caché
   context.waitUntil(cache.put(cacheKey, responseToCache.clone()));
 
   return responseToCache;
