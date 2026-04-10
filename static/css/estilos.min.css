@@ -1,7 +1,9 @@
 .toast-message {
   white-space: nowrap;  /* Evita que el texto se divida en varias líneas */
 }
-
+img:not([width]):not([height]) {
+  aspect-ratio: attr(width) / attr(height);
+}
 @media (max-width: 480px) {
   .toast-message {
     font-size: 1rem;      /* Reduce ligeramente la fuente */
