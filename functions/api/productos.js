@@ -21,23 +21,36 @@ export async function onRequest(context) {
   const cacheKey = new Request(`${url.toString()}&vendor=${vendorEmail}`, request);
   const cache = caches.default;
 
-  // 🔁 Intentar obtener de caché primero, ignorando los headers de la petición
+  // 1. Intentar devolver desde caché
   let response = await cache.match(cacheKey);
   if (response) {
     return response;
   }
 
-  // No está en caché: consultar a Render
+  // 2. Consultar al backend
   const backendUrl = env.API_BACKEND_URL || 'https://mpagina.onrender.com';
-  response = await fetch(`${backendUrl}${url.pathname}${url.search}`, request);
+  const backendResponse = await fetch(`${backendUrl}${url.pathname}${url.search}`, request);
 
-  if (response.ok) {
-    const clonedResponse = new Response(response.body, response);
-    clonedResponse.headers.set('Cache-Control', 'public, max-age=300');
-    clonedResponse.headers.set('Cache-Tag', `vendor-${vendorEmail}`);
-    context.waitUntil(cache.put(cacheKey, clonedResponse.clone()));
-    return clonedResponse;
+  if (!backendResponse.ok) {
+    return backendResponse;
   }
 
-  return response;
+  // 3. Crear una respuesta limpia sin cookies y con Vary reducido
+  const cleanHeaders = new Headers(backendResponse.headers);
+  cleanHeaders.delete('set-cookie');                // Eliminar cualquier cookie
+  cleanHeaders.set('vary', 'Accept-Encoding');      // Simplificar Vary (o eliminar)
+
+  const cachedResponse = new Response(backendResponse.body, {
+    status: backendResponse.status,
+    statusText: backendResponse.statusText,
+    headers: cleanHeaders
+  });
+
+  cachedResponse.headers.set('Cache-Control', 'public, max-age=300');
+  cachedResponse.headers.set('Cache-Tag', `vendor-${vendorEmail}`);
+
+  // 4. Guardar en caché (sin esperar)
+  context.waitUntil(cache.put(cacheKey, cachedResponse.clone()));
+
+  return cachedResponse;
 }
