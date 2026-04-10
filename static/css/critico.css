@@ -6,6 +6,67 @@ html, body { position: relative; background-color: #64636d; min-height: 100vh; m
 body {
     font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
+/* 1. Prevenir CLS en todas las imágenes de producto */
+.producto-img {
+  aspect-ratio: 300 / 180;        /* Relación exacta de tus imágenes */
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  background-color: rgba(0,0,0,0.1); /* Color de fondo mientras carga */
+}
+
+/* 2. Ocultar imágenes hasta que estén completamente cargadas (efecto suave) */
+.producto-img:not([src]),
+.producto-img[src=""],
+.producto-img[data-src] {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.producto-img.loaded,
+.producto-img[src]:not([src=""]) {
+  opacity: 1;
+}
+
+/* 3. Estabilizar el contenedor del logo (ya lo tienes, pero asegura dimensiones) */
+.logo {
+  width: 80% !important;
+  height: 80% !important;
+  object-fit: contain !important;
+  aspect-ratio: attr(width) / attr(height); /* fallback si no tiene atributos */
+}
+
+/* 4. Evitar saltos en la barra de navegación */
+.barra-navegacion {
+  contain: layout style paint;
+  height: 60px;                    /* Altura fija para evitar cambios */
+}
+
+/* 5. Unificar y mejorar la pila de fuentes para evitar FOUT */
+body, button, input, select, textarea, .btn, .card, h1, h2, h3 {
+  font-family: 'Raleway', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-display: swap;
+}
+/* Elimina la regla duplicada de body que definía solo system-ui */
+body {
+  font-family: inherit;  /* o directamente la misma pila */
+}
+
+/* 6. Para las fotos adicionales (thumbnails) */
+.fotos-adicionales-grid img {
+  aspect-ratio: 1 / 1;
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  background-color: rgba(255,255,255,0.05);
+}
+
+/* 7. Suavizar la aparición de elementos asíncronos */
+.card-giratoria,
+.card-contenedor {
+  contain: layout style paint;
+  content-visibility: auto;        /* Mejora el rendimiento de renderizado */
+  contain-intrinsic-size: 300px 560px; /* Estimación de tamaño */
+}
 body.container.modo-oscuro { position: relative !important; border-radius: 40px !important; padding: 40px !important; margin: 0 auto !important; width: 100% !important; max-width: 1300px !important; box-sizing: border-box !important; }
 body.container.modo-oscuro::before {
   content: '';
