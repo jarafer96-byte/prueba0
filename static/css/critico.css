@@ -1,85 +1,8 @@
-/* ===== CRITICO.CSS COMPLETO Y CORREGIDO ===== */
-
-/* 1. CORRECCIÓN DE FUENTE (EVITA FOUT Y UNIFICA LA PILA) */
-body, button, input, select, textarea, .btn, .card, h1, h2, h3 {
-  font-family: 'Raleway', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  font-display: swap; /* Muestra texto inmediatamente con fuente de respaldo */
-}
-
-/* Eliminamos la regla conflictiva que sobreescribía body */
+html, body { position: relative; background-color: #64636d; min-height: 100vh; min-height: 100dvh; overflow-x: hidden; }
 body {
-  font-family: inherit; /* Hereda la pila de fuentes definida arriba */
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
-
-/* 2. ESTABILIZAR LAYOUT (PREVENIR CLS) */
-/* Imágenes de producto: reserva espacio con aspect-ratio */
-.producto-img {
-  aspect-ratio: 300 / 180;
-  width: 100%;
-  height: auto;
-  object-fit: contain;
-  background-color: rgba(0, 0, 0, 0.1); /* Placeholder mientras carga */
-  transition: opacity 0.2s ease;
-}
-
-/* Miniaturas de fotos adicionales */
-.fotos-adicionales-grid img {
-  aspect-ratio: 1 / 1;
-  width: 40px;
-  height: 40px;
-  object-fit: cover;
-  background-color: rgba(255, 255, 255, 0.05);
-}
-
-/* Barra de navegación: altura fija para evitar saltos */
-.barra-navegacion {
-  height: 60px;
-  contain: layout style paint;
-}
-
-/* Logo wrapper: fondo suave para evitar vacío visual */
-.logo-wrapper {
-  background-color: rgba(0, 0, 0, 0.1);
-  border-radius: 20px;
-}
-
-/* 3. SUAVIZAR APARICIÓN DE ELEMENTOS ASÍNCRONOS */
-.producto-img:not([src]),
-.producto-img[src=""],
-.producto-img[data-src] {
-  opacity: 0;
-}
-
-.producto-img.loaded,
-.producto-img[src]:not([src=""]) {
-  opacity: 1;
-}
-
-/* Opcional: mejora de rendimiento en tarjetas */
-.card-giratoria {
-  content-visibility: auto;
-  contain-intrinsic-size: 300px 560px; /* Estimación del tamaño real */
-}
-
-/* 4. REGLAS EXISTENTES (MANTENIDAS SIN CAMBIOS) */
-html, body {
-  position: relative;
-  background-color: #64636d;
-  min-height: 100vh;
-  min-height: 100dvh;
-  overflow-x: hidden;
-}
-
-body.container.modo-oscuro {
-  position: relative !important;
-  border-radius: 40px !important;
-  padding: 40px !important;
-  margin: 0 auto !important;
-  width: 100% !important;
-  max-width: 1300px !important;
-  box-sizing: border-box !important;
-}
-
+body.container.modo-oscuro { position: relative !important; border-radius: 40px !important; padding: 40px !important; margin: 0 auto !important; width: 100% !important; max-width: 1300px !important; box-sizing: border-box !important; }
 body.container.modo-oscuro::before {
   content: '';
   position: absolute;
@@ -91,10 +14,10 @@ body.container.modo-oscuro::before {
     linear-gradient(135deg, rgba(30, 41, 59, 0.4) 0%, rgba(15, 23, 42, 0.6) 100%),
     radial-gradient(circle at 15% 15%, rgba(139, 92, 246, 0.2) 0%, transparent 30%),
     radial-gradient(circle at 85% 85%, rgba(14, 165, 233, 0.2) 0%, transparent 30%);
+  
   border-radius: 40px;
   z-index: -1;
 }
-
 body.container.py-5.modo-oscuro {
   box-shadow: 
     0 50px 120px rgba(0, 0, 0, 0.8),
@@ -102,110 +25,25 @@ body.container.py-5.modo-oscuro {
     inset 0 4px 30px rgba(255, 255, 255, 0.1),
     inset 0 -4px 20px rgba(0, 0, 0, 0.4) !important;
 }
-
-.barra-navegacion {
-  position: fixed;
-  padding: 8px 10px;
-  gap: 8px;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(6px);
-  display: flex;
-  justify-content: center;
-  box-shadow: 0 2px 6px rgba(255, 255, 255, 0.1);
-}
-
-.barra-navegacion button {
-  font-family: 'Raleway', sans-serif;
-  font-weight: 600;
-  font-size: 14px;
-  padding: 8px 15px;
-  border-radius: 30px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.05);
-  color: white;
-  box-shadow: 0 0 6px rgba(255, 255, 255, 0.2);
+.barra-navegacion { position: fixed; padding: 8px 10px; gap: 8px; top: 0; left: 0; right: 0; z-index: 1000; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(6px); display: flex; justify-content: center; box-shadow: 0 2px 6px rgba(255, 255, 255, 0.1); }
+.barra-navegacion button { 
+  font-family: 'Raleway', sans-serif; 
+  font-weight: 600; 
+  font-size: 14px; 
+  padding: 8px 15px; 
+  border-radius: 30px; 
+  border: 1px solid rgba(255, 255, 255, 0.2); 
+  background: rgba(255, 255, 255, 0.05); 
+  color: white; 
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.2); 
   transition: transform 0.3s ease, background-color 0.2s ease, color 0.2s ease;
-  will-change: transform;
+  will-change: transform; 
 }
-
-.descripcion-emprendimiento {
-  height: 120px !important;
-  min-height: 120px !important;
-  max-height: 120px !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
-  text-align: center !important;
-  width: fit-content !important;
-  max-width: 90% !important;
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  justify-content: center !important;
-  padding: 15px !important;
-  box-sizing: border-box !important;
-  overflow: hidden !important;
-  contain: layout style paint !important;
-  font-size: 16px !important;
-  line-height: 1.6 !important;
-  background-color: rgba(0, 0, 0, 0.5) !important;
-  color: white !important;
-  border-radius: 10px !important;
-  box-shadow: 0 0 6px rgba(255, 255, 255, 0.3) !important;
-}
-
+.descripcion-emprendimiento { height: 120px !important; min-height: 120px !important; max-height: 120px !important; margin-left: auto !important; margin-right: auto !important; text-align: center !important; width: fit-content !important; max-width: 90% !important; display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; padding: 15px !important; box-sizing: border-box !important; overflow: hidden !important; contain: layout style paint !important; font-size: 16px !important; line-height: 1.6 !important; background-color: rgba(0, 0, 0, 0.5) !important; color: white !important; border-radius: 10px !important; box-shadow: 0 0 6px rgba(255,255,255,0.3) !important; }
 @media (max-width: 768px) {
-  #ubicacion, .bloque-ubicacion {
-    flex-wrap: wrap !important;
-    gap: 5px !important;
-    padding: 10px !important;
-    height: auto !important;
-    min-height: 95px !important;
-    max-width: 95% !important;
-  }
-  .descripcion-emprendimiento {
-    height: auto !important;
-    min-height: 100px !important;
-    padding: 12px !important;
-    font-size: 14px !important;
-    line-height: 1.5 !important;
-    max-width: 95% !important;
-  }
-}
-
-.logo-wrapper {
-  width: 100%;
-  max-width: 230px;
-  height: min(80vw, 230px);
-  margin: 2rem auto !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  contain: layout style paint !important;
-}
-
-.logo {
-  width: 80% !important;
-  height: 80% !important;
-  max-width: 80% !important;
-  max-height: 80% !important;
-  object-fit: contain !important;
-  filter: brightness(1.2) drop-shadow(0 0 10px black);
-  transition: filter 0.3s ease;
-  animation: pulsoLogo 4s ease-in-out infinite;
-}
-
-.barra-navegacion button:hover {
-  background-color: #fff;
-  color: #333;
-  transform: scale(1.05);
-}
-
-/* 5. ANIMACIÓN DEL LOGO (ASEGURAR QUE EXISTA) */
-@keyframes pulsoLogo {
-  0%, 100% { filter: brightness(1.2) drop-shadow(0 0 10px black); }
-  50% { filter: brightness(1.5) drop-shadow(0 0 20px rgba(255, 255, 255, 0.5)); }
-}
+  #ubicacion, .bloque-ubicacion { flex-wrap: wrap !important; gap: 5px !important; padding: 10px !important; height: auto !important; min-height: 95px !important; max-width: 95% !important; }
+  .descripcion-emprendimiento { height: auto !important; min-height: 100px !important; padding: 12px !important; font-size: 14px !important; line-height: 1.5 !important; max-width: 95% !important; }
+}  
+.logo-wrapper {  width: 100%; max-width: 230px;  height: min(80vw, 230px); margin: 2rem auto !important; display: flex !important; align-items: center !important; justify-content: center !important; contain: layout style paint !important; }
+.logo { width: 80% !important; height: 80% !important;  max-width: 80% !important; max-height: 80% !important; object-fit: contain !important; filter: brightness(1.2) drop-shadow(0 0 10px black); transition: filter 0.3s ease; animation: pulsoLogo 4s ease-in-out infinite; }
+.barra-navegacion button:hover { background-color: #fff; color: #333; transform: scale(1.05); }  
