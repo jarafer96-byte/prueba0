@@ -6,12 +6,11 @@ export async function onRequest(context) {
 
   // Solo cachear GET /api/productos
   if (method !== 'GET' || url.pathname !== '/api/productos') {
-    return next(); // No debería llegar aquí por el enrutamiento, pero por seguridad
+    return next();
   }
 
   // No cachear si es una petición de administrador (tiene token JWT)
   if (request.headers.has('Authorization')) {
-    // Reenviar directamente a Render sin cachear
     const backendUrl = env.API_BACKEND_URL || 'https://mpagina.onrender.com';
     return fetch(`${backendUrl}${url.pathname}${url.search}`, request);
   }
@@ -19,7 +18,6 @@ export async function onRequest(context) {
   // Obtener el email del vendedor (necesario para la clave de caché)
   const vendorEmail = request.headers.get('X-Vendor-Email');
   if (!vendorEmail) {
-    // Si no hay email, reenviar a Render (no cachear)
     const backendUrl = env.API_BACKEND_URL || 'https://mpagina.onrender.com';
     return fetch(`${backendUrl}${url.pathname}${url.search}`, request);
   }
@@ -34,19 +32,31 @@ export async function onRequest(context) {
   // Intentar obtener respuesta desde caché
   let response = await cache.match(cacheKey);
   if (!response) {
-    // Consultar a Render
     const backendUrl = env.API_BACKEND_URL || 'https://mpagina.onrender.com';
     response = await fetch(`${backendUrl}${url.pathname}${url.search}`, request);
-    // Clonar para poder modificar headers
-    response = new Response(response.body, response);
-    // Establecer TTL de 5 minutos (300 segundos)
-    response.headers.set('Cache-Control', 'public, max-age=300');
-    // Opcional: agregar un tag para purga granular (si se usa)
-    response.headers.set('Cache-Tag', `vendor-${vendorEmail}`);
-    // Almacenar en caché de Cloudflare
-    context.waitUntil(cache.put(cacheKey, response.clone()));
+
+    // ✅ Solo cachear si la respuesta es exitosa (2xx)
+    if (response.ok) {
+      // Clonar la respuesta para poder modificar headers
+      const clonedResponse = new Response(response.body, response);
+      clonedResponse.headers.set('Cache-Control', 'public, max-age=300');
+      clonedResponse.headers.set('Cache-Tag', `vendor-${vendorEmail}`);
+
+      // Almacenar en caché de Cloudflare (sin bloquear la respuesta)
+      context.waitUntil(cache.put(cacheKey, clonedResponse.clone()));
+
+      // Opcional: log en consola de Functions
+      // console.log(`✅ Cache MISS para ${vendorEmail} (status: ${response.status})`);
+
+      return clonedResponse;
+    } else {
+      // No cachear errores; devolver la respuesta original
+      // console.warn(`⚠️ No se cachea respuesta ${response.status} para ${vendorEmail}`);
+      return response;
+    }
   }
 
-  // Devolver respuesta (desde caché o desde Render)
+  // Opcional: log de HIT
+  // console.log(`🎯 Cache HIT para ${vendorEmail}`);
   return response;
 }
