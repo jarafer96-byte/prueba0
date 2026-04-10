@@ -18,11 +18,13 @@ export async function onRequest(context) {
     return fetch(`${backendUrl}${url.pathname}${url.search}`, request);
   }
 
-  // ✅ Construir URL de caché limpia
+  // Construir URL de caché limpia
   const cacheUrl = new URL(url);
   cacheUrl.searchParams.delete('_');
   cacheUrl.searchParams.set('vendor', vendorEmail);
-  const cacheKey = new Request(cacheUrl.toString(), request);
+
+  // ✅ Crear Request solo con la URL, sin headers
+  const cacheKey = new Request(cacheUrl.toString());
   const cache = caches.default;
 
   // 1. Intentar obtener de caché
@@ -44,7 +46,7 @@ export async function onRequest(context) {
     return backendResponse;
   }
 
-  // 3. Limpiar headers
+  // 3. Limpiar headers problemáticos
   const cleanHeaders = new Headers(backendResponse.headers);
   cleanHeaders.delete('set-cookie');
   cleanHeaders.set('vary', 'Accept-Encoding');
