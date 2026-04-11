@@ -1,3 +1,77 @@
+/* Contenedor de skeletons (mismo grid que los productos reales) */
+.skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  margin-top: 30px;
+}
+
+/* Tarjeta esqueleto individual */
+.skeleton-card {
+  height: 560px;           /* ⚠️ MISMA ALTURA que .card-giratoria (560px) */
+  background: linear-gradient(145deg, #1e1e2f 0%, #2a2a3a 100%);
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+/* Efecto de brillo móvil (shimmer) */
+.skeleton-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 150%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent, 
+    rgba(255, 255, 255, 0.08), 
+    transparent);
+  animation: skeleton-shimmer 1.2s infinite;
+}
+
+@keyframes skeleton-pulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
+}
+
+@keyframes skeleton-shimmer {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(200%); }
+}
+
+/* Asegura que el contenedor de productos tenga un mínimo de altura 
+   (respaldo por si los skeletons fallan) */
+#productos {
+  min-height: 560px;
+}
+
+/* Si usas el loader viejo (spinner) como respaldo, que no genere CLS */
+#initial-loader {
+  min-height: 560px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.5);
+  border-radius: 16px;
+}
+
+/* Opcional: mejora la experiencia en móvil */
+@media (max-width: 768px) {
+  .skeleton-card {
+    height: 540px;   /* si tus tarjetas reales en móvil son más bajas, ajustá */
+  }
+  .skeleton-grid {
+    gap: 15px;
+  }
+}
+
+
+
+
 .toast-message {
   white-space: nowrap;  /* Evita que el texto se divida en varias líneas */
 }
