@@ -65,24 +65,24 @@
   </div>
 
         
-  <!-- Barra superior fija -->
-<div class="barra-superior">
-  <button id="btnProductosNav" class="btn-nav">Productos</button>
-  <button id="btnContactoNav" class="btn-nav">Contacto</button>
-</div>
+  <div class="barra-wrapper">
+      <nav class="barra-navegacion">
+        <button id="btnProductosNav" class="btn-nav">Productos</button>
+        <button id="btnContactoNav" class="btn-nav">Contacto</button>
+      </nav>
+    
+      <div class="contenedor-panel">
+          <button class="flecha-scroll flecha-izq flecha-oculta">‹</button>
+          <div id="panelGrupos" class="panel-grupos oculta"></div>
+          <button class="flecha-scroll flecha-der flecha-oculta">›</button>
+      </div>
 
-<!-- Sidebar izquierdo (oculto por defecto) -->
-<div id="sidebar" class="sidebar oculta">
-  <div class="sidebar-header">
-    <button id="closeSidebar" class="close-sidebar">✖</button>
-    <h3>Categorías</h3>
+      <div class="contenedor-panel">
+          <button class="flecha-scroll flecha-izq flecha-oculta">‹</button>
+          <div id="panelSubcategorias" class="panel-subcategorias oculta"></div>
+          <button class="flecha-scroll flecha-der flecha-oculta">›</button>
+      </div>
   </div>
-  <div id="panelGrupos" class="panel-grupos-vertical"></div>
-  <div id="panelSubcategorias" class="panel-subcategorias-vertical"></div>
-</div>
-
-<!-- Overlay para cerrar el sidebar al hacer clic fuera -->
-<div id="sidebarOverlay" class="sidebar-overlay oculta"></div>
 
         
   <div id="productos" class="row productos-container"></div>
