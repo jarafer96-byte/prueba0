@@ -1,4 +1,10 @@
 html, body { position: relative; background-color: #64636d; min-height: 100vh; min-height: 100dvh; overflow-x: hidden; }
+html {
+  overflow-y: scroll;  /* fuerza la barra de scroll siempre, aunque no haga falta */
+}
+body {
+  margin-right: calc(100vw - 100%); /* evita el desplazamiento por la barra */
+}
 body {
     font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
