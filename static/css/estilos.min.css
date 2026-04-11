@@ -1313,8 +1313,8 @@ h1, h2, h3, .btn, .card { font-family: 'Raleway', sans-serif; }
 
 #ubicacion, .bloque-ubicacion {
   height: 80px;
-  min-height: 95px;
-  max-height: 80px;
+  min-height: 80px;
+  max-height: 95px;
   display: flex;
   align-items: center;
   justify-content: center;
