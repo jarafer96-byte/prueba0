@@ -774,21 +774,6 @@ h1, h2, h3, .btn, .card { font-family: 'Raleway', sans-serif; }
   background-color: #0d6efd;
   border-color: #0d6efd;
 }
-.form-select {
-  display: block;
-  width: 100%;
-  font-weight: 400;
-  line-height: 1.5;
-  color: #212529;
-  background-color: #fff;
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
-  background-repeat: no-repeat;
-  background-position: right 0.75rem center;
-  background-size: 16px 12px;
-  border: 1px solid #ced4da;
-  border-radius: 0.25rem;
-  appearance: none;
-}  
 
 .subgrupo-btn.active {
   background-color: #007bff !important;
@@ -1378,7 +1363,6 @@ h1, h2, h3, .btn, .card { font-family: 'Raleway', sans-serif; }
 .mt-5 { margin-top: 3rem; }
 .mb-1 { margin-bottom: 0.25rem; }
 .d-inline-block { display: inline-block; }
-.w-auto { width: auto; }
 .d-none { display: none; }
 .btn-sm {
   padding: 0.25rem 0.5rem;
@@ -1387,7 +1371,6 @@ h1, h2, h3, .btn, .card { font-family: 'Raleway', sans-serif; }
 }
 .form-select {
   display: block;
-  width: 100%;
   font-weight: 400;
   line-height: 1.5;
   color: #212529;
