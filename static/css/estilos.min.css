@@ -357,15 +357,6 @@
 .producto-cantidad {
   width: 70px !important;
 }
-
-/* Reverso de la tarjeta */
-.card-back {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  position: relative;
-}
-
 /* Botón reversa */
 .btn-reversa {
   position: absolute;
@@ -876,6 +867,10 @@ h1, h2, h3, .btn, .card { font-family: 'Raleway', sans-serif; }
   align-items: center;
   text-align: center;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
 }
 .btn-girar,
 .btn-reversa {
