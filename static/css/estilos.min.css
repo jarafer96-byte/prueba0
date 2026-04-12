@@ -37,6 +37,18 @@
   pointer-events: auto;
   transition: none;
 }
+.panel-grupos:not(.oculta),
+.panel-subcategorias:not(.oculta) {
+  transform: translateY(0);
+  opacity: 1;
+  visibility: visible;
+}
+.panel-grupos:not(.oculta) {
+  animation: slideDown 0.3s ease-out;
+}
+.panel-subcategorias:not(.oculta) {
+  animation: slideDown 0.4s ease-out 0.1s both;
+}
 @keyframes slideDown {
   from {
     transform: translateY(-10px);
@@ -47,6 +59,7 @@
     opacity: 1;
   }
 }
+.oculta { display: none !important; }
 /* Animación del logo (solo la parte de pulso, la base ya está en crítico) */
 .logo {
   transition: filter 0.3s ease;
