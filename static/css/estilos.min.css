@@ -227,10 +227,6 @@
   cursor: pointer;
 }
 /* Opcional: si la imagen no tiene ya una clase base, puedes añadirle transición */
-.producto-img {
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
 .producto-img.img-loaded {
   opacity: 1;
 }
