@@ -1824,50 +1824,51 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ============================================================
-  // 8. EVENTO CLICK EN EL LOGO (animación)
+  // EVENTO CLICK EN EL LOGO (animación con estilos dinámicos)
   // ============================================================
-  const logoElement = document.querySelector('.logo');
-  if (logoElement) {
-    logoElement.addEventListener('click', function() {
-      if (this.classList.contains('logo-anim-start') || this.classList.contains('logo-anim-return')) return;
-
+  document.querySelector('.logo').addEventListener('click', function() {
       const logo = this;
-    
-      // FASE 1: Girar 360° (entrada)
-      logo.classList.add('logo-anim-start');
 
-      // Mostrar mensaje
+      // Evita múltiples clics durante la animación
+      if (logo.style.pointerEvents === 'none') return;
+
+      // --- FASE 1: Girar 360° y atenuar ---
+      logo.style.pointerEvents = 'none';
+      logo.style.transition = 'transform 0.8s cubic-bezier(0.2, 0.9, 0.4, 1.1), opacity 0.4s ease';
+      logo.style.transform = 'rotateY(360deg)';
+      logo.style.opacity = '0.7';
+
+      // --- Mostrar mensaje flotante (usa clases CSS existentes) ---
       const mensaje = document.createElement('div');
       mensaje.textContent = 'Gracias por la visita! ❤️';
       mensaje.className = 'toast-message';
       document.body.appendChild(mensaje);
-    
-      setTimeout(() => mensaje.classList.add('toast-message-visible'), 10);
-    
-      // Ocultar mensaje después de 2 segundos
+
+      // Pequeño delay para activar la animación de entrada del mensaje
       setTimeout(() => {
-        mensaje.classList.remove('toast-message-visible');
-        setTimeout(() => mensaje.remove(), 500);
+          mensaje.classList.add('toast-message-visible');
+      }, 10);
+
+      // Ocultar y eliminar el mensaje después de 2 segundos
+      setTimeout(() => {
+          mensaje.classList.remove('toast-message-visible');
+          setTimeout(() => mensaje.remove(), 500);
       }, 2000);
 
-      // FASE 2: Después de que termine el primer giro (0.8s) + duración del mensaje (2s) = 2.8s
-      // Iniciamos el giro de regreso
+      // --- FASE 2: Regresar a la posición original (después del mensaje) ---
       setTimeout(() => {
-        logo.classList.remove('logo-anim-start');
-        logo.classList.add('logo-anim-return');  // ← ¡Segundo giro!
-      
-        // FASE 3: Cuando termine el segundo giro (0.8s después), resetear todo
-        setTimeout(() => {
-          logo.classList.remove('logo-anim-return');
-          logo.classList.add('logo-anim-end');
-          // Opcional: quitar logo-anim-end después de un frame
-          setTimeout(() => logo.classList.remove('logo-anim-end'), 100);
-        }, 800);
-      
-      }, 2800); // 800 (primer giro) + 2000 (mensaje visible)
-    });
-  }
-  // ============================================================
+          logo.style.transform = 'rotateY(0deg)';
+          logo.style.opacity = '1';
+
+          // Restaurar interactividad y limpiar estilos inline al terminar la transición
+          setTimeout(() => {
+              logo.style.pointerEvents = 'auto';
+              logo.style.transition = '';
+              // Remueve clases residuales por si acaso
+              logo.classList.remove('logo-anim-start', 'logo-anim-return', 'logo-anim-end');
+          }, 800); // Misma duración que la transición
+      }, 2800); // 800ms (giro ida) + 2000ms (mensaje visible)
+  });
   // 9. CAMBIO DE TALLE (actualizar stock)
   // ============================================================
   document.addEventListener('change', (e) => {
