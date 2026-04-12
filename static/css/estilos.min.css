@@ -559,17 +559,17 @@
   cursor: pointer;
 }
 .logo-anim-start {
-  transform: rotateY(360deg) !important;
-  transition: transform 0.8s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+    transform: rotateY(360deg) !important;
+    transition: transform 0.8s cubic-bezier(0.2, 0.9, 0.4, 1.1);
 }
 
 .logo-anim-return {
-  transform: rotateY(360deg) !important;
-  transition: transform 0.8s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+    transform: rotateY(0deg) !important;   /* ← Cambiado: vuelve a la posición original */
+    transition: transform 0.8s cubic-bezier(0.2, 0.9, 0.4, 1.1);
 }
 
 .logo-anim-end {
-  transform: rotateY(0deg) !important;
+    transform: rotateY(0deg) !important;
 }
 .toast-message {
   position: fixed;
