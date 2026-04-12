@@ -10,7 +10,6 @@
   50% { transform: scale(1.02); }
   100% { transform: scale(1); }
 }
-
 /* Efecto hover de los botones de navegación (la barra ya está en crítico) */
 .barra-navegacion button:hover {
   background-color: #fff;
@@ -228,6 +227,16 @@
   background: linear-gradient(90deg, #3e5a6c, #2c3e50);
   transform: translateY(-2px);
   box-shadow: 0 6px 12px -8px black;
+}
+.btn-info {
+    background-color: #17a2b8 !important;
+    border-color: #17a2b8 !important;
+    color: #fff !important;
+}
+.btn-sm {
+    padding: 0.25rem 0.5rem !important;
+    font-size: 0.875rem !important;
+    border-radius: 0.2rem !important;
 }
 .btn-sin-stock {
   opacity: 0.5;
