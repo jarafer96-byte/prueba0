@@ -107,7 +107,6 @@
   background-color: rgba(0,0,0,0.6);
   border: 1px solid rgba(255,255,255,0.2);
   box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-  border-radius: 16px;
 }
 .card-back {
   transform: rotateY(180deg);
