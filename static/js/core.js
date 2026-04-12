@@ -1829,34 +1829,42 @@ document.addEventListener('DOMContentLoaded', () => {
   const logoElement = document.querySelector('.logo');
   if (logoElement) {
     logoElement.addEventListener('click', function() {
-      // ✅ Verificar si ya está animando
-      if (this.classList.contains('logo-anim-start')) return;
+      if (this.classList.contains('logo-anim-start') || this.classList.contains('logo-anim-return')) return;
 
       const logo = this;
+    
+      // FASE 1: Girar 360° (entrada)
       logo.classList.add('logo-anim-start');
 
+      // Mostrar mensaje
       const mensaje = document.createElement('div');
       mensaje.textContent = 'Gracias por la visita! ❤️';
       mensaje.className = 'toast-message';
       document.body.appendChild(mensaje);
-
+    
+      setTimeout(() => mensaje.classList.add('toast-message-visible'), 10);
+    
+      // Ocultar mensaje después de 2 segundos
       setTimeout(() => {
-        mensaje.classList.add('toast-message-visible');
-        setTimeout(() => {
-          mensaje.classList.remove('toast-message-visible');
-          setTimeout(() => {
-            mensaje.remove();
-          }, 500);
-        }, 2000);
-      }, 400);
+        mensaje.classList.remove('toast-message-visible');
+        setTimeout(() => mensaje.remove(), 500);
+      }, 2000);
 
+      // FASE 2: Después de que termine el primer giro (0.8s) + duración del mensaje (2s) = 2.8s
+      // Iniciamos el giro de regreso
       setTimeout(() => {
         logo.classList.remove('logo-anim-start');
-        logo.classList.add('logo-anim-end');
+        logo.classList.add('logo-anim-return');  // ← ¡Segundo giro!
+      
+        // FASE 3: Cuando termine el segundo giro (0.8s después), resetear todo
         setTimeout(() => {
-          logo.classList.remove('logo-anim-end');
+          logo.classList.remove('logo-anim-return');
+          logo.classList.add('logo-anim-end');
+          // Opcional: quitar logo-anim-end después de un frame
+          setTimeout(() => logo.classList.remove('logo-anim-end'), 100);
         }, 800);
-      }, 2600);
+      
+      }, 2800); // 800 (primer giro) + 2000 (mensaje visible)
     });
   }
   // ============================================================
