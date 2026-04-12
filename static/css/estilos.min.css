@@ -297,7 +297,6 @@
   align-items: center;
   z-index: 10000;
 }
-
 .modal-hidden {
   display: none !important;
 }
@@ -578,20 +577,6 @@
 }
 .login-form-hidden {
   display: none !important;
-}
-
-/* Estilos para el modal de imagen (reemplaza style="display:none; max-width:90%; max-height:90%;" y el fondo) */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.8);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 10000;
 }
 
 .modal-img {
