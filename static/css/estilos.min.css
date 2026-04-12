@@ -318,6 +318,21 @@
   font-size: 1.40rem !important;
   margin-bottom: 10px;
 }
+#carrito {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    padding: 15px;
+    border-radius: 10px;
+    width: 320px;
+    z-index: 999;
+    display: none;
+}
+.modo-oscuro #carrito {
+    background-color: rgb(33 36 40);
+    color: white;
+    backdrop-filter: blur(120px);
+}
 #listaCarrito {
   list-style: none;
   padding: 0;
