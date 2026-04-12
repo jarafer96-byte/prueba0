@@ -22,6 +22,21 @@
   will-change: transform, box-shadow;
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
 }
+.card-pressed {
+  transform: scale(0.98);
+}
+.logo-anim-start {
+  pointer-events: none;
+  transition: transform 0.8s ease, opacity 0.4s ease;
+  transform: rotateY(360deg);
+  opacity: 0.7;
+}
+.logo-anim-end {
+  transform: rotateY(0deg);
+  opacity: 1;
+  pointer-events: auto;
+  transition: none;
+}
 /* Animación del logo (solo la parte de pulso, la base ya está en crítico) */
 .logo {
   transition: filter 0.3s ease;
