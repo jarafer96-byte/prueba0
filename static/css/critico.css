@@ -156,22 +156,32 @@ body.container.modo-oscuro::before {
   margin-top: 60px;
 }
 /* Carrito */
+.carrito-contador {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #888;
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  padding: 0 4px;
+  margin-left: 4px;
+  transition: background 0.2s;
+}
 #toggleCarrito {
-  position: fixed !important;
-  bottom: 20px !important;
-  right: 20px !important;
-  z-index: 1000 !important;
-  padding: 10px 18px !important;
-  border-radius: 50px !important;
-  font-weight: bold !important;
-  background: rgba(0, 0, 0, 0.85) !important;
-  color: white !important;
-  border: 1px solid rgba(255,255,255,0.3) !important;
-  cursor: pointer !important;
-  box-shadow: 0 0 10px rgba(0,0,0,0.5) !important;
-  backdrop-filter: blur(4px) !important;
-  font-family: 'Raleway', sans-serif !important;
-  transition: all 0.2s ease !important;
+  position: fixed;
+  border: black;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  padding: 10px 14px;
+  border-radius: 50px;
+  font-weight: bold;
+  box-shadow: 0 0 5px black;
+  cursor: pointer;
 }
 #toggleCarrito:hover {
   transform: scale(1.05);
