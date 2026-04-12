@@ -654,21 +654,6 @@
   display: none !important;
 }
 
-/* Estilos para los botones de navegación (reemplaza los estilos que tenían inline en .barra-navegacion button) */
-.btn-nav {
-  font-family: 'Raleway', sans-serif;
-  font-weight: 600;
-  font-size: 14px;
-  padding: 8px 15px;
-  border-radius: 30px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.05);
-  color: white;
-  box-shadow: 0 0 6px rgba(255, 255, 255, 0.2);
-  transition: transform 0.3s ease, background-color 0.2s ease, color 0.2s ease;
-  cursor: pointer;
-}
-
 .btn-nav:hover {
   background-color: #fff;
   color: #333;
