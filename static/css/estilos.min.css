@@ -2,6 +2,9 @@
 .productos-container, #productos {
     margin-top: 38px;
 }
+.card-body {
+    padding-top: 1rem !important;
+}
 /* Animación del logo (solo la parte de pulso, la base ya está en crítico) */
 .logo {
   transition: filter 0.3s ease;
