@@ -164,8 +164,16 @@ function getVersionUrl(originalUrl, size) {
 function mostrarSkeletons() {
   const contenedor = document.getElementById("productos");
   if (!contenedor) return;
-  // Genera 6 skeletons (puedes ajustar la cantidad)
-  const skeletons = Array(6).fill().map(() => '<div class="skeleton-card"></div>').join('');
+
+  // Detecta si es pantalla de escritorio (ancho >= 768px)
+  const esDesktop = window.matchMedia("(min-width: 768px)").matches;
+  const cantidad = esDesktop ? 12 : 6;   // 12 para PC, 6 para móvil
+
+  const skeletons = Array(cantidad)
+    .fill()
+    .map(() => '<div class="skeleton-card"></div>')
+    .join('');
+
   contenedor.innerHTML = `<div class="skeleton-grid">${skeletons}</div>`;
 }
 
