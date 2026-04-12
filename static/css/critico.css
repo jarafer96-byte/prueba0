@@ -152,9 +152,14 @@ body.container.py-5.modo-oscuro {
 
 .skeleton-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: 1fr;
   gap: 20px;
   margin-top: 30px;
+}
+@media (min-width: 768px) {
+  .skeleton-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 .skeleton-card {
