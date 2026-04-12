@@ -765,11 +765,6 @@ h1, h2, h3, .btn, .card { font-family: 'Raleway', sans-serif; }
   font-size: 0.875rem !important;
   border-radius: 0.2rem !important;
 }
-.btn-primary {
-  color: #fff;
-  background-color: #0d6efd;
-  border-color: #0d6efd;
-}
 
 .subgrupo-btn.active {
   background-color: #007bff !important;
