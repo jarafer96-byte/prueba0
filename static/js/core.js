@@ -19,43 +19,6 @@ if (adminToken) {
     window.modoAdmin = true;
 }
 
-
-
-// Abrir sidebar al hacer clic en "Productos"
-const btnProductos = document.getElementById('btnProductosNav');
-const sidebar = document.getElementById('sidebar');
-const overlay = document.getElementById('sidebarOverlay');
-const closeBtn = document.getElementById('closeSidebar');
-
-function openSidebar() {
-  sidebar.classList.add('visible');
-  overlay.classList.add('visible');
-  // Opcional: cerrar el sidebar si se hace clic en el overlay
-}
-
-function closeSidebar() {
-  sidebar.classList.remove('visible');
-  overlay.classList.remove('visible');
-}
-
-if (btnProductos) {
-  btnProductos.addEventListener('click', openSidebar);
-}
-if (closeBtn) {
-  closeBtn.addEventListener('click', closeSidebar);
-}
-if (overlay) {
-  overlay.addEventListener('click', closeSidebar);
-}
-
-// Cerrar sidebar con la tecla ESC
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape' && sidebar && sidebar.classList.contains('visible')) {
-    closeSidebar();
-  }
-});
-
-
 function cambiarPaso(paso) {
   const pasoCarrito = document.getElementById('pasoCarrito');
   const pasoDireccion = document.getElementById('pasoDireccion');
