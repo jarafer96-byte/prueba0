@@ -137,8 +137,7 @@ body.container.py-5.modo-oscuro {
   max-height: 80% !important;
   object-fit: contain !important;
   filter: brightness(1.2) drop-shadow(0 0 10px black);
-  transition: filter .3s;
-  animation: 4s ease-in-out infinite pulsoLogo;
+  transition: transform 0.8s cubic-bezier(0.2, 0.9, 0.4, 1.1);
 }
 
 .barra-navegacion button:hover {
