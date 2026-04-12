@@ -347,9 +347,6 @@
 .producto-img {
   width: 100%;
   height: 180px;
-  object-fit: contain;
-  border-radius: 4px;
-  cursor: pointer;
 }
 
 /* Cuerpo de la tarjeta */
