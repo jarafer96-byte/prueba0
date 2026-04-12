@@ -1360,11 +1360,6 @@ h1, h2, h3, .btn, .card { font-family: 'Raleway', sans-serif; }
 .mb-1 { margin-bottom: 0.25rem; }
 .d-inline-block { display: inline-block; }
 .d-none { display: none; }
-.btn-sm {
-  padding: 0.25rem 0.5rem;
-  font-size: 0.875rem;
-  border-radius: 0.2rem;
-}
 .form-select {
   display: block;
   font-weight: 400;
