@@ -1,7 +1,3 @@
-.logo-anim-return {
-  transform: rotateY(360deg) !important;
-  transition: transform 0.8s cubic-bezier(0.2, 0.9, 0.4, 1.1), opacity 0.4s ease;
-}
 .toast-message {
   white-space: nowrap;  /* Evita que el texto se divida en varias líneas */
 }
@@ -567,6 +563,10 @@
   transition: transform 0.8s ease, opacity 0.4s ease;
   transform: rotateY(360deg);
   opacity: 0.7;
+}
+.logo-anim-return {
+  transform: rotateY(360deg) !important;
+  transition: transform 0.8s cubic-bezier(0.2, 0.9, 0.4, 1.1), opacity 0.4s ease;
 }
 
 .logo-anim-end {
