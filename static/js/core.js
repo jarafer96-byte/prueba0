@@ -1843,7 +1843,7 @@ document.addEventListener('DOMContentLoaded', () => {
       logo.classList.add('logo-anim-start');
       setTimeout(() => {
           logo.classList.remove('logo-anim-start');
-      }, 2800);
+      }, 2100);
   });
   // 9. CAMBIO DE TALLE (actualizar stock)
   // ============================================================
