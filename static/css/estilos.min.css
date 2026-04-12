@@ -271,7 +271,12 @@
 .info-hidden { display: none; }
 .colores-info, .talles-info {
   font-size: 0.9rem;
+  color: white !important;
   margin: 5px 0;
+}
+.card-front, .card-back,
+.card-front *, .card-back * {
+  color: white !important;
 }
 .card-back-footer {
   padding: 15px;
