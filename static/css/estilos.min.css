@@ -13,6 +13,15 @@
     padding-top: 10px;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
+.card-front:hover img {
+    transform: scale(1.02);
+    filter: brightness(1.05) contrast(1.02);
+}
+.card:hover, .card-giratoria:hover {
+  transform: translateY(-5px);
+  will-change: transform, box-shadow;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+}
 /* Animación del logo (solo la parte de pulso, la base ya está en crítico) */
 .logo {
   transition: filter 0.3s ease;
