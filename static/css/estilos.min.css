@@ -303,8 +303,6 @@
 }
 
 /* Carrito completo (excluyendo lo crítico como #toggleCarrito y .carrito-contador base) */
-.carrito-contador-gris { background: #888; }
-.carrito-contador-naranja { background: #ff4757; }
 .pop-animation {
   animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
@@ -313,21 +311,6 @@
   30% { transform: scale(1.4); }
   60% { transform: scale(0.95); }
   100% { transform: scale(1); }
-}
-#carrito {
-  position: fixed;
-  bottom: 80px;
-  right: 20px;
-  padding: 15px;
-  border-radius: 10px;
-  width: 320px;
-  z-index: 999;
-  display: none;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  color: #333;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-  border: 1px solid rgba(0,0,0,0.1);
 }
 #carrito.carrito-visible { display: block; }
 #carrito.carrito-hidden { display: none; }
