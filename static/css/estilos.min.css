@@ -78,12 +78,10 @@
 .flecha-oculta { display: none !important; }
 
 /* Tarjetas de producto (completas) */
-.card-giratoria {
-  perspective: 1000px;
-  height: 560px;
-  width: 100%;
-  overflow: hidden;
-  background: transparent !important;
+.card, .card-giratoria {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    contain: content;
+    padding: 12px;
 }
 .card-contenedor {
   position: relative;
