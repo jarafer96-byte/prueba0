@@ -1101,7 +1101,7 @@ window.matchMedia("(max-width: 767px)").addEventListener('change', (e) => {
 
 
 
-function eliminarDelCarrito(id_base, talle, event) {
+function eliminarDelCarrito(id_base, talle, color, event) {
   if (event?.stopPropagation) event.stopPropagation();
 
   window.carrito = window.carrito.filter(p => {
