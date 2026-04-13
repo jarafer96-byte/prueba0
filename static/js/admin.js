@@ -1033,11 +1033,19 @@ function getCurrentSelectedGroup() {
 
 
 async function agregarNuevoProducto() {
+  // 🔒 Evita múltiples creaciones simultáneas
+  if (window._agregandoProducto) {
+    console.warn("Ya hay una operación de creación de producto en curso");
+    return;
+  }
+  window._agregandoProducto = true;
+
   const grupoBtnActivo = document.querySelector('.grupo-btn.active');
   const grupoActual = grupoBtnActivo ? grupoBtnActivo.dataset.grupo : null;
 
   if (!grupoActual) {
     alert('Selecciona un grupo específico (no "Todos") para crear un producto en ese grupo, o crea un grupo primero.');
+    window._agregandoProducto = false;
     return;
   }
 
@@ -1048,10 +1056,9 @@ async function agregarNuevoProducto() {
     subgrupoActual = subgrupoBtnActivo.dataset.subgrupo;
   } else if (window.currentAdminSubgrupo) {
     subgrupoActual = window.currentAdminSubgrupo;
-  } else {
   }
 
-  const tempId = 'nuevo_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+  const tempId = 'nuevo_' + Date.now() + '_' + Math.random().toString(36).substring(2, 11);
   const nuevoProducto = {
     id_base: tempId,
     nombre: '',
@@ -1065,6 +1072,8 @@ async function agregarNuevoProducto() {
 
   window.todosLosProductos.push(nuevoProducto);
   filtrarProductos(grupoActual, subgrupoActual);
+
+  window._agregandoProducto = false;
 }
 
 
