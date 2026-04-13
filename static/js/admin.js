@@ -438,13 +438,20 @@ if (loginAdminForm) {
 
 
 async function agregarFotoExtra(btn) {
+  // 🔒 Evita múltiples selecciones simultáneas
+  if (btn.disabled) return;
+  btn.disabled = true;
+
   const idBase = btn.dataset.id;
   const inputFile = document.createElement('input');
   inputFile.type = 'file';
   inputFile.accept = 'image/*';
   inputFile.onchange = async (e) => {
     const file = e.target.files[0];
-    if (!file) return;
+    if (!file) {
+      btn.disabled = false;
+      return;
+    }
 
     try {
       const blob = await optimizarImagen(file);
@@ -461,11 +468,10 @@ async function agregarFotoExtra(btn) {
       const nuevaFoto = document.createElement('div');
       nuevaFoto.className = 'foto-extra-item d-flex align-items-center justify-content-between mb-1 p-1 border rounded';
 
-      // Crear imagen con las clases correctas y atributo data-modal-url
       const img = document.createElement('img');
       img.src = getVersionUrl(url, '58');
-      img.className = 'admin-img-thumb foto-extra-thumb';   // ← clase añadida
-      img.setAttribute('data-modal-url', url);              // ← atributo necesario
+      img.className = 'admin-img-thumb foto-extra-thumb';
+      img.setAttribute('data-modal-url', url);
       img.alt = 'Foto adicional';
       img.addEventListener('click', () => openModal(url));
 
@@ -482,6 +488,8 @@ async function agregarFotoExtra(btn) {
       if (typeof mostrarToast === 'function') mostrarToast('✅ Foto adicional agregada');
     } catch (err) {
       alert('Error al subir imagen: ' + err.message);
+    } finally {
+      btn.disabled = false;
     }
   };
   inputFile.click();
@@ -507,16 +515,26 @@ async function eliminarFotoExtra(idBase, url) {
 
 
 async function agregarImagenPrincipal(btn) {
+  // 🔒 Evita múltiples selecciones simultáneas
+  if (btn.disabled) return;
+  btn.disabled = true;
+
   const idBase = btn.dataset.id;
   const fila = btn.closest('tr');
-  if (!fila) return;
+  if (!fila) {
+    btn.disabled = false;
+    return;
+  }
 
   const inputFile = document.createElement('input');
   inputFile.type = 'file';
   inputFile.accept = 'image/*';
   inputFile.onchange = async (e) => {
     const file = e.target.files[0];
-    if (!file) return;
+    if (!file) {
+      btn.disabled = false;
+      return;
+    }
 
     try {
       const blob = await optimizarImagen(file);
@@ -530,18 +548,19 @@ async function agregarImagenPrincipal(btn) {
       const img = fila.querySelector('td:first-child img');
       if (img) {
         img.src = getVersionUrl(url, '58');
-        // Eliminar listener anterior si existe (para evitar duplicados)
         if (img._clickHandler) {
           img.removeEventListener('click', img._clickHandler);
         }
         const handler = () => openModal(url);
         img.addEventListener('click', handler);
-        img._clickHandler = handler; // guardar referencia
+        img._clickHandler = handler;
       }
 
       if (typeof mostrarToast === 'function') mostrarToast('✅ Imagen principal actualizada');
     } catch (err) {
       alert('Error al subir imagen: ' + err.message);
+    } finally {
+      btn.disabled = false;
     }
   };
   inputFile.click();
