@@ -191,25 +191,42 @@ function cerrarModalConfigCA() {
 
 
 async function eliminarProducto(id_base) {
-  if (id_base && id_base.startsWith('nuevo_')) {
-    const index = window.todosLosProductos.findIndex(p => p.id_base === id_base);
-    if (index !== -1) {
-      window.todosLosProductos.splice(index, 1);
-      const grupoActivo = document.querySelector('.grupo-btn.active');
-      const grupo = grupoActivo ? grupoActivo.dataset.grupo : null;
-      const subgrupoActivo = document.querySelector('.subgrupo-btn.active');
-      const subgrupo = subgrupoActivo ? subgrupoActivo.dataset.subgrupo : null;
-      if (grupo) {
-        filtrarProductos(grupo, subgrupo);
-      } else {
-        renderTablaProductos();
-      }
-      if (typeof mostrarToast === 'function') mostrarToast('✅ Producto eliminado (sin guardar)');
-    }
+  // 🔒 Evita ejecuciones simultáneas
+  if (window._eliminandoProducto) {
+    console.warn("Ya hay una operación de eliminación en curso");
     return;
+  }
+  window._eliminandoProducto = true;
+
+  // Buscar el botón eliminar asociado (si existe)
+  const boton = document.querySelector(`.eliminar-producto[data-id="${id_base}"]`);
+  const textoOriginal = boton?.innerHTML;
+  if (boton) {
+    boton.disabled = true;
+    boton.innerHTML = '⏳';
   }
 
   try {
+    // Caso: producto temporal (no guardado aún)
+    if (id_base && id_base.startsWith('nuevo_')) {
+      const index = window.todosLosProductos.findIndex(p => p.id_base === id_base);
+      if (index !== -1) {
+        window.todosLosProductos.splice(index, 1);
+        const grupoActivo = document.querySelector('.grupo-btn.active');
+        const grupo = grupoActivo ? grupoActivo.dataset.grupo : null;
+        const subgrupoActivo = document.querySelector('.subgrupo-btn.active');
+        const subgrupo = subgrupoActivo ? subgrupoActivo.dataset.subgrupo : null;
+        if (grupo) {
+          filtrarProductos(grupo, subgrupo);
+        } else {
+          renderTablaProductos();
+        }
+        if (typeof mostrarToast === 'function') mostrarToast('✅ Producto eliminado (sin guardar)');
+      }
+      return;
+    }
+
+    // Caso: producto real (ya guardado en BD)
     const resp = await fetch("/eliminar-producto", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -225,6 +242,12 @@ async function eliminarProducto(id_base) {
     }
   } catch (err) {
     alert("Error al eliminar producto: " + err.message);
+  } finally {
+    window._eliminandoProducto = false;
+    if (boton) {
+      boton.disabled = false;
+      boton.innerHTML = textoOriginal || '🗑️';
+    }
   }
 }
 
