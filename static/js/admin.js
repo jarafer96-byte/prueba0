@@ -1,30 +1,49 @@
 window.todosLosProductos = window.todosLosProductos || [];
 
 async function guardarProducto(producto, formDiv, skipReload = false) {
-  const email = window.cliente?.email;
-  if (!email) {
-    alert("❌ No hay email de admin, no se puede guardar");
+  // 🔒 Evitar múltiples guardados simultáneos
+  if (window._guardandoProducto) {
+    console.warn("Ya hay una operación de guardado en curso");
     return false;
   }
+  window._guardandoProducto = true;
 
-  let idBase = formDiv?.dataset?.idBase;
-  let esEdicion = !!idBase && !idBase.startsWith('nuevo_');
-
-  if (idBase && idBase.startsWith('nuevo_')) {
-    delete producto.id_base;
-    idBase = null;
-  }
-
-  const payload = {
-    producto: producto,
-    email: email,
-    es_edicion: esEdicion
-  };
-  if (esEdicion) {
-    payload.producto.id_base = idBase;
+  // Deshabilitar el botón de guardar si existe
+  let boton = null;
+  let textoOriginal = '';
+  if (formDiv && typeof formDiv.querySelector === 'function') {
+    boton = formDiv.querySelector('button.guardar-producto, button[type="submit"]');
+    if (boton) {
+      textoOriginal = boton.innerHTML;
+      boton.disabled = true;
+      boton.innerHTML = '⏳ Guardando...';
+    }
   }
 
   try {
+    const email = window.cliente?.email;
+    if (!email) {
+      alert("❌ No hay email de admin, no se puede guardar");
+      return false;
+    }
+
+    let idBase = formDiv?.dataset?.idBase;
+    let esEdicion = !!idBase && !idBase.startsWith('nuevo_');
+
+    if (idBase && idBase.startsWith('nuevo_')) {
+      delete producto.id_base;
+      idBase = null;
+    }
+
+    const payload = {
+      producto: producto,
+      email: email,
+      es_edicion: esEdicion
+    };
+    if (esEdicion) {
+      payload.producto.id_base = idBase;
+    }
+
     const resp = await fetch("/guardar-producto", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -50,6 +69,13 @@ async function guardarProducto(producto, formDiv, skipReload = false) {
   } catch (err) {
     alert("❌ Error: " + err.message);
     return false;
+  } finally {
+    // Restaurar estado y habilitar botón
+    window._guardandoProducto = false;
+    if (boton) {
+      boton.disabled = false;
+      boton.innerHTML = textoOriginal || '💾 Guardar';
+    }
   }
 }
 
