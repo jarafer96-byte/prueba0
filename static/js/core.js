@@ -890,6 +890,13 @@ function actualizarCarrito(conAnimacion = false) {
 
 
 function agregarAlCarritoConColor(nombre, idPrecioSpan, idCantidad, id_base, grupo, subgrupo, imagenUrl, idColorSelect, idTalleSelect) {
+  const agregarBtn = document.getElementById(`btn_agregar_${id_base}`);
+
+  if (agregarBtn && agregarBtn.disabled) {
+    console.warn("Ya hay una operación de agregado en curso para este producto");
+    return;
+  }
+  
   const cantidadInput = document.getElementById(idCantidad);
   const precioSpan = document.getElementById(idPrecioSpan);
   const colorSelect = document.getElementById(idColorSelect);
@@ -900,78 +907,90 @@ function agregarAlCarritoConColor(nombre, idPrecioSpan, idCantidad, id_base, gru
     return;
   }
 
-  const colorElegido = colorSelect ? colorSelect.value : "unico";
-  const talleElegido = talleSelect ? talleSelect.value : "unico";
-
-  if (colorSelect && !colorElegido) {
-    alert("❌ Debes seleccionar un color");
-    return;
-  }
-  if (talleSelect && !talleElegido) {
-    alert("❌ Debes seleccionar un talle");
-    return;
+  if (agregarBtn) {
+    agregarBtn.disabled = true;
+    agregarBtn.textContent = '⏳ Agregando...';
   }
 
-  const productoOriginal = window.todosLosProductos.find(p => p.id_base === id_base);
-  if (!productoOriginal) {
-    alert("❌ Producto no encontrado");
-    return;
-  }
+  try {
+    const colorElegido = colorSelect ? colorSelect.value : "unico";
+    const talleElegido = talleSelect ? talleSelect.value : "unico";
 
-  const variantes = productoOriginal.variantes || {};
-  let stockDisponible = 0;
-  for (const key in variantes) {
-    const varObj = variantes[key];
-    if (varObj.talle === talleElegido && varObj.color === colorElegido) {
-      stockDisponible = varObj.stock;
-      break;
-    }
-  }
-
-  if (stockDisponible <= 0) {
-    alert(`❌ No hay stock disponible para ${colorElegido} - ${talleElegido}`);
-    return;
-  }
-
-  const cantidad = parseInt(cantidadInput.value) || 1;
-  if (cantidad > stockDisponible) {
-    alert(`❌ Solo hay ${stockDisponible} unidades disponibles para ${colorElegido} - ${talleElegido}`);
-    cantidadInput.value = stockDisponible;
-    return;
-  }
-
-  const precio = parseFloat(precioSpan.textContent.replace("$", "").replace(",", "")) || 0;
-
-  const existente = window.carrito.find(item => 
-    item.id_base === id_base && 
-    item.talle === talleElegido && 
-    item.color === colorElegido
-  );
-
-  if (existente) {
-    const nuevoTotal = existente.cantidad + cantidad;
-    if (nuevoTotal > stockDisponible) {
-      alert(`❌ No puedes llevar más de ${stockDisponible} unidades de ${colorElegido} - ${talleElegido}`);
+    if (colorSelect && !colorElegido) {
+      alert("❌ Debes seleccionar un color");
       return;
     }
-    existente.cantidad = nuevoTotal;
-  } else {
-    const nuevoItem = {
-      nombre,
-      precio,
-      cantidad,
-      id_base,
-      talle: talleElegido,
-      color: colorElegido,
-      grupo,
-      subgrupo,
-      imagen_url: imagenUrl
-    };
-    window.carrito.push(nuevoItem);
-  }
+    if (talleSelect && !talleElegido) {
+      alert("❌ Debes seleccionar un talle");
+      return;
+    }
 
-  actualizarCarrito(true);
-  mostrarToast(`✅ ${nombre} (${colorElegido} - ${talleElegido}) agregado al carrito`);
+    const productoOriginal = window.todosLosProductos.find(p => p.id_base === id_base);
+    if (!productoOriginal) {
+      alert("❌ Producto no encontrado");
+      return;
+    }
+
+    const variantes = productoOriginal.variantes || {};
+    let stockDisponible = 0;
+    for (const key in variantes) {
+      const varObj = variantes[key];
+      if (varObj.talle === talleElegido && varObj.color === colorElegido) {
+        stockDisponible = varObj.stock;
+        break;
+      }
+    }
+
+    if (stockDisponible <= 0) {
+      alert(`❌ No hay stock disponible para ${colorElegido} - ${talleElegido}`);
+      return;
+    }
+
+    const cantidad = parseInt(cantidadInput.value) || 1;
+    if (cantidad > stockDisponible) {
+      alert(`❌ Solo hay ${stockDisponible} unidades disponibles para ${colorElegido} - ${talleElegido}`);
+      cantidadInput.value = stockDisponible;
+      return;
+    }
+
+    const precio = parseFloat(precioSpan.textContent.replace("$", "").replace(",", "")) || 0;
+
+    const existente = window.carrito.find(item => 
+      item.id_base === id_base && 
+      item.talle === talleElegido && 
+      item.color === colorElegido
+    );
+
+    if (existente) {
+      const nuevoTotal = existente.cantidad + cantidad;
+      if (nuevoTotal > stockDisponible) {
+        alert(`❌ No puedes llevar más de ${stockDisponible} unidades de ${colorElegido} - ${talleElegido}`);
+        return;
+      }
+      existente.cantidad = nuevoTotal;
+    } else {
+      const nuevoItem = {
+        nombre,
+        precio,
+        cantidad,
+        id_base,
+        talle: talleElegido,
+        color: colorElegido,
+        grupo,
+        subgrupo,
+        imagen_url: imagenUrl
+      };
+      window.carrito.push(nuevoItem);
+    }
+
+    actualizarCarrito(true);
+    mostrarToast(`✅ ${nombre} (${colorElegido} - ${talleElegido}) agregado al carrito`);
+  } finally {
+    if (agregarBtn) {
+      agregarBtn.disabled = false;
+      agregarBtn.textContent = "Agregar al carrito";
+    }
+  }
 }
 
 
