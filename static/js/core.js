@@ -1444,6 +1444,13 @@ let pagando = false;
 
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Evita que el bloque se ejecute más de una vez (por si el script se recarga)
+  if (window._eventosInicializados) {
+    console.warn("Eventos ya inicializados, omitiendo...");
+    return;
+  }
+  window._eventosInicializados = true;
+
   // ============================================================
   // 0. FUNCIÓN CENTRAL PARA CAMBIAR DE PASO (carrito/dirección/datos)
   // ============================================================
@@ -1548,7 +1555,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Botón pagar
+  // Botón pagar (se protege dentro de la función pagarTodoJunto con la variable global pagando)
   const btnPagar = document.getElementById('btnPagarFinal');
   if (btnPagar) {
     btnPagar.addEventListener('click', () => {
@@ -1601,30 +1608,28 @@ document.addEventListener('DOMContentLoaded', () => {
   const loginToggleBtn = document.getElementById('loginToggleBtn');
   const loginForm = document.getElementById('loginFloatingForm');
 
-  // Función para cargar admin.js (evita duplicados)
   function cargarAdminScript() {
-      if (window.adminScriptCargado) return;
-      window.adminScriptCargado = true;
-      const script = document.createElement('script');
-      script.src = 'static/js/admin.js';
-      script.onload = () => { window.adminScriptCargado = true; };
-      document.head.appendChild(script);
+    if (window.adminScriptCargado) return;
+    window.adminScriptCargado = true;
+    const script = document.createElement('script');
+    script.src = 'static/js/admin.js';
+    script.onload = () => { window.adminScriptCargado = true; };
+    document.head.appendChild(script);
   }
 
-  // Configurar el botón "Admin" para mostrar/ocultar el formulario y cargar admin.js si es necesario
   if (loginToggleBtn && loginForm) {
-      // Clonar para evitar listeners antiguos
-      const newLoginBtn = loginToggleBtn.cloneNode(true);
-      loginToggleBtn.parentNode.replaceChild(newLoginBtn, loginToggleBtn);
+    const newLoginBtn = loginToggleBtn.cloneNode(true);
+    loginToggleBtn.parentNode.replaceChild(newLoginBtn, loginToggleBtn);
 
-      newLoginBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          loginForm.classList.toggle('d-none');
-          if (!loginForm.classList.contains('d-none') && !window.adminScriptCargado) {
-              cargarAdminScript();
-          }
-      });
+    newLoginBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      loginForm.classList.toggle('d-none');
+      if (!loginForm.classList.contains('d-none') && !window.adminScriptCargado) {
+        cargarAdminScript();
+      }
+    });
   }
+
   // ============================================================
   // 4. CARDS, LAZY LOADING, EVENTOS TÁCTILES Y SCROLL
   // ============================================================
@@ -1654,7 +1659,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Si modo admin, cargar MP también
   if (window.modoAdmin && typeof cargarMercadoPagoJS === 'function') {
     cargarMercadoPagoJS();
   }
@@ -1692,17 +1696,19 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ============================================================
-  // 5. EVENTOS DE CLICK GLOBAL (cerrar carrito/paneles, girar cards y eliminar del carrito)
+  // 5. EVENTOS DE CLICK GLOBAL
   // ============================================================
   document.addEventListener('click', (e) => {
-    // --- 1. Eliminar producto del carrito (botón específico) ---
+    // --- 1. Eliminar producto del carrito ---
     const eliminarBtn = e.target.closest('.btn-eliminar-carrito');
     if (eliminarBtn) {
       e.preventDefault();
       const id_base = eliminarBtn.getAttribute('data-id');
       const talle = eliminarBtn.getAttribute('data-talle');
       const color = eliminarBtn.getAttribute('data-color');
-      eliminarDelCarrito(id_base, talle, color, e);
+      if (typeof eliminarDelCarrito === 'function') {
+        eliminarDelCarrito(id_base, talle, color, e);
+      }
       return;
     }
 
@@ -1718,7 +1724,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // --- 3. Cerrar paneles de grupos/subcategorías si se clic fuera ---
+    // --- 3. Cerrar paneles de grupos/subcategorías ---
     const panelGrupos = document.getElementById("panelGrupos");
     const panelSub = document.getElementById("panelSubcategorias");
     if (panelGrupos && panelSub) {
@@ -1741,7 +1747,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // --- 4. Girar cards al hacer clic en los botones correspondientes ---
+    // --- 4. Girar cards ---
     if (e.target.classList.contains('btn-girar') || e.target.classList.contains('btn-reversa')) {
       const card = e.target.closest('.card-giratoria');
       if (card) {
@@ -1795,11 +1801,16 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ============================================================
-  // EVENTO CLICK EN EL LOGO (solo clases, compatible con CSP)
+  // 8. EVENTO CLICK EN EL LOGO (con protección de clics múltiples)
   // ============================================================
-  document.querySelector('.logo').addEventListener('click', function() {
+  const logoElement = document.querySelector('.logo');
+  if (logoElement) {
+    logoElement.addEventListener('click', function() {
       const logo = this;
-      if (logo.classList.contains('logo-anim-start')) return;
+      if (logo.classList.contains('logo-anim-start') || logo.style.pointerEvents === 'none') return;
+
+      // Bloquear nuevos clics durante toda la animación
+      logo.style.pointerEvents = 'none';
 
       const mensaje = document.createElement('div');
       mensaje.textContent = 'Gracias por la visita! ❤️';
@@ -1807,15 +1818,20 @@ document.addEventListener('DOMContentLoaded', () => {
       document.body.appendChild(mensaje);
       setTimeout(() => mensaje.classList.add('toast-message-visible'), 10);
       setTimeout(() => {
-          mensaje.classList.remove('toast-message-visible');
-          setTimeout(() => mensaje.remove(), 500);
+        mensaje.classList.remove('toast-message-visible');
+        setTimeout(() => mensaje.remove(), 500);
       }, 2000);
 
       logo.classList.add('logo-anim-start');
       setTimeout(() => {
-          logo.classList.remove('logo-anim-start');
+        logo.classList.remove('logo-anim-start');
+        // Restaurar clics al finalizar
+        logo.style.pointerEvents = '';
       }, 2100);
-  });
+    });
+  }
+
+  // ============================================================
   // 9. CAMBIO DE TALLE (actualizar stock)
   // ============================================================
   document.addEventListener('change', (e) => {
