@@ -1004,8 +1004,29 @@ async function agregarNuevoProducto() {
 
 
 async function guardarTodosProductos() {
+  // 🔒 Evita ejecuciones simultáneas del guardado masivo
+  if (window._guardandoTodos) {
+    alert("⏳ Ya hay un guardado masivo en curso. Espera un momento.");
+    return;
+  }
+  window._guardandoTodos = true;
+
+  const btnGuardarTodos = document.getElementById('guardarTodosTablaBtn');
+  const textoOriginalBtn = btnGuardarTodos?.innerHTML;
+  if (btnGuardarTodos) {
+    btnGuardarTodos.disabled = true;
+    btnGuardarTodos.textContent = 'Guardando todos...';
+  }
+
   const filas = document.querySelectorAll('#tabla-productos-body tr');
-  if (filas.length === 0) return;
+  if (filas.length === 0) {
+    if (btnGuardarTodos) {
+      btnGuardarTodos.disabled = false;
+      btnGuardarTodos.textContent = textoOriginalBtn || '💾 Guardar todos';
+    }
+    window._guardandoTodos = false;
+    return;
+  }
 
   const productosAGuardar = [];
   filas.forEach(fila => {
@@ -1017,16 +1038,19 @@ async function guardarTodosProductos() {
 
   let guardados = 0;
   const errores = [];
+
   for (const producto of productosAGuardar) {
     try {
       const formDiv = { dataset: { idBase: producto.id_base } };
-      const resultado = await guardarProducto(producto, formDiv, true); 
+      // Usamos skipReload = true para no recargar la tabla hasta el final
+      const resultado = await guardarProducto(producto, formDiv, true);
       if (resultado) guardados++;
     } catch (error) {
-      errores.push(producto.nombre);
+      errores.push(producto.nombre || producto.id_base);
     }
   }
 
+  // Recargar una sola vez al terminar todos
   await recargarProductos();
   renderTablaProductos();
 
@@ -1036,6 +1060,13 @@ async function guardarTodosProductos() {
   } else {
     alert(mensaje);
   }
+
+  // Restaurar botón
+  if (btnGuardarTodos) {
+    btnGuardarTodos.disabled = false;
+    btnGuardarTodos.textContent = textoOriginalBtn || '💾 Guardar todos';
+  }
+  window._guardandoTodos = false;
 }
 
 
