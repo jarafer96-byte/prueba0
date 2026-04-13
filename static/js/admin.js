@@ -498,18 +498,41 @@ async function agregarFotoExtra(btn) {
 
 
 async function eliminarFotoExtra(idBase, url) {
-  const producto = window.todosLosProductos.find(p => p.id_base === idBase);
-  if (producto && producto.fotos_adicionales) {
-    const index = producto.fotos_adicionales.indexOf(url);
-    if (index !== -1) {
-      producto.fotos_adicionales.splice(index, 1);
-    }
+  // 🔒 Evita eliminaciones múltiples simultáneas
+  if (window._eliminandoFotoExtra) {
+    console.warn("Ya hay una operación de eliminación de foto en curso");
+    return;
+  }
+  window._eliminandoFotoExtra = true;
+
+  // Buscar el botón eliminar asociado (para deshabilitarlo)
+  const boton = document.querySelector(`.eliminar-foto-extra[data-id="${idBase}"][data-url="${url}"]`);
+  const textoOriginal = boton?.innerHTML;
+  if (boton) {
+    boton.disabled = true;
+    boton.innerHTML = '⏳';
   }
 
-  const fotoDiv = document.querySelector(`.fotos-extra-container[data-id="${idBase}"] [data-url="${url}"]`)?.closest('div');
-  if (fotoDiv) fotoDiv.remove();
+  try {
+    const producto = window.todosLosProductos.find(p => p.id_base === idBase);
+    if (producto && producto.fotos_adicionales) {
+      const index = producto.fotos_adicionales.indexOf(url);
+      if (index !== -1) {
+        producto.fotos_adicionales.splice(index, 1);
+      }
+    }
 
-  if (typeof mostrarToast === 'function') mostrarToast('✅ Foto extra eliminada');
+    const fotoDiv = document.querySelector(`.fotos-extra-container[data-id="${idBase}"] [data-url="${url}"]`)?.closest('div');
+    if (fotoDiv) fotoDiv.remove();
+
+    if (typeof mostrarToast === 'function') mostrarToast('✅ Foto extra eliminada');
+  } finally {
+    window._eliminandoFotoExtra = false;
+    if (boton) {
+      boton.disabled = false;
+      boton.innerHTML = textoOriginal || '✖';
+    }
+  }
 }
 
 
