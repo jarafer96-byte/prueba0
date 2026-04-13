@@ -882,30 +882,53 @@ function ocultarSubgrupos() {
 
 
 async function agregarSubgrupo(grupo) {
-  const nombreSubgrupo = prompt('Ingrese el nombre del nuevo subgrupo:');
-  if (!nombreSubgrupo) return;
-
-  const existe = window.todosLosProductos.some(p => p.grupo === grupo && p.subgrupo === nombreSubgrupo);
-  if (existe) {
-    alert('El subgrupo ya existe en este grupo.');
+  // 🔒 Evita múltiples creaciones simultáneas
+  if (window._agregandoSubgrupo) {
+    console.warn("Ya hay una operación de creación de subgrupo en curso");
     return;
   }
+  window._agregandoSubgrupo = true;
 
-  const tempId = 'nuevo_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-  const nuevoProducto = {
-    id_base: tempId,
-    nombre: '(nuevo producto)',
-    precio: 0,
-    grupo: grupo,
-    subgrupo: nombreSubgrupo,
-    descripcion: '',
-    imagen_url: '',
-    fotos_adicionales: [],
-  };
-  window.todosLosProductos.push(nuevoProducto);
-  filtrarProductos(grupo, null);
+  // Buscar el botón que activó la acción para deshabilitarlo
+  const boton = document.querySelector(`.agregar-subgrupo-btn[data-grupo="${grupo}"]`);
+  const textoOriginal = boton?.innerHTML;
+  if (boton) {
+    boton.disabled = true;
+    boton.innerHTML = '⏳';
+  }
+
+  try {
+    const nombreSubgrupo = prompt('Ingrese el nombre del nuevo subgrupo:');
+    if (!nombreSubgrupo) return;
+
+    const existe = window.todosLosProductos.some(p => p.grupo === grupo && p.subgrupo === nombreSubgrupo);
+    if (existe) {
+      alert('El subgrupo ya existe en este grupo.');
+      return;
+    }
+
+    // Reemplazar substr (obsoleto) por substring
+    const tempId = 'nuevo_' + Date.now() + '_' + Math.random().toString(36).substring(2, 11);
+    const nuevoProducto = {
+      id_base: tempId,
+      nombre: '(nuevo producto)',
+      precio: 0,
+      grupo: grupo,
+      subgrupo: nombreSubgrupo,
+      descripcion: '',
+      imagen_url: '',
+      fotos_adicionales: [],
+    };
+    window.todosLosProductos.push(nuevoProducto);
+    filtrarProductos(grupo, null);
+  } finally {
+    window._agregandoSubgrupo = false;
+    if (boton) {
+      boton.disabled = false;
+      boton.innerHTML = textoOriginal || '+ Subgrupo';
+    }
+  }
 }
-
 
 function filtrarProductos(grupo, subgrupo = null) {
   const productos = window.todosLosProductos || [];
