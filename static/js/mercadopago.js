@@ -1,5 +1,6 @@
 (function() {
   let costoEnvio = 0;
+  let pagando = false;  // 🔒 Flag anti-duplicidad para el pago
 
   async function cargarSDK() {
     if (window.MercadoPago) return Promise.resolve();
@@ -39,21 +40,22 @@
     }
   }
 
-  // Función auxiliar para actualizar la UI después de verificar stock (opcional)
-  function actualizarStockUI(productosConStock) {
-    for (const item of productosConStock) {
-      const talleSelect = document.getElementById(`talle_${item.id_base}`);
-      const cantidadInput = document.getElementById(`cantidad_${item.id_base}`);
-      const agregarBtn = document.getElementById(`btn_agregar_${item.id_base}`);
-      if (talleSelect && item.talle) {
-        // Si existe selector de talle, actualizar usando la función global actualizarStockPorTalle
+  // Actualiza la UI después de verificar stock (basado en stock_actualizado)
+  function actualizarStockUI(stockActualizado) {
+    if (!stockActualizado) return;
+    for (const [key, stock] of Object.entries(stockActualizado)) {
+      // key formato "id_base_talle" o "id_base_talle_color"
+      const [id_base, talle, color] = key.split('_');
+      const talleSelect = document.getElementById(`talle_${id_base}`);
+      const cantidadInput = document.getElementById(`cantidad_${id_base}`);
+      const agregarBtn = document.getElementById(`btn_agregar_${id_base}`);
+      if (talleSelect) {
         if (typeof actualizarStockPorTalle === 'function') {
-          actualizarStockPorTalle(item.id_base, item.talle, item.color || null);
+          actualizarStockPorTalle(id_base, talle, color || null);
         }
       } else if (cantidadInput) {
-        // Sin selector de talle (producto único)
-        cantidadInput.max = item.stock_disponible;
-        if (item.stock_disponible <= 0) {
+        cantidadInput.max = stock;
+        if (stock <= 0) {
           cantidadInput.disabled = true;
           cantidadInput.value = 0;
           if (agregarBtn) {
@@ -85,7 +87,7 @@
     }
 
     let pesoTotalKg = 0;
-    for (const item of window.carrito) {
+    for (const item of (window.carrito || [])) {
       const producto = window.todosLosProductos?.find(p => p.id_base === item.id_base);
       const pesoGramos = producto?.peso_gramos || 500;
       pesoTotalKg += (pesoGramos * item.cantidad) / 1000;
@@ -151,7 +153,7 @@
     if (totalSpan) totalSpan.textContent = total.toFixed(2);
     
     let envioLinea = document.getElementById('envioLinea');
-    if (!envioLinea && window.carrito.length) {
+    if (!envioLinea && window.carrito && window.carrito.length) {
       const lista = document.getElementById('listaCarrito');
       if (lista) {
         envioLinea = document.createElement('li');
@@ -176,9 +178,17 @@
   window.actualizarCarritoConEnvio = actualizarCarritoConEnvio;
 
   async function pagarTodoJunto() {
+    // 🔒 Evitar múltiples llamadas simultáneas
+    if (pagando) {
+      console.warn("Ya hay un proceso de pago en curso");
+      return;
+    }
+    pagando = true;
+
     const carrito = window.carrito || [];
     if (carrito.length === 0) {
       alert("❌ El carrito está vacío");
+      pagando = false;
       return;
     }
 
@@ -189,6 +199,7 @@
 
     if (!nombreInput || !apellidoInput || !emailInput) {
       alert("❌ Por favor completa nombre, apellido y email");
+      pagando = false;
       return;
     }
 
@@ -199,12 +210,14 @@
 
     if (!nombre || !apellido || !emailCliente) {
       alert("❌ Nombre, apellido y email son obligatorios");
+      pagando = false;
       return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(emailCliente)) {
       alert("❌ Por favor ingresa un email válido");
+      pagando = false;
       return;
     }
 
@@ -220,6 +233,7 @@
 
       if (!calleInput || !numeroInput || !localidadInput || !provinciaSelect || !codigoPostalInput) {
         alert("❌ Error: faltan campos de dirección en el formulario");
+        pagando = false;
         return;
       }
 
@@ -231,6 +245,7 @@
 
       if (!calle || !numero || !localidad || !provinciaCodigo || !codigoPostal) {
         alert("❌ Para el envío, todos los campos de dirección son obligatorios");
+        pagando = false;
         return;
       }
     }
@@ -243,11 +258,11 @@
       codigo_postal: codigoPostal
     } : {};
 
-    // ✅ Incluir color en la verificación de stock
+    // Items para verificar stock
     const itemsVerificar = carrito.filter(item => item.id_base).map(item => ({
       id_base: item.id_base,
       talle: item.talle || 'unico',
-      color: item.color || 'unico',   // <-- Agregado
+      color: item.color || 'unico',
       cantidad: item.cantidad
     }));
 
@@ -258,6 +273,7 @@
         btnPagarFinal.disabled = false;
         btnPagarFinal.textContent = 'Pagar con Mercado Pago';
       }
+      pagando = false;
       return;
     }
 
@@ -286,19 +302,21 @@
 
       if (!verifyData.ok) {
         let mensaje = "❌ No hay suficiente stock para:\n";
-        verifyData.faltantes.forEach(item => {
-          mensaje += `- ${item.nombre} (talle: ${item.talle}, color: ${item.color || 'unico'}): disponible ${item.stock_disponible}, solicitado ${item.cantidad_solicitada}\n`;
+        (verifyData.faltantes || []).forEach(item => {
+          mensaje += `- ${item.nombre} (talle: ${item.talle}, color: ${item.color || 'unico'}): disponible ${item.disponible}, solicitado ${item.solicitado}\n`;
         });
         alert(mensaje);
 
-        if (verifyData.productos_actualizados) {
-          actualizarStockUI(verifyData.productos_actualizados);
+        // Actualizar la UI con el stock real
+        if (verifyData.stock_actualizado) {
+          actualizarStockUI(verifyData.stock_actualizado);
         }
 
         if (btnPagarFinal) {
           btnPagarFinal.disabled = false;
           btnPagarFinal.textContent = 'Pagar con Mercado Pago';
         }
+        pagando = false;
         return;
       }
 
@@ -341,7 +359,7 @@
           precio: precio,
           cantidad: cantidad,
           talle: item.talle || "",
-          color: item.color || "",   // ✅ Ya estaba, pero lo dejamos
+          color: item.color || "",
           id_base: item.id_base || "",
           grupo: item.grupo || "",
           subgrupo: item.subgrupo || "",
@@ -350,7 +368,7 @@
       });
 
       const totalFinal = subtotalProductos + (window.costoEnvio || costoEnvio);
-      const orden_id = 'ORD_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+      const orden_id = 'ORD_' + Date.now() + '_' + Math.random().toString(36).substring(2, 11); // substr → substring
 
       const payload = {
         email_vendedor: window.cliente.email,
@@ -403,12 +421,14 @@
         alert("⚠️ No se pudo procesar el pago. Intenta de nuevo.");
       }
     } catch (error) {
+      console.error(error);
       alert("❌ Error al procesar el pago: " + error.message);
     } finally {
       if (btnPagarFinal) {
         btnPagarFinal.disabled = false;
         btnPagarFinal.textContent = 'Pagar con Mercado Pago';
       }
+      pagando = false;
     }
   }
 
