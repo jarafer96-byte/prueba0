@@ -1136,16 +1136,27 @@ async function guardarTodosProductos() {
 
 
 function agregarNuevoGrupo() {
+  // 🔒 Evita múltiples creaciones simultáneas
+  if (window._agregandoGrupo) {
+    console.warn("Ya hay una operación de creación de grupo en curso");
+    return;
+  }
+  window._agregandoGrupo = true;
+
   const nombreGrupo = prompt('Ingrese el nombre del nuevo grupo:');
-  if (!nombreGrupo) return;
+  if (!nombreGrupo) {
+    window._agregandoGrupo = false;
+    return;
+  }
 
   if (window.todosLosProductos.some(p => p.grupo === nombreGrupo)) {
     alert('El grupo ya existe.');
+    window._agregandoGrupo = false;
     return;
   }
 
   const nuevoProducto = {
-    id_base: 'nuevo_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+    id_base: 'nuevo_' + Date.now() + '_' + Math.random().toString(36).substring(2, 11),
     nombre: '(nuevo producto)',
     precio: 0,
     grupo: nombreGrupo,
@@ -1162,6 +1173,7 @@ function agregarNuevoGrupo() {
     if (nuevoGrupoHeader) {
       nuevoGrupoHeader.click();
     }
+    window._agregandoGrupo = false;
   }, 100);
 }
 
