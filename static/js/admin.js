@@ -303,41 +303,64 @@ async function subirImagen(blob) {
 
 
 function duplicarProductoDesdeCard(id_base) {
-  const original = window.todosLosProductos?.find(p => p.id_base === id_base);
-  if (!original) {
-    alert("❌ Producto no encontrado");
+  // 🔒 Evita duplicaciones múltiples simultáneas
+  if (window._duplicandoProducto) {
+    console.warn("Ya hay una operación de duplicación en curso");
     return;
   }
+  window._duplicandoProducto = true;
 
-  const copia = JSON.parse(JSON.stringify(original));
-
-  delete copia.id_base;
-  copia.id_base = 'nuevo_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-
-  copia.imagen_url = '';
-  copia.fotos_adicionales = [];
-
-  window.todosLosProductos.push(copia);
-
-  const grupoActivo = document.querySelector('.grupo-btn.active');
-  const grupo = grupoActivo ? grupoActivo.dataset.grupo : null;
-  const subgrupoActivo = document.querySelector('.subgrupo-btn.active');
-  const subgrupo = subgrupoActivo ? subgrupoActivo.dataset.subgrupo : null;
-
-  if (grupo) {
-    filtrarProductos(grupo, subgrupo);
-  } else {
-    renderTablaProductos();
+  const boton = document.querySelector(`.duplicar-producto[data-id="${id_base}"]`);
+  const textoOriginal = boton?.innerHTML;
+  if (boton) {
+    boton.disabled = true;
+    boton.innerHTML = '⏳';
   }
 
-  setTimeout(() => {
-    const nuevaFila = document.querySelector(`tr[data-id-base="${copia.id_base}"]`);
-    if (nuevaFila) {
-      nuevaFila.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      nuevaFila.classList.add('table-active');
-      setTimeout(() => nuevaFila.classList.remove('table-active'), 2000);
+  try {
+    const original = window.todosLosProductos?.find(p => p.id_base === id_base);
+    if (!original) {
+      alert("❌ Producto no encontrado");
+      return;
     }
-  }, 100);
+
+    const copia = JSON.parse(JSON.stringify(original));
+
+    delete copia.id_base;
+    // Reemplazar substr (obsoleto) por substring
+    copia.id_base = 'nuevo_' + Date.now() + '_' + Math.random().toString(36).substring(2, 11);
+
+    copia.imagen_url = '';
+    copia.fotos_adicionales = [];
+
+    window.todosLosProductos.push(copia);
+
+    const grupoActivo = document.querySelector('.grupo-btn.active');
+    const grupo = grupoActivo ? grupoActivo.dataset.grupo : null;
+    const subgrupoActivo = document.querySelector('.subgrupo-btn.active');
+    const subgrupo = subgrupoActivo ? subgrupoActivo.dataset.subgrupo : null;
+
+    if (grupo) {
+      filtrarProductos(grupo, subgrupo);
+    } else {
+      renderTablaProductos();
+    }
+
+    setTimeout(() => {
+      const nuevaFila = document.querySelector(`tr[data-id-base="${copia.id_base}"]`);
+      if (nuevaFila) {
+        nuevaFila.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        nuevaFila.classList.add('table-active');
+        setTimeout(() => nuevaFila.classList.remove('table-active'), 2000);
+      }
+    }, 100);
+  } finally {
+    window._duplicandoProducto = false;
+    if (boton) {
+      boton.disabled = false;
+      boton.innerHTML = textoOriginal || '📋';
+    }
+  }
 }
 
 
