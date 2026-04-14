@@ -105,11 +105,6 @@
     return originalFetch(finalUrl, options);
   };
 
-  // --- Inicialización ---
-  const style = document.createElement('style');
-  style.textContent = '#productos { min-height: 500px; }';
-  document.head.appendChild(style);
-
   if (window.modoAdmin && !window.adminScriptLoaded) {
     window.adminScriptLoaded = true;
     loadCSRFToken().then(() => {
