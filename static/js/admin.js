@@ -227,11 +227,14 @@ async function eliminarProducto(id_base) {
       return;
     }
 
+    // ⭐ Priorizar TARGET_EMAIL (master admin) sobre cliente.email
+    const email = window.TARGET_EMAIL || window.cliente?.email;
+
     // Caso: producto real (ya guardado en BD)
     const resp = await fetch("/eliminar-producto", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id_base, email: window.cliente.email })
+      body: JSON.stringify({ id_base, email: email })
     });
     const data = await resp.json();
     if (data.status === "ok") {
