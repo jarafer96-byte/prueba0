@@ -283,12 +283,24 @@
       btnPagarFinal.textContent = 'Verificando stock...';
     }
 
+    // ⭐ Determinar el email del vendedor: priorizar TARGET_EMAIL (master admin) sobre cliente.email
+    const emailVendedor = window.TARGET_EMAIL || window.cliente?.email;
+    if (!emailVendedor) {
+      alert("❌ No se pudo identificar al vendedor");
+      if (btnPagarFinal) {
+        btnPagarFinal.disabled = false;
+        btnPagarFinal.textContent = 'Pagar con Mercado Pago';
+      }
+      pagando = false;
+      return;
+    }
+
     try {
       const verifyResp = await fetch(`/verificar-stock`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          email_vendedor: window.cliente.email,
+          email_vendedor: emailVendedor,
           carrito: itemsVerificar 
         })
       });
@@ -368,10 +380,10 @@
       });
 
       const totalFinal = subtotalProductos + (window.costoEnvio || costoEnvio);
-      const orden_id = 'ORD_' + Date.now() + '_' + Math.random().toString(36).substring(2, 11); // substr → substring
+      const orden_id = 'ORD_' + Date.now() + '_' + Math.random().toString(36).substring(2, 11);
 
       const payload = {
-        email_vendedor: window.cliente.email,
+        email_vendedor: emailVendedor,
         carrito: itemsCarrito,
         items_mp: itemsMP,
         total: totalFinal,
