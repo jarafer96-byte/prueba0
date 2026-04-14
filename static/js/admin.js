@@ -21,7 +21,8 @@ async function guardarProducto(producto, formDiv, skipReload = false) {
   }
 
   try {
-    const email = window.cliente?.email;
+    // ⭐ Priorizar TARGET_EMAIL (master admin creando para otro) sobre cliente.email
+    const email = window.TARGET_EMAIL || window.cliente?.email;
     if (!email) {
       alert("❌ No hay email de admin, no se puede guardar");
       return false;
