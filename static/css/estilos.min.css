@@ -7,7 +7,9 @@
 .flecha-izq, .flecha-der {
   display: none !important;
 }
-
+#productos {
+  min-height: 500px;
+}
 .numero-producto-back {
     position: absolute;
     top: 10px;
