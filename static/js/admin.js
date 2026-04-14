@@ -295,7 +295,10 @@ async function optimizarImagen(file) {
 async function subirImagen(blob) {
   const formData = new FormData();
   formData.append('file', blob, 'imagen.webp');
-  formData.append('email', window.cliente.email);
+
+  const email = window.TARGET_EMAIL || window.cliente?.email;
+  formData.append('email', email);
+
   const resp = await fetch('/subir-foto', {
     method: 'POST',
     body: formData
