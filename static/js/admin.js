@@ -1131,7 +1131,6 @@ async function agregarNuevoProducto() {
 
 
 async function guardarTodosProductos() {
-  // 🔒 Evita ejecuciones simultáneas del guardado masivo
   if (window._guardandoTodos) {
     alert("⏳ Ya hay un guardado masivo en curso. Espera un momento.");
     return;
@@ -1155,21 +1154,37 @@ async function guardarTodosProductos() {
     return;
   }
 
-  const productosAGuardar = [];
+  // 🔍 Recopilar solo productos con cambios reales
+  const productosModificados = [];
   filas.forEach(fila => {
     const idBase = fila.dataset.idBase;
     if (!idBase) return;
-    const producto = obtenerProductoDesdeFila(fila, idBase);
-    productosAGuardar.push(producto);
+    
+    const original = window.todosLosProductos.find(p => p.id_base === idBase);
+    if (!original) return;
+    
+    const actual = obtenerProductoDesdeFila(fila, idBase);
+    if (productoHaCambiado(original, actual)) {
+      productosModificados.push(actual);
+    }
   });
+
+  if (productosModificados.length === 0) {
+    alert("✅ No hay cambios para guardar.");
+    if (btnGuardarTodos) {
+      btnGuardarTodos.disabled = false;
+      btnGuardarTodos.textContent = textoOriginalBtn || '💾 Guardar todos';
+    }
+    window._guardandoTodos = false;
+    return;
+  }
 
   let guardados = 0;
   const errores = [];
 
-  for (const producto of productosAGuardar) {
+  for (const producto of productosModificados) {
     try {
       const formDiv = { dataset: { idBase: producto.id_base } };
-      // Usamos skipReload = true para no recargar la tabla hasta el final
       const resultado = await guardarProducto(producto, formDiv, true);
       if (resultado) guardados++;
     } catch (error) {
@@ -1177,23 +1192,37 @@ async function guardarTodosProductos() {
     }
   }
 
-  // Recargar una sola vez al terminar todos
   await recargarProductos();
   renderTablaProductos();
 
-  const mensaje = `Guardados ${guardados} de ${productosAGuardar.length} productos.`;
+  const mensaje = `Guardados ${guardados} de ${productosModificados.length} productos modificados.`;
   if (errores.length) {
     alert(`${mensaje}\nErrores: ${errores.join(', ')}`);
   } else {
     alert(mensaje);
   }
 
-  // Restaurar botón
   if (btnGuardarTodos) {
     btnGuardarTodos.disabled = false;
     btnGuardarTodos.textContent = textoOriginalBtn || '💾 Guardar todos';
   }
   window._guardandoTodos = false;
+}
+
+// Función auxiliar para detectar cambios
+function productoHaCambiado(original, actual) {
+  const ignorar = new Set(['timestamp', 'fecha_actualizacion', 'actualizado', 'email_vendedor']);
+  const claves = new Set([...Object.keys(original), ...Object.keys(actual)]);
+  for (let clave of claves) {
+    if (ignorar.has(clave)) continue;
+    const valOrig = original[clave];
+    const valAct = actual[clave];
+    // Comparación profunda simple (arrays/objetos se comparan serializados)
+    if (JSON.stringify(valOrig) !== JSON.stringify(valAct)) {
+      return true;
+    }
+  }
+  return false;
 }
 
 
@@ -1259,6 +1288,13 @@ if (window.modoAdmin) {
       const primerGrupo = document.querySelector('.grupo-btn');
       if (primerGrupo) {
         primerGrupo.click();
+        // Esperar a que se renderice la barra de subgrupos
+        setTimeout(() => {
+          const primerSubgrupo = document.querySelector('#adminSubgruposBar .subgrupo-btn');
+          if (primerSubgrupo) {
+            primerSubgrupo.click();
+          }
+        }, 100);
       }
     }, 50);
   });
