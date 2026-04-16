@@ -879,8 +879,18 @@ function mostrarSubgruposHorizontal(grupo) {
   barraSub.innerHTML = html;
   barraSub.classList.add('admin-subgrupos-bar-visible');
   barraSub.dataset.currentGroup = grupo;
-}
 
+  // ⭐ NUEVO: Si después de renderizar no hay ningún subgrupo activo, seleccionar automáticamente el primero.
+  setTimeout(() => {
+    const activo = barraSub.querySelector('.subgrupo-btn.active');
+    if (!activo) {
+      const primerSub = barraSub.querySelector('.subgrupo-btn');
+      if (primerSub) {
+        primerSub.click();
+      }
+    }
+  }, 30);
+}
 
 function ocultarSubgrupos() {
   const barraSub = document.getElementById('adminSubgruposBar');
@@ -951,6 +961,7 @@ function filtrarProductos(grupo, subgrupo = null) {
     tbody.innerHTML = renderFilasTabla(filtrados);
   }
 
+  // Actualizar clases activas en botones de grupo
   const grupoBtns = document.querySelectorAll('.grupo-btn');
   grupoBtns.forEach(btn => {
     if (btn.dataset.grupo === grupo) {
@@ -960,6 +971,7 @@ function filtrarProductos(grupo, subgrupo = null) {
     }
   });
 
+  // Mostrar u ocultar barra de subgrupos
   if (grupo && grupo !== 'todos') {
     const subgrupos = [...new Set(
       window.todosLosProductos.filter(p => p.grupo === grupo)
@@ -975,6 +987,7 @@ function filtrarProductos(grupo, subgrupo = null) {
     ocultarSubgrupos();
   }
 
+  // Actualizar clases activas en botones de subgrupo
   const subgrupoBtns = document.querySelectorAll('.subgrupo-btn');
   subgrupoBtns.forEach(btn => {
     if (btn.dataset.grupo === grupo && btn.dataset.subgrupo === subgrupo) {
@@ -985,8 +998,21 @@ function filtrarProductos(grupo, subgrupo = null) {
   });
 
   window.currentAdminSubgrupo = subgrupo;
-}
 
+  // ⭐ NUEVO: Si no se especificó un subgrupo (ej. al cambiar de grupo),
+  // seleccionar automáticamente el primer subgrupo disponible después de que se renderice.
+  if (!subgrupo) {
+    setTimeout(() => {
+      const subgrupoActivo = document.querySelector('.subgrupo-btn.active');
+      if (!subgrupoActivo) {
+        const primerSub = document.querySelector('#adminSubgruposBar .subgrupo-btn');
+        if (primerSub) {
+          primerSub.click();
+        }
+      }
+    }, 50);
+  }
+}
 
 function obtenerProductoDesdeFila(fila, idBase) {
   const original = window.todosLosProductos.find(p => p.id_base === idBase) || {};
@@ -1068,10 +1094,11 @@ async function recargarProductos() {
   try {
     const email = window.cliente?.email;
     if (!email) return;
-    const resp = await fetch(`/api/productos`);
+    const resp = await fetch(`/api/productos?_=${Date.now()}`);
     const data = await resp.json();
     window.todosLosProductos = Array.isArray(data) ? data : [];
   } catch (err) {
+    console.error(err);
   }
 }
 
