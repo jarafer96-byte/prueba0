@@ -13,7 +13,7 @@
   window.cliente = {
     email: "ferj.9622@gmail.com",
     whatsapp: "https://wa.me/5492975158178",
-    mercado_pago: ""
+    mercado_pago: "{{ config.mercado_pago }}"
   };
   window.VENDOR_EMAIL = window.cliente.email;
   window.carrito = [];
