@@ -1185,7 +1185,7 @@ async function guardarTodosProductos() {
     return;
   }
 
-  // 🔍 Recopilar solo productos con cambios reales
+  // 🔍 Recopilar productos con cambios reales o marcados como pendientes
   const productosModificados = [];
   filas.forEach(fila => {
     const idBase = fila.dataset.idBase;
@@ -1195,7 +1195,13 @@ async function guardarTodosProductos() {
     if (!original) return;
     
     const actual = obtenerProductoDesdeFila(fila, idBase);
-    if (productoHaCambiado(original, actual)) {
+    // Considerar cambios si:
+    // 1. El producto ha cambiado (comparación normal)
+    // 2. O está marcado como pendiente (por duplicación o agregado de filas de color)
+    const tieneCambios = productoHaCambiado(original, actual) ||
+                         (window._productosConCambiosPendientes && window._productosConCambiosPendientes.has(idBase));
+    
+    if (tieneCambios) {
       productosModificados.push(actual);
     }
   });
@@ -1226,6 +1232,11 @@ async function guardarTodosProductos() {
   await recargarProductos();
   renderTablaProductos();
 
+  // ✅ Limpiar la marca de productos pendientes después de guardar
+  if (window._productosConCambiosPendientes) {
+    window._productosConCambiosPendientes.clear();
+  }
+
   const mensaje = `Guardados ${guardados} de ${productosModificados.length} productos modificados.`;
   if (errores.length) {
     alert(`${mensaje}\nErrores: ${errores.join(', ')}`);
@@ -1239,7 +1250,6 @@ async function guardarTodosProductos() {
   }
   window._guardandoTodos = false;
 }
-
 // Función auxiliar para detectar cambios
 function productoHaCambiado(original, actual) {
   const ignorar = new Set(['timestamp', 'fecha_actualizacion', 'actualizado', 'email_vendedor']);
