@@ -867,27 +867,27 @@ function mostrarSubgruposHorizontal(grupo) {
   if (!barraSub) return;
 
   let html = '';
-  if (subgrupos.length > 0) {
-    html = subgrupos.map(sub => `
+  // Botones para cada subgrupo existente
+  subgrupos.forEach(sub => {
+    html += `
       <button class="btn btn-sm btn-outline-secondary subgrupo-btn" data-grupo="${grupo}" data-subgrupo="${sub}">
         📂 ${sub}
       </button>
-    `).join('');
-  }
+    `;
+  });
+  // Siempre el botón para crear nuevo subgrupo
   html += `<button class="btn btn-sm btn-success agregar-subgrupo-btn" data-grupo="${grupo}">+ Subgrupo</button>`;
 
   barraSub.innerHTML = html;
   barraSub.classList.add('admin-subgrupos-bar-visible');
   barraSub.dataset.currentGroup = grupo;
 
-  // ⭐ NUEVO: Si después de renderizar no hay ningún subgrupo activo, seleccionar automáticamente el primero.
+  // Si hay subgrupos y ninguno está activo, seleccionar el primero automáticamente
   setTimeout(() => {
     const activo = barraSub.querySelector('.subgrupo-btn.active');
-    if (!activo) {
+    if (!activo && subgrupos.length > 0) {
       const primerSub = barraSub.querySelector('.subgrupo-btn');
-      if (primerSub) {
-        primerSub.click();
-      }
+      if (primerSub) primerSub.click();
     }
   }, 30);
 }
@@ -971,18 +971,9 @@ function filtrarProductos(grupo, subgrupo = null) {
     }
   });
 
-  // Mostrar u ocultar barra de subgrupos
+  // ✅ Siempre mostrar la barra de subgrupos si hay un grupo seleccionado (no "Todos")
   if (grupo && grupo !== 'todos') {
-    const subgrupos = [...new Set(
-      window.todosLosProductos.filter(p => p.grupo === grupo)
-                              .map(p => p.subgrupo)
-                              .filter(Boolean)
-    )];
-    if (subgrupos.length > 0) {
-      mostrarSubgruposHorizontal(grupo);
-    } else {
-      ocultarSubgrupos();
-    }
+    mostrarSubgruposHorizontal(grupo);
   } else {
     ocultarSubgrupos();
   }
@@ -999,8 +990,8 @@ function filtrarProductos(grupo, subgrupo = null) {
 
   window.currentAdminSubgrupo = subgrupo;
 
-  // ⭐ NUEVO: Si no se especificó un subgrupo (ej. al cambiar de grupo),
-  // seleccionar automáticamente el primer subgrupo disponible después de que se renderice.
+  // ⭐ Si no se especificó un subgrupo y no hay ninguno activo,
+  // seleccionar automáticamente el primer subgrupo disponible (si existe)
   if (!subgrupo) {
     setTimeout(() => {
       const subgrupoActivo = document.querySelector('.subgrupo-btn.active');
@@ -1012,7 +1003,8 @@ function filtrarProductos(grupo, subgrupo = null) {
       }
     }, 50);
   }
-}
+} // <-- CIERRE CORRECTO
+
 
 function obtenerProductoDesdeFila(fila, idBase) {
   const original = window.todosLosProductos.find(p => p.id_base === idBase) || {};
@@ -1113,7 +1105,6 @@ function getCurrentSelectedGroup() {
 
 
 async function agregarNuevoProducto() {
-  // 🔒 Evita múltiples creaciones simultáneas
   if (window._agregandoProducto) {
     console.warn("Ya hay una operación de creación de producto en curso");
     return;
@@ -1124,18 +1115,16 @@ async function agregarNuevoProducto() {
   const grupoActual = grupoBtnActivo ? grupoBtnActivo.dataset.grupo : null;
 
   if (!grupoActual) {
-    alert('Selecciona un grupo específico (no "Todos") para crear un producto en ese grupo, o crea un grupo primero.');
+    alert('Selecciona un grupo específico (no "Todos") para crear un producto.');
     window._agregandoProducto = false;
     return;
   }
 
-  const subgrupoBtnActivo = document.querySelector('#adminSubgruposBar .subgrupo-btn.active');
+  // ✅ Si hay un subgrupo activo, usarlo; si no, subgrupo queda vacío (permitido)
   let subgrupoActual = '';
-
-  if (subgrupoBtnActivo) {
-    subgrupoActual = subgrupoBtnActivo.dataset.subgrupo;
-  } else if (window.currentAdminSubgrupo) {
-    subgrupoActual = window.currentAdminSubgrupo;
+  const subgrupoActivo = document.querySelector('#adminSubgruposBar .subgrupo-btn.active');
+  if (subgrupoActivo) {
+    subgrupoActual = subgrupoActivo.dataset.subgrupo;
   }
 
   const tempId = 'nuevo_' + Date.now() + '_' + Math.random().toString(36).substring(2, 11);
@@ -1144,18 +1133,17 @@ async function agregarNuevoProducto() {
     nombre: '',
     precio: 0,
     grupo: grupoActual,
-    subgrupo: subgrupoActual,
+    subgrupo: subgrupoActual,   // puede ser cadena vacía
     descripcion: '',
     imagen_url: '',
     fotos_adicionales: [],
   };
 
   window.todosLosProductos.push(nuevoProducto);
-  filtrarProductos(grupoActual, subgrupoActual);
-
+  // Mostrar el grupo sin filtrar por subgrupo (para que el producto nuevo aparezca)
+  filtrarProductos(grupoActual, null);
   window._agregandoProducto = false;
 }
-
 
 async function guardarTodosProductos() {
   if (window._guardandoTodos) {
