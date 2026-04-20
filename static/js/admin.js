@@ -379,7 +379,7 @@ function duplicarProductoDesdeCard(id_base) {
     const indexOriginal = window.todosLosProductos.findIndex(p => p.id_base === id_base);
     if (indexOriginal !== -1) {
       window.todosLosProductos[indexOriginal] = productoActualizado;
-      // Marcar este producto como "con cambios pendientes" para que se guarde aunque el array esté sincronizado
+      // Marcar este producto como "con cambios pendientes"
       if (!window._productosConCambiosPendientes) window._productosConCambiosPendientes = new Set();
       window._productosConCambiosPendientes.add(id_base);
     }
@@ -393,17 +393,10 @@ function duplicarProductoDesdeCard(id_base) {
 
     window.todosLosProductos.push(copia);
 
-    // Refrescar vista manteniendo filtro
-    const grupoActivo = document.querySelector('.grupo-btn.active');
-    const grupo = grupoActivo ? grupoActivo.dataset.grupo : null;
-    const subgrupoActivo = document.querySelector('#adminSubgruposBar .subgrupo-btn.active');
-    const subgrupo = subgrupoActivo ? subgrupoActivo.dataset.subgrupo : null;
-    if (grupo) {
-      filtrarProductos(grupo, subgrupo);
-    } else {
-      renderTablaProductos();
-    }
+    // ✅ Agregar la nueva fila al DOM sin recargar toda la tabla
+    agregarFilaProducto(copia);
 
+    // Resaltar la nueva fila
     setTimeout(() => {
       const nuevaFila = document.querySelector(`tr[data-id-base="${copia.id_base}"]`);
       if (nuevaFila) {
@@ -427,7 +420,6 @@ function duplicarProductoDesdeCard(id_base) {
     }
   }
 }
-
 
 async function abrirConfigMercadoPago() {
   const urlRetorno = window.location.href;
