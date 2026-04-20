@@ -1,14 +1,12 @@
 window.todosLosProductos = window.todosLosProductos || [];
 
 async function guardarProducto(producto, formDiv, skipReload = false) {
-  // 🔒 Evitar múltiples guardados simultáneos
   if (window._guardandoProducto) {
     console.warn("Ya hay una operación de guardado en curso");
     return false;
   }
   window._guardandoProducto = true;
 
-  // Deshabilitar el botón de guardar si existe
   let boton = null;
   let textoOriginal = '';
   if (formDiv && typeof formDiv.querySelector === 'function') {
@@ -21,7 +19,6 @@ async function guardarProducto(producto, formDiv, skipReload = false) {
   }
 
   try {
-    // ⭐ Priorizar TARGET_EMAIL (master admin creando para otro) sobre cliente.email
     const email = window.TARGET_EMAIL || window.cliente?.email;
     if (!email) {
       alert("❌ No hay email de admin, no se puede guardar");
@@ -60,8 +57,35 @@ async function guardarProducto(producto, formDiv, skipReload = false) {
         mostrarToast(`✅ ${producto.nombre} guardado`);
       }
       if (!skipReload) {
+        // Recargar el array global desde el servidor (sin refrescar la tabla completa)
         await recargarProductos();
-        renderTablaProductos();
+        
+        // Obtener el nuevo id_base devuelto por el backend
+        const nuevoIdBase = data.producto_id || data.id_base || (esEdicion ? idBase : null);
+        let productoActualizado = null;
+        if (nuevoIdBase) {
+          productoActualizado = window.todosLosProductos.find(p => p.id_base === nuevoIdBase);
+        }
+        
+        if (productoActualizado) {
+          // Buscar la fila actual (podría tener el id_base antiguo si era nuevo)
+          const idBaseAntiguo = esEdicion ? idBase : (formDiv?.dataset?.idBase || idBase);
+          const filaExistente = document.querySelector(`tr[data-id-base="${idBaseAntiguo}"]`);
+          if (filaExistente) {
+            // Actualizar la fila existente con los datos frescos
+            actualizarFilaProducto(productoActualizado.id_base, productoActualizado);
+          } else {
+            // Si no existe (caso raro), agregar nueva fila
+            agregarFilaProducto(productoActualizado);
+          }
+          // Actualizar el dataset del formDiv para futuras ediciones (importante si cambió el id_base)
+          if (formDiv && !esEdicion && nuevoIdBase) {
+            formDiv.dataset.idBase = nuevoIdBase;
+          }
+        } else {
+          // Fallback: recargar toda la tabla (por si algo salió mal)
+          renderTablaProductos();
+        }
       }
       return true;
     } else {
@@ -71,7 +95,6 @@ async function guardarProducto(producto, formDiv, skipReload = false) {
     alert("❌ Error: " + err.message);
     return false;
   } finally {
-    // Restaurar estado y habilitar botón
     window._guardandoProducto = false;
     if (boton) {
       boton.disabled = false;
@@ -79,7 +102,6 @@ async function guardarProducto(producto, formDiv, skipReload = false) {
     }
   }
 }
-
 function abrirConfigCorreoArgentino() {
   const modal = document.getElementById('modalConfigCA');
   if (modal) {
