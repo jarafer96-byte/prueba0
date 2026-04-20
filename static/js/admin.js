@@ -1143,7 +1143,7 @@ async function agregarNuevoProducto() {
 
   window.todosLosProductos.push(nuevoProducto);
   // Mostrar el grupo sin filtrar por subgrupo (para que el producto nuevo aparezca)
-  filtrarProductos(grupoActual, null);
+  filtrarProductos(grupoActual, subgrupoActual || null);
   window._agregandoProducto = false;
 }
 
