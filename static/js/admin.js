@@ -856,7 +856,7 @@ function renderFilasTabla(productos) {
 }
 
 
-function mostrarSubgruposHorizontal(grupo) {
+function mostrarSubgruposHorizontal(grupo, subgrupoActivo = null) {
   const productos = window.todosLosProductos || [];
   const subgrupos = [...new Set(
     productos.filter(p => p.grupo === grupo)
@@ -867,29 +867,31 @@ function mostrarSubgruposHorizontal(grupo) {
   if (!barraSub) return;
 
   let html = '';
-  // Botones para cada subgrupo existente
   subgrupos.forEach(sub => {
+    // Si este subgrupo es el activo, añadir clase 'active'
+    const activeClass = (sub === subgrupoActivo) ? 'active' : '';
     html += `
-      <button class="btn btn-sm btn-outline-secondary subgrupo-btn" data-grupo="${grupo}" data-subgrupo="${sub}">
+      <button class="btn btn-sm btn-outline-secondary subgrupo-btn ${activeClass}" data-grupo="${grupo}" data-subgrupo="${sub}">
         📂 ${sub}
       </button>
     `;
   });
-  // Siempre el botón para crear nuevo subgrupo
   html += `<button class="btn btn-sm btn-success agregar-subgrupo-btn" data-grupo="${grupo}">+ Subgrupo</button>`;
 
   barraSub.innerHTML = html;
   barraSub.classList.add('admin-subgrupos-bar-visible');
   barraSub.dataset.currentGroup = grupo;
 
-  // Si hay subgrupos y ninguno está activo, seleccionar el primero automáticamente
-  setTimeout(() => {
-    const activo = barraSub.querySelector('.subgrupo-btn.active');
-    if (!activo && subgrupos.length > 0) {
-      const primerSub = barraSub.querySelector('.subgrupo-btn');
-      if (primerSub) primerSub.click();
-    }
-  }, 30);
+  // Solo seleccionar el primer subgrupo si no se pasó ninguno como activo y no hay ningún botón con clase 'active'
+  if (!subgrupoActivo) {
+    setTimeout(() => {
+      const activo = barraSub.querySelector('.subgrupo-btn.active');
+      if (!activo) {
+        const primerSub = barraSub.querySelector('.subgrupo-btn');
+        if (primerSub) primerSub.click();
+      }
+    }, 30);
+  }
 }
 
 function ocultarSubgrupos() {
