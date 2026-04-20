@@ -325,44 +325,49 @@ function duplicarProductoDesdeCard(id_base) {
   }
 
   try {
-    // Buscar el producto original en el array global
-    const original = window.todosLosProductos?.find(p => p.id_base === id_base);
-    if (!original) {
-      alert("❌ Producto no encontrado");
+    // 1. Obtener la fila actual del producto desde el DOM
+    const fila = document.querySelector(`tr[data-id-base="${id_base}"]`);
+    if (!fila) {
+      alert("❌ No se encontró la fila del producto");
       return;
     }
 
-    // Crear una copia profunda
+    // 2. Construir el objeto producto actual (con los cambios no guardados)
+    const original = obtenerProductoDesdeFila(fila, id_base);
+    if (!original) {
+      alert("❌ No se pudo leer el producto actual");
+      return;
+    }
+
+    // 3. Crear una copia profunda
     const copia = JSON.parse(JSON.stringify(original));
 
-    // Eliminar el id_base original y generar uno nuevo (único)
+    // 4. Generar nuevo id_base temporal
     delete copia.id_base;
-    // Usar timestamp + random + contador para mayor unicidad
     const nuevoId = 'nuevo_' + Date.now() + '_' + Math.random().toString(36).substring(2, 11) + '_' + (window._ultimoIdDuplicado || 0);
     window._ultimoIdDuplicado = (window._ultimoIdDuplicado || 0) + 1;
     copia.id_base = nuevoId;
 
-    // Limpiar imágenes para que el usuario las asigne después
+    // 5. Limpiar imágenes (para que el usuario las asigne después)
     copia.imagen_url = '';
     copia.fotos_adicionales = [];
 
-    // Agregar la copia al array global
+    // 6. Agregar la copia al array global
     window.todosLosProductos.push(copia);
 
-    // Obtener el grupo y subgrupo actuales (desde los botones activos)
+    // 7. Refrescar la vista manteniendo el filtro actual
     const grupoActivo = document.querySelector('.grupo-btn.active');
     const grupo = grupoActivo ? grupoActivo.dataset.grupo : null;
     const subgrupoActivo = document.querySelector('#adminSubgruposBar .subgrupo-btn.active');
     const subgrupo = subgrupoActivo ? subgrupoActivo.dataset.subgrupo : null;
 
-    // Refrescar la vista manteniendo el filtro actual (si existe)
     if (grupo) {
       filtrarProductos(grupo, subgrupo);
     } else {
       renderTablaProductos();
     }
 
-    // Opcional: hacer scroll y resaltar la nueva fila
+    // 8. Resaltar la nueva fila
     setTimeout(() => {
       const nuevaFila = document.querySelector(`tr[data-id-base="${copia.id_base}"]`);
       if (nuevaFila) {
