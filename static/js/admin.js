@@ -310,14 +310,12 @@ async function subirImagen(blob) {
 
 
 function duplicarProductoDesdeCard(id_base) {
-  // Evita duplicaciones múltiples simultáneas
   if (window._duplicandoProducto) {
     console.warn("Ya hay una operación de duplicación en curso");
     return;
   }
   window._duplicandoProducto = true;
 
-  // Deshabilitar el botón de duplicar mientras se procesa
   const boton = document.querySelector(`.duplicar-producto[data-id="${id_base}"]`);
   const textoOriginal = boton?.innerHTML;
   if (boton) {
@@ -326,52 +324,42 @@ function duplicarProductoDesdeCard(id_base) {
   }
 
   try {
-    // 1. Obtener la fila actual del producto desde el DOM
     const fila = document.querySelector(`tr[data-id-base="${id_base}"]`);
-    if (!fila) {
-      throw new Error("No se encontró la fila del producto");
+    if (!fila) throw new Error("No se encontró la fila");
+
+    // Leer el estado actual completo del DOM
+    const productoActualizado = obtenerProductoDesdeFila(fila, id_base);
+    if (!productoActualizado) throw new Error("No se pudo leer el producto");
+
+    // ACTUALIZAR el original en el array (para que la tabla lo muestre con las variantes nuevas)
+    const indexOriginal = window.todosLosProductos.findIndex(p => p.id_base === id_base);
+    if (indexOriginal !== -1) {
+      window.todosLosProductos[indexOriginal] = productoActualizado;
+      // Marcar este producto como "con cambios pendientes" para que se guarde aunque el array esté sincronizado
+      if (!window._productosConCambiosPendientes) window._productosConCambiosPendientes = new Set();
+      window._productosConCambiosPendientes.add(id_base);
     }
 
-    // 2. Leer el estado actual completo del producto desde el DOM
-    //    (incluye todas las variantes, fotos, etc., incluso cambios no guardados)
-    const productoActual = obtenerProductoDesdeFila(fila, id_base);
-    if (!productoActual) {
-      throw new Error("No se pudo leer el producto actual");
-    }
-
-    // ⚠️ IMPORTANTE: NO actualizamos el producto original en window.todosLosProductos
-    // para que el original conserve su estado previo (sin los cambios no guardados)
-    // y así al guardar todos se detecten las diferencias y se guarde correctamente.
-
-    // 3. Crear una copia profunda del producto leído
-    const copia = JSON.parse(JSON.stringify(productoActual));
-
-    // 4. Generar un nuevo id_base temporal para la copia
+    // Crear copia
+    const copia = JSON.parse(JSON.stringify(productoActualizado));
     delete copia.id_base;
     copia.id_base = 'nuevo_' + Date.now() + '_' + Math.random().toString(36).substring(2, 11);
-
-    // 5. Limpiar las imágenes (para que el usuario las asigne después, opcional)
     copia.imagen_url = '';
     copia.fotos_adicionales = [];
 
-    // 6. Agregar la copia al array global de productos
     window.todosLosProductos.push(copia);
-    console.log("Copia agregada:", copia);
 
-    // 7. Obtener el grupo y subgrupo actualmente seleccionados (para mantener el filtro)
+    // Refrescar vista manteniendo filtro
     const grupoActivo = document.querySelector('.grupo-btn.active');
     const grupo = grupoActivo ? grupoActivo.dataset.grupo : null;
     const subgrupoActivo = document.querySelector('#adminSubgruposBar .subgrupo-btn.active');
     const subgrupo = subgrupoActivo ? subgrupoActivo.dataset.subgrupo : null;
-
-    // 8. Refrescar la vista manteniendo el filtro actual
     if (grupo) {
       filtrarProductos(grupo, subgrupo);
     } else {
       renderTablaProductos();
     }
 
-    // 9. Resaltar la nueva fila (para que el usuario la vea fácilmente)
     setTimeout(() => {
       const nuevaFila = document.querySelector(`tr[data-id-base="${copia.id_base}"]`);
       if (nuevaFila) {
@@ -381,7 +369,6 @@ function duplicarProductoDesdeCard(id_base) {
       }
     }, 100);
 
-    // 10. Mostrar mensaje de éxito (si existe la función mostrarToast)
     if (typeof mostrarToast === 'function') {
       mostrarToast('✅ Producto duplicado (pendiente de guardar)');
     }
@@ -389,7 +376,6 @@ function duplicarProductoDesdeCard(id_base) {
     console.error(err);
     alert('Error al duplicar: ' + err.message);
   } finally {
-    // Restaurar el botón y liberar el bloqueo
     window._duplicandoProducto = false;
     if (boton) {
       boton.disabled = false;
