@@ -189,7 +189,35 @@ function cerrarModalConfigCA() {
     });
   }
 
+// Reemplaza el contenido de una fila existente con los datos actualizados del producto
+function actualizarFilaProducto(idBase, productoActualizado) {
+  const fila = document.querySelector(`tr[data-id-base="${idBase}"]`);
+  if (!fila) return false;
+  
+  // Generar el HTML de la fila usando renderFilasTabla (pero solo para un producto)
+  const htmlFila = renderFilasTabla([productoActualizado]);
+  const nuevaFila = document.createElement('tr');
+  nuevaFila.innerHTML = htmlFila;
+  nuevaFila.setAttribute('data-id-base', idBase);
+  
+  // Reemplazar la fila existente
+  fila.parentNode.replaceChild(nuevaFila, fila);
+  return true;
+}
 
+// Agrega una nueva fila al final del tbody
+function agregarFilaProducto(producto) {
+  const tbody = document.getElementById('tabla-productos-body');
+  if (!tbody) return;
+  const htmlFila = renderFilasTabla([producto]);
+  tbody.insertAdjacentHTML('beforeend', htmlFila);
+}
+
+// Elimina una fila del DOM
+function eliminarFilaProducto(idBase) {
+  const fila = document.querySelector(`tr[data-id-base="${idBase}"]`);
+  if (fila) fila.remove();
+}
 
 async function eliminarProducto(id_base) {
   // 🔒 Evita ejecuciones simultáneas
