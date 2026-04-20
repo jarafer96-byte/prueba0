@@ -631,7 +631,7 @@ function parsearTallesStock(cadena) {
 function agregarFilaColor(btn) {
   const contenedor = btn.closest('.colores-stock-container');
   const nuevaFila = document.createElement('div');
-  nuevaFila.className = 'fila-color d-flex align-items-center mb-1'; // la clase .fila-color ya tiene gap:5px en CSS
+  nuevaFila.className = 'fila-color d-flex align-items-center mb-1';
   nuevaFila.innerHTML = `
     <input type="text" class="form-control form-control-sm color-input" placeholder="Color">
     <input type="checkbox" class="talle-toggle">
@@ -681,8 +681,14 @@ function agregarFilaColor(btn) {
       input.value = stock;
     }
   });
-}
 
+  // ✅ Marcar el producto como "con cambios pendientes" para que se guarde aunque el array esté sincronizado
+  const idBase = contenedor.getAttribute('data-id');
+  if (idBase) {
+    if (!window._productosConCambiosPendientes) window._productosConCambiosPendientes = new Set();
+    window._productosConCambiosPendientes.add(idBase);
+  }
+}
 
 function renderTablaProductos() {
   const container = document.getElementById('tableView');
