@@ -491,7 +491,7 @@
   transition: all 0.2s;
 }
 .precio-input {
-  width: 80px;
+  width: 100px;
 }
 .agregar-fila-color {
   color: white !important;
