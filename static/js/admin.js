@@ -975,9 +975,9 @@ function filtrarProductos(grupo, subgrupo = null) {
 
   // ✅ Siempre mostrar la barra de subgrupos si hay un grupo seleccionado (no "Todos")
   if (grupo && grupo !== 'todos') {
-    mostrarSubgruposHorizontal(grupo);
+      mostrarSubgruposHorizontal(grupo, subgrupo); // ← pasa el subgrupo actual
   } else {
-    ocultarSubgrupos();
+      ocultarSubgrupos();
   }
 
   // Actualizar clases activas en botones de subgrupo
