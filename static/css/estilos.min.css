@@ -1096,7 +1096,7 @@ h1, h2, h3, .btn, .card { font-family: 'Raleway', sans-serif; }
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 .editable-input {
-  width: 100px !important;
+  width: 100%;
   border: 1px solid transparent;
   background: transparent;
   padding: 6px 8px;
