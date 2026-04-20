@@ -242,14 +242,12 @@ function eliminarFilaProducto(idBase) {
 }
 
 async function eliminarProducto(id_base) {
-  // 🔒 Evita ejecuciones simultáneas
   if (window._eliminandoProducto) {
     console.warn("Ya hay una operación de eliminación en curso");
     return;
   }
   window._eliminandoProducto = true;
 
-  // Buscar el botón eliminar asociado (si existe)
   const boton = document.querySelector(`.eliminar-producto[data-id="${id_base}"]`);
   const textoOriginal = boton?.innerHTML;
   if (boton) {
@@ -263,24 +261,14 @@ async function eliminarProducto(id_base) {
       const index = window.todosLosProductos.findIndex(p => p.id_base === id_base);
       if (index !== -1) {
         window.todosLosProductos.splice(index, 1);
-        const grupoActivo = document.querySelector('.grupo-btn.active');
-        const grupo = grupoActivo ? grupoActivo.dataset.grupo : null;
-        const subgrupoActivo = document.querySelector('.subgrupo-btn.active');
-        const subgrupo = subgrupoActivo ? subgrupoActivo.dataset.subgrupo : null;
-        if (grupo) {
-          filtrarProductos(grupo, subgrupo);
-        } else {
-          renderTablaProductos();
-        }
+        eliminarFilaProducto(id_base); // ✅ eliminar fila del DOM directamente
         if (typeof mostrarToast === 'function') mostrarToast('✅ Producto eliminado (sin guardar)');
       }
       return;
     }
 
-    // ⭐ Priorizar TARGET_EMAIL (master admin) sobre cliente.email
-    const email = window.TARGET_EMAIL || window.cliente?.email;
-
     // Caso: producto real (ya guardado en BD)
+    const email = window.TARGET_EMAIL || window.cliente?.email;
     const resp = await fetch("/eliminar-producto", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -288,8 +276,15 @@ async function eliminarProducto(id_base) {
     });
     const data = await resp.json();
     if (data.status === "ok") {
-      await recargarProductos();
-      renderTablaProductos();
+      // Eliminar del array global
+      const index = window.todosLosProductos.findIndex(p => p.id_base === id_base);
+      if (index !== -1) window.todosLosProductos.splice(index, 1);
+      // Eliminar fila del DOM
+      eliminarFilaProducto(id_base);
+      // Si estaba marcado como pendiente, limpiar la marca
+      if (window._productosConCambiosPendientes) {
+        window._productosConCambiosPendientes.delete(id_base);
+      }
       if (typeof mostrarToast === 'function') mostrarToast('✅ Producto eliminado');
     } else {
       alert("Error al eliminar producto: " + (data.error || data.message || "Error desconocido"));
@@ -304,7 +299,6 @@ async function eliminarProducto(id_base) {
     }
   }
 }
-
 
 async function optimizarImagen(file) {
   const imgUrl = URL.createObjectURL(file);
