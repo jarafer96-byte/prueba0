@@ -324,29 +324,39 @@ function duplicarProductoDesdeCard(id_base) {
   }
 
   try {
-    // Obtener la fila actual del DOM
+    // 1. Obtener la fila actual del DOM
     const fila = document.querySelector(`tr[data-id-base="${id_base}"]`);
     if (!fila) throw new Error("No se encontró la fila");
 
-    // Leer el producto actual directamente desde la fila (captura todos los cambios no guardados)
-    const productoActual = obtenerProductoDesdeFila(fila, id_base);
-    if (!productoActual) throw new Error("No se pudo leer el producto");
+    // 2. Leer el producto actual desde el DOM (con todas las variantes no guardadas)
+    const productoActualizado = obtenerProductoDesdeFila(fila, id_base);
+    if (!productoActualizado) throw new Error("No se pudo leer el producto");
 
-    // Crear copia profunda
-    const copia = JSON.parse(JSON.stringify(productoActual));
+    // 3. ACTUALIZAR el objeto original en window.todosLosProductos con los valores del DOM
+    const indexOriginal = window.todosLosProductos.findIndex(p => p.id_base === id_base);
+    if (indexOriginal !== -1) {
+      window.todosLosProductos[indexOriginal] = productoActualizado;
+      console.log("Original actualizado:", productoActualizado);
+    } else {
+      console.warn("No se encontró el original en el array");
+    }
 
-    // Generar nuevo ID temporal
+    // 4. Crear una copia profunda del producto actualizado
+    const copia = JSON.parse(JSON.stringify(productoActualizado));
+
+    // 5. Generar nuevo id_base temporal
     delete copia.id_base;
     copia.id_base = 'nuevo_' + Date.now() + '_' + Math.random().toString(36).substring(2, 11);
 
-    // Limpiar imágenes (para que el usuario las asigne después)
+    // 6. Limpiar imágenes (opcional)
     copia.imagen_url = '';
     copia.fotos_adicionales = [];
 
-    // Agregar al array global
+    // 7. Agregar la copia al array global
     window.todosLosProductos.push(copia);
+    console.log("Copia agregada:", copia);
 
-    // Refrescar la vista manteniendo el filtro actual
+    // 8. Refrescar la vista manteniendo el filtro actual
     const grupoActivo = document.querySelector('.grupo-btn.active');
     const grupo = grupoActivo ? grupoActivo.dataset.grupo : null;
     const subgrupoActivo = document.querySelector('#adminSubgruposBar .subgrupo-btn.active');
@@ -358,7 +368,7 @@ function duplicarProductoDesdeCard(id_base) {
       renderTablaProductos();
     }
 
-    // Resaltar la nueva fila
+    // 9. Resaltar la nueva fila
     setTimeout(() => {
       const nuevaFila = document.querySelector(`tr[data-id-base="${copia.id_base}"]`);
       if (nuevaFila) {
