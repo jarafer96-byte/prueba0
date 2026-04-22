@@ -395,6 +395,19 @@ function renderProducto(p, esLCP = false) {
     ahorroSmall.classList.add('ahorro-oculto');
   }
 
+  // ⭐ Cuotas sin interés (NUEVO)
+  if (window.configTienda && window.configTienda.cuotas_sin_interes) {
+    const cuotas = window.configTienda.cuotas_numero || 3;
+    const valorCuota = (precioActual / cuotas).toFixed(2);
+    const cuotasDiv = document.createElement('div');
+    cuotasDiv.className = 'cuotas-info';
+    cuotasDiv.textContent = `${cuotas} cuotas sin interés de $${valorCuota}`;
+    
+    // Insertar después del span de precio (dentro del mismo párrafo)
+    const precioContainer = precioSpan.parentNode;
+    precioContainer.appendChild(cuotasDiv);
+  }
+
   // Descripción
   if (p.descripcion) {
     descripcionTexto.innerHTML = `<div class="producto-descripcion">${p.descripcion}</div>`;
