@@ -7,6 +7,12 @@
 .flecha-izq, .flecha-der {
   display: none !important;
 }
+.cuotas-info {
+  font-size: 0.8em;
+  color: #4caf50;
+  margin-top: 4px;
+  font-weight: 500;
+}
 #productos {
   min-height: 500px;
 }
