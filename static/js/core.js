@@ -19,6 +19,20 @@ if (adminToken) {
     window.modoAdmin = true;
 }
 
+// Al inicio de core.js, después de las declaraciones iniciales
+(function initConfigTienda() {
+  const body = document.body;
+  const cuotasSinInteres = body.getAttribute('data-cuotas-sin-interes');
+  const cuotasNumero = body.getAttribute('data-cuotas-numero');
+  const emailNotificaciones = body.getAttribute('data-email-notificaciones');
+
+  window.configTienda = {
+    email_notificaciones: emailNotificaciones || '',
+    cuotas_sin_interes: cuotasSinInteres === 'true',
+    cuotas_numero: parseInt(cuotasNumero, 10) || 3
+  };
+})();
+
 function cambiarPaso(paso) {
   const pasoCarrito = document.getElementById('pasoCarrito');
   const pasoDireccion = document.getElementById('pasoDireccion');
