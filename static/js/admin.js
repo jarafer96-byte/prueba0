@@ -300,6 +300,87 @@ async function eliminarProducto(id_base) {
   }
 }
 
+
+// Abrir modal de configuración de tienda
+async function abrirConfigTienda() {
+  const modal = document.getElementById('modalConfigTienda');
+  if (!modal) return;
+
+  // Cargar configuración actual desde Firestore
+  try {
+    const resp = await fetch(`/api/productos`); // No tenemos endpoint GET específico, podemos usar el config general
+    // Alternativa: hacer una petición a un nuevo endpoint GET /api/config-tienda, pero por ahora usemos window.configTienda
+    if (window.configTienda) {
+      document.getElementById('tienda_email_notificaciones').value = window.configTienda.email_notificaciones || '';
+      document.getElementById('tienda_cuotas_activas').checked = window.configTienda.cuotas_sin_interes || false;
+      document.getElementById('tienda_cuotas_numero').value = window.configTienda.cuotas_numero || 3;
+    }
+  } catch (e) {
+    console.warn('No se pudo cargar config actual', e);
+  }
+
+  modal.classList.add('modal-visible');
+}
+
+function cerrarModalConfigTienda() {
+  const modal = document.getElementById('modalConfigTienda');
+  if (modal) modal.classList.remove('modal-visible');
+}
+
+// Manejar envío del formulario
+document.addEventListener('DOMContentLoaded', () => {
+  const formTienda = document.getElementById('formConfigTienda');
+  if (formTienda) {
+    formTienda.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const submitBtn = formTienda.querySelector('button[type="submit"]');
+      const originalText = submitBtn.innerText;
+      submitBtn.disabled = true;
+      submitBtn.innerText = 'Guardando...';
+
+      const emailNotif = document.getElementById('tienda_email_notificaciones').value.trim();
+      const cuotasActivas = document.getElementById('tienda_cuotas_activas').checked;
+      const cuotasNumero = parseInt(document.getElementById('tienda_cuotas_numero').value, 10);
+
+      try {
+        const resp = await fetch('/api/config-tienda', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email_notificaciones: emailNotif || null,
+            cuotas_sin_interes: cuotasActivas,
+            cuotas_numero: cuotasNumero
+          })
+        });
+        const data = await resp.json();
+        if (data.status === 'ok') {
+          alert('✅ Configuración guardada');
+          cerrarModalConfigTienda();
+          // Actualizar variable global para reflejar cambios sin recargar
+          window.configTienda = {
+            ...window.configTienda,
+            email_notificaciones: emailNotif,
+            cuotas_sin_interes: cuotasActivas,
+            cuotas_numero: cuotasNumero
+          };
+        } else {
+          alert('❌ Error: ' + (data.message || 'No se pudo guardar'));
+        }
+      } catch (err) {
+        alert('❌ Error de red');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerText = originalText;
+      }
+    });
+  }
+
+  const btnCerrarTienda = document.getElementById('btnCerrarModalTienda');
+  if (btnCerrarTienda) btnCerrarTienda.addEventListener('click', cerrarModalConfigTienda);
+});
+
+
+
 async function optimizarImagen(file) {
   const imgUrl = URL.createObjectURL(file);
   try {
