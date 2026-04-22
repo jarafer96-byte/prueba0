@@ -34,7 +34,10 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/static/img/faviconmovil.png">
 
 </head>
-<body class="container py-5 modo-oscuro">
+<body class="container modo-oscuro"
+      data-cuotas-sin-interes="{{ config.get('cuotas_sin_interes', False)|tojson }}"
+      data-cuotas-numero="{{ config.get('cuotas_numero', 3) }}"
+      data-email-notificaciones="{{ config.get('email_notificaciones', '') }}">
     <div class="fondo"></div>
     <div class="main-content">
     <main>  
