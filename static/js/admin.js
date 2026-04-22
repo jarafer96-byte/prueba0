@@ -1469,6 +1469,11 @@ if (window.modoAdmin) {
   const configurarMP = document.getElementById('configurarMP');
   if (configurarMP) configurarMP.classList.remove('d-none');
 
+  const configurarTienda = document.getElementById('configurarTienda');
+  if (configurarTienda) configurarTienda.classList.remove('d-none');
+  const btnConfigTienda = document.getElementById('btnConfigurarTienda');
+  if (btnConfigTienda) btnConfigTienda.addEventListener('click', abrirConfigTienda);
+
   const loginToggleBtn = document.getElementById('loginToggleBtn');
   if (loginToggleBtn) loginToggleBtn.classList.add('d-none');
 
