@@ -1286,10 +1286,8 @@ function agregarNuevoGrupo() {
 }
 
 
-document.addEventListener('DOMContentLoaded', () => {
-    // ------------------------------------------------------------------
-    // 1. BOTONES DE ADMIN (EXCLUYENDO LOS QUE YA MANEJA CORE.JS)
-    // ------------------------------------------------------------------
+(function() {
+    // 1. BOTONES DE ADMIN
     const btnConfigMP = document.getElementById('btnConfigurarMP');
     if (btnConfigMP) btnConfigMP.addEventListener('click', abrirConfigMercadoPago);
 
@@ -1302,9 +1300,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnSalirAdmin = document.getElementById('btnSalirAdmin');
     if (btnSalirAdmin) btnSalirAdmin.addEventListener('click', salirAdmin);
 
-    // ------------------------------------------------------------------
-    // 2. FORMULARIO DE CONFIGURACIÓN DE CORREO ARGENTINO
-    // ------------------------------------------------------------------
+    // 2. FORMULARIO DE CORREO ARGENTINO
     const formCA = document.getElementById('formConfigCA');
     if (formCA) {
         formCA.addEventListener('submit', async (e) => {
@@ -1366,9 +1362,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ------------------------------------------------------------------
-    // 3. FORMULARIO DE CONFIGURACIÓN DE TIENDA (CUOTAS, ETC.)
-    // ------------------------------------------------------------------
+    // 3. FORMULARIO DE CONFIGURACIÓN DE TIENDA
     const formTienda = document.getElementById('formConfigTienda');
     if (formTienda) {
         formTienda.addEventListener('submit', async (e) => {
@@ -1418,15 +1412,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnCerrarTienda = document.getElementById('btnCerrarModalTienda');
     if (btnCerrarTienda) btnCerrarTienda.addEventListener('click', cerrarModalConfigTienda);
 
-    // ------------------------------------------------------------------
-    // 4. FORMULARIO DE LOGIN DE ADMIN
-    // ------------------------------------------------------------------
+    // 4. LOGIN DE ADMIN
     const loginAdminForm = document.getElementById('loginAdminForm');
     if (loginAdminForm) loginAdminForm.addEventListener('submit', loginAdmin);
 
-    // ==================================================================
-    // 5. INICIALIZACIÓN SI EL USUARIO ESTÁ EN MODO ADMIN
-    // ==================================================================
+    // 5. INICIALIZACIÓN SI EL USUARIO YA ESTÁ EN MODO ADMIN
     if (window.modoAdmin) {
         const container = document.getElementById('adminFormsContainer');
         if (container) container.classList.remove('d-none');
@@ -1620,4 +1610,4 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
     }
-});
+})();
