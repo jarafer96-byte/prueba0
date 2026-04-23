@@ -1286,7 +1286,6 @@ function agregarNuevoGrupo() {
 }
 
 
-// Manejar envío del formulario
 document.addEventListener('DOMContentLoaded', () => {
     // ------------------------------------------------------------------
     // 1. BOTONES DE ADMIN (EXCLUYENDO LOS QUE YA MANEJA CORE.JS)
@@ -1303,10 +1302,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnSalirAdmin = document.getElementById('btnSalirAdmin');
     if (btnSalirAdmin) btnSalirAdmin.addEventListener('click', salirAdmin);
 
-    // ⚠️ NO asignamos eventos a btnProductosNav, btnContactoNav, btnVaciarCarrito,
-    //    modalClose, modalOverlay porque esas funciones (mostrarTodos, irAContacto,
-    //    vaciarCarrito, closeModal) pertenecen a core.js y ya tienen sus eventos allí.
-
     // ------------------------------------------------------------------
     // 2. FORMULARIO DE CONFIGURACIÓN DE CORREO ARGENTINO
     // ------------------------------------------------------------------
@@ -1314,19 +1309,16 @@ document.addEventListener('DOMContentLoaded', () => {
     if (formCA) {
         formCA.addEventListener('submit', async (e) => {
             e.preventDefault();
-
             const email = window.cliente?.email;
             if (!email) {
                 alert("No se detectó el email del vendedor. Inicia sesión nuevamente.");
                 return;
             }
-
             const agreement = document.getElementById('ca_agreement').value.trim();
             const api_key = document.getElementById('ca_api_key').value.trim();
             const micorreo_user = document.getElementById('ca_micorreo_user').value.trim();
             const micorreo_password = document.getElementById('ca_micorreo_password').value.trim();
             const test_mode = document.getElementById('ca_test_mode').checked;
-
             const nombre = document.getElementById('ca_nombre').value.trim();
             const calle = document.getElementById('ca_calle').value.trim();
             const altura = document.getElementById('ca_altura').value.trim();
@@ -1404,16 +1396,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.status === 'ok') {
                     alert('✅ Configuración guardada');
                     cerrarModalConfigTienda();
-
-                    // Actualizar variable global para reflejar cambios sin recargar
                     window.configTienda = {
                         ...window.configTienda,
                         email_notificaciones: emailNotif,
                         cuotas_sin_interes: cuotasActivas,
                         cuotas_numero: cuotasNumero
                     };
-
-                    // 🔥 NOTIFICAR AL FRONTEND PÚBLICO PARA QUE ACTUALICE LAS CARDS
                     window.dispatchEvent(new Event('configTiendaActualizada'));
                 } else {
                     alert('❌ Error: ' + (data.message || 'No se pudo guardar'));
@@ -1428,231 +1416,208 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const btnCerrarTienda = document.getElementById('btnCerrarModalTienda');
-    if (btnCerrarTienda) {
-        btnCerrarTienda.addEventListener('click', cerrarModalConfigTienda);
-    }
+    if (btnCerrarTienda) btnCerrarTienda.addEventListener('click', cerrarModalConfigTienda);
 
     // ------------------------------------------------------------------
-    // 4. FORMULARIO DE LOGIN DE ADMIN (si existe)
+    // 4. FORMULARIO DE LOGIN DE ADMIN
     // ------------------------------------------------------------------
     const loginAdminForm = document.getElementById('loginAdminForm');
-    if (loginAdminForm) {
-        loginAdminForm.addEventListener('submit', loginAdmin);
+    if (loginAdminForm) loginAdminForm.addEventListener('submit', loginAdmin);
+
+    // ==================================================================
+    // 5. INICIALIZACIÓN SI EL USUARIO ESTÁ EN MODO ADMIN
+    // ==================================================================
+    if (window.modoAdmin) {
+        const container = document.getElementById('adminFormsContainer');
+        if (container) container.classList.remove('d-none');
+
+        const formsList = document.getElementById('formsList');
+        if (formsList) formsList.classList.add('d-none');
+
+        const configurarCA = document.getElementById('configurarCA');
+        if (configurarCA) configurarCA.classList.remove('d-none');
+
+        const tableView = document.getElementById('tableView');
+        if (tableView) tableView.classList.add('d-block');
+
+        recargarProductos().then(() => {
+            renderTablaProductos();
+            setTimeout(() => {
+                const primerGrupo = document.querySelector('.grupo-btn');
+                if (primerGrupo) {
+                    primerGrupo.click();
+                    setTimeout(() => {
+                        const primerSubgrupo = document.querySelector('#adminSubgruposBar .subgrupo-btn');
+                        if (primerSubgrupo) primerSubgrupo.click();
+                    }, 100);
+                }
+            }, 50);
+        });
+
+        const logoutWrapper = document.getElementById('logoutAdminWrapper');
+        if (logoutWrapper) logoutWrapper.classList.remove('d-none');
+
+        const configurarMP = document.getElementById('configurarMP');
+        if (configurarMP) configurarMP.classList.remove('d-none');
+
+        const configurarTienda = document.getElementById('configurarTienda');
+        if (configurarTienda) configurarTienda.classList.remove('d-none');
+
+        const btnConfigTienda = document.getElementById('btnConfigurarTienda');
+        if (btnConfigTienda) btnConfigTienda.addEventListener('click', abrirConfigTienda);
+
+        const loginToggleBtn = document.getElementById('loginToggleBtn');
+        if (loginToggleBtn) loginToggleBtn.classList.add('d-none');
+
+        const adminContainer = document.getElementById('adminFormsContainer');
+        if (adminContainer) {
+            adminContainer.addEventListener('click', async (e) => {
+                const target = e.target;
+                if (target.classList.contains('admin-img-thumb')) {
+                    e.preventDefault();
+                    const url = target.getAttribute('data-modal-url');
+                    if (url) openModal(url);
+                    return;
+                }
+                if (target.id === 'guardarTodosTablaBtn') {
+                    e.preventDefault();
+                    await guardarTodosProductos();
+                    return;
+                }
+                if (target.id === 'btnNuevoProductoTabla') {
+                    e.preventDefault();
+                    agregarNuevoProducto();
+                    return;
+                }
+                if (target.id === 'adminBtnNuevoGrupo') {
+                    e.preventDefault();
+                    agregarNuevoGrupo();
+                    return;
+                }
+                if (target.classList.contains('agregar-subgrupo-btn')) {
+                    e.preventDefault();
+                    const grupo = target.dataset.grupo;
+                    if (grupo) agregarSubgrupo(grupo);
+                    return;
+                }
+                if (target.classList.contains('guardar-producto')) {
+                    e.preventDefault();
+                    const idBase = target.dataset.id;
+                    const fila = target.closest('tr');
+                    if (fila && idBase) {
+                        const producto = obtenerProductoDesdeFila(fila, idBase);
+                        await guardarProducto(producto, { dataset: { idBase } }, true);
+                    }
+                    return;
+                }
+                if (target.classList.contains('duplicar-producto')) {
+                    e.preventDefault();
+                    const idBase = target.dataset.id;
+                    if (idBase) duplicarProductoDesdeCard(idBase);
+                    return;
+                }
+                if (target.classList.contains('eliminar-producto')) {
+                    e.preventDefault();
+                    const idBase = target.dataset.id;
+                    if (idBase && confirm('¿Eliminar este producto?')) eliminarProducto(idBase);
+                    return;
+                }
+                if (target.classList.contains('agregar-fila-color')) {
+                    e.preventDefault();
+                    agregarFilaColor(target);
+                    return;
+                }
+                if (target.classList.contains('eliminar-foto-extra')) {
+                    e.preventDefault();
+                    const idBase = target.dataset.id;
+                    const url = target.dataset.url;
+                    if (idBase && url) eliminarFotoExtra(idBase, url);
+                    return;
+                }
+                if (target.classList.contains('agregar-foto-extra')) {
+                    e.preventDefault();
+                    agregarFotoExtra(target);
+                    return;
+                }
+                if (target.classList.contains('agregar-imagen-principal')) {
+                    e.preventDefault();
+                    agregarImagenPrincipal(target);
+                    return;
+                }
+                if (target.classList.contains('eliminar-color') || target.classList.contains('eliminar-fila-color')) {
+                    e.preventDefault();
+                    const filaColor = target.closest('.fila-color');
+                    if (filaColor) filaColor.remove();
+                    return;
+                }
+                if (target.classList.contains('grupo-btn')) {
+                    e.preventDefault();
+                    const grupo = target.dataset.grupo;
+                    if (grupo) filtrarProductos(grupo);
+                    return;
+                }
+                if (target.classList.contains('subgrupo-toggle-btn')) {
+                    e.preventDefault();
+                    const grupo = target.dataset.grupo;
+                    if (grupo) {
+                        const barraSub = document.getElementById('adminSubgruposBar');
+                        if (barraSub && barraSub.classList.contains('admin-subgrupos-bar-visible') && barraSub.dataset.currentGroup === grupo) {
+                            ocultarSubgrupos();
+                        } else {
+                            mostrarSubgruposHorizontal(grupo);
+                            if (barraSub) barraSub.dataset.currentGroup = grupo;
+                        }
+                    }
+                    return;
+                }
+                if (target.classList.contains('subgrupo-btn')) {
+                    e.preventDefault();
+                    const grupo = target.dataset.grupo;
+                    const subgrupo = target.dataset.subgrupo;
+                    if (grupo && subgrupo) filtrarProductos(grupo, subgrupo);
+                    return;
+                }
+            });
+        }
+
+        if (adminContainer) {
+            adminContainer.addEventListener('change', (e) => {
+                const target = e.target;
+                if (target.classList.contains('talle-toggle')) {
+                    const filaColor = target.closest('.fila-color');
+                    if (!filaColor) return;
+                    const inputDinamico = filaColor.querySelector('.talles-input, .stock-input');
+                    if (!inputDinamico) return;
+                    const estaMarcado = target.checked;
+                    if (estaMarcado) {
+                        let valorActual = inputDinamico.value;
+                        if (inputDinamico.type === 'number') {
+                            const stock = parseInt(valorActual, 10) || 0;
+                            valorActual = `unico:${stock}`;
+                        }
+                        inputDinamico.type = 'text';
+                        inputDinamico.classList.remove('stock-input');
+                        inputDinamico.classList.add('talles-input');
+                        inputDinamico.placeholder = 'S:30, M:20';
+                        inputDinamico.value = valorActual;
+                    } else {
+                        let valorActual = inputDinamico.value;
+                        let stock = 0;
+                        if (inputDinamico.type === 'text') {
+                            const tallesObj = parsearTallesStock(valorActual);
+                            if (tallesObj['unico']) stock = tallesObj['unico'];
+                            else stock = Object.values(tallesObj).reduce((a, b) => a + b, 0);
+                        } else {
+                            stock = parseInt(valorActual, 10) || 0;
+                        }
+                        inputDinamico.type = 'number';
+                        inputDinamico.classList.remove('talles-input');
+                        inputDinamico.classList.add('stock-input');
+                        inputDinamico.placeholder = 'Stock';
+                        inputDinamico.value = stock;
+                    }
+                }
+            });
+        }
     }
 });
-
-
-if (window.modoAdmin) {
-  const container = document.getElementById('adminFormsContainer');
-  if (container) container.classList.remove('d-none');
-
-  const formsList = document.getElementById('formsList');
-  if (formsList) formsList.classList.add('d-none');
-
-  const configurarCA = document.getElementById('configurarCA');
-  if (configurarCA) configurarCA.classList.remove('d-none');
-
-  const tableView = document.getElementById('tableView');
-  if (tableView) tableView.classList.add('d-block');
-
-  recargarProductos().then(() => {
-    renderTablaProductos();
-    setTimeout(() => {
-      const primerGrupo = document.querySelector('.grupo-btn');
-      if (primerGrupo) {
-        primerGrupo.click();
-        // Esperar a que se renderice la barra de subgrupos
-        setTimeout(() => {
-          const primerSubgrupo = document.querySelector('#adminSubgruposBar .subgrupo-btn');
-          if (primerSubgrupo) {
-            primerSubgrupo.click();
-          }
-        }, 100);
-      }
-    }, 50);
-  });
-
-  const logoutWrapper = document.getElementById('logoutAdminWrapper');
-  if (logoutWrapper) logoutWrapper.classList.remove('d-none');
-
-  const configurarMP = document.getElementById('configurarMP');
-  if (configurarMP) configurarMP.classList.remove('d-none');
-
-  const configurarTienda = document.getElementById('configurarTienda');
-  if (configurarTienda) configurarTienda.classList.remove('d-none');
-  const btnConfigTienda = document.getElementById('btnConfigurarTienda');
-  if (btnConfigTienda) btnConfigTienda.addEventListener('click', abrirConfigTienda);
-
-  const loginToggleBtn = document.getElementById('loginToggleBtn');
-  if (loginToggleBtn) loginToggleBtn.classList.add('d-none');
-
-  const adminContainer = document.getElementById('adminFormsContainer');
-  if (adminContainer) {
-    adminContainer.addEventListener('click', async (e) => {
-      const target = e.target;
-
-      if (target.classList.contains('admin-img-thumb')) {
-        e.preventDefault();
-        const url = target.getAttribute('data-modal-url');
-        if (url) openModal(url);
-        return;
-      }
-
-      if (target.id === 'guardarTodosTablaBtn') {
-        e.preventDefault();
-        await guardarTodosProductos();
-        return;
-      }
-
-      if (target.id === 'btnNuevoProductoTabla') {
-        e.preventDefault();
-        agregarNuevoProducto();
-        return;
-      }
-
-      if (target.id === 'adminBtnNuevoGrupo') {
-        e.preventDefault();
-        agregarNuevoGrupo();
-        return;
-      }
-
-      if (target.classList.contains('agregar-subgrupo-btn')) {
-        e.preventDefault();
-        const grupo = target.dataset.grupo;
-        if (grupo) agregarSubgrupo(grupo);
-        return;
-      }
-
-      if (target.classList.contains('guardar-producto')) {
-        e.preventDefault();
-        const idBase = target.dataset.id;
-        const fila = target.closest('tr');
-        if (fila && idBase) {
-          const producto = obtenerProductoDesdeFila(fila, idBase);
-          await guardarProducto(producto, { dataset: { idBase } }, true);
-        }
-        return;
-      }
-
-      if (target.classList.contains('duplicar-producto')) {
-        e.preventDefault();
-        const idBase = target.dataset.id;
-        if (idBase) duplicarProductoDesdeCard(idBase);
-        return;
-      }
-
-      if (target.classList.contains('eliminar-producto')) {
-        e.preventDefault();
-        const idBase = target.dataset.id;
-        if (idBase && confirm('¿Eliminar este producto?')) {
-          eliminarProducto(idBase);
-        }
-        return;
-      }
-
-      if (target.classList.contains('agregar-fila-color')) {
-        e.preventDefault();
-        agregarFilaColor(target);
-        return;
-      }
-
-      if (target.classList.contains('eliminar-foto-extra')) {
-        e.preventDefault();
-        const idBase = target.dataset.id;
-        const url = target.dataset.url;
-        if (idBase && url) eliminarFotoExtra(idBase, url);
-        return;
-      }
-
-      if (target.classList.contains('agregar-foto-extra')) {
-        e.preventDefault();
-        agregarFotoExtra(target);
-        return;
-      }
-
-      if (target.classList.contains('agregar-imagen-principal')) {
-        e.preventDefault();
-        agregarImagenPrincipal(target);
-        return;
-      }
-
-      if (target.classList.contains('eliminar-color') || target.classList.contains('eliminar-fila-color')) {
-        e.preventDefault();
-        const filaColor = target.closest('.fila-color');
-        if (filaColor) filaColor.remove();
-        return;
-      }
-
-      if (target.classList.contains('grupo-btn')) {
-        e.preventDefault();
-        const grupo = target.dataset.grupo;
-        if (grupo) filtrarProductos(grupo);
-        return;
-      }
-
-      if (target.classList.contains('subgrupo-toggle-btn')) {
-        e.preventDefault();
-        const grupo = target.dataset.grupo;
-        if (grupo) {
-          const barraSub = document.getElementById('adminSubgruposBar');
-          if (barraSub && barraSub.classList.contains('admin-subgrupos-bar-visible') && barraSub.dataset.currentGroup === grupo) {
-            ocultarSubgrupos();
-          } else {
-            mostrarSubgruposHorizontal(grupo);
-            if (barraSub) barraSub.dataset.currentGroup = grupo;
-          }
-        }
-        return;
-      }
-
-      if (target.classList.contains('subgrupo-btn')) {
-        e.preventDefault();
-        const grupo = target.dataset.grupo;
-        const subgrupo = target.dataset.subgrupo;
-        if (grupo && subgrupo) filtrarProductos(grupo, subgrupo);
-        return;
-      }
-    });
-  }
-
-  adminContainer.addEventListener('change', (e) => {
-    const target = e.target;
-    if (target.classList.contains('talle-toggle')) {
-      const filaColor = target.closest('.fila-color');
-      if (!filaColor) return;
-      const inputDinamico = filaColor.querySelector('.talles-input, .stock-input');
-      if (!inputDinamico) return;
-      const estaMarcado = target.checked;
-      if (estaMarcado) {
-        let valorActual = inputDinamico.value;
-        if (inputDinamico.type === 'number') {
-          const stock = parseInt(valorActual, 10) || 0;
-          valorActual = `unico:${stock}`;
-        }
-        inputDinamico.type = 'text';
-        inputDinamico.classList.remove('stock-input');
-        inputDinamico.classList.add('talles-input');
-        inputDinamico.placeholder = 'S:30, M:20';
-        inputDinamico.value = valorActual;
-      } else {
-        let valorActual = inputDinamico.value;
-        let stock = 0;
-        if (inputDinamico.type === 'text') {
-          const tallesObj = parsearTallesStock(valorActual);
-          if (tallesObj['unico']) {
-            stock = tallesObj['unico'];
-          } else {
-            stock = Object.values(tallesObj).reduce((a, b) => a + b, 0);
-          }
-        } else {
-          stock = parseInt(valorActual, 10) || 0;
-        }
-        inputDinamico.type = 'number';
-        inputDinamico.classList.remove('talles-input');
-        inputDinamico.classList.add('stock-input');
-        inputDinamico.placeholder = 'Stock';
-        inputDinamico.value = stock;
-      }
-    }
-  });
-}
