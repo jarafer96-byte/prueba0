@@ -60,6 +60,115 @@ if (!window._configTiendaListenerAdded) {
     window._configTiendaListenerAdded = true;
 }
 
+// Agregá esta función en core.js
+async function pagarConQR() {
+    // Validar que los datos del cliente estén completos (nombre, email, etc.)
+    const nombre = document.getElementById('nombre').value.trim();
+    const emailCliente = document.getElementById('email_cliente').value.trim();
+    if (!nombre || !emailCliente) {
+        alert("Completá tus datos antes de pagar.");
+        return;
+    }
+
+    // Preparar el payload (similar a lo que ya envías a /pagar)
+    const itemsParaMP = window.carrito.map(item => ({
+        title: item.nombre,
+        description: item.nombre,
+        quantity: item.cantidad,
+        unit_price: item.precio,
+        total_amount: item.precio * item.cantidad,
+        sku_number: item.id_base,
+        category: "others",
+        unit_measure: "unit"
+    }));
+
+    const total = window.carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0) + (window.costoEnvio || 0);
+    const externalRef = `QR_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
+
+    const payload = {
+        email_vendedor: window.cliente.email,
+        total: total,
+        external_reference: externalRef,
+        title: `Pedido ${externalRef}`,
+        description: `Compra en ${window.cliente.email}`,
+        items: itemsParaMP,
+        notification_url: "https://mpagina.onrender.com/webhook_qr"
+    };
+
+    try {
+        const resp = await fetch('/api/crear-qr', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const data = await resp.json();
+        if (data.ok) {
+            // Mostrar modal con QR
+            mostrarModalQR(data.qr_image, externalRef);
+            // Iniciar polling para verificar el estado del pago
+            iniciarPolling(externalRef);
+        } else {
+            alert("Error al generar QR: " + (data.error || data.detalle));
+        }
+    } catch (err) {
+        alert("Error de red: " + err.message);
+    }
+}
+
+// Mostrar modal con el QR
+function mostrarModalQR(qrImageBase64, ordenId) {
+    // Crear o seleccionar el modal
+    let modal = document.getElementById('qrModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'qrModal';
+        modal.className = 'modal-qr';
+        modal.innerHTML = `
+            <div class="modal-qr-content">
+                <span class="modal-qr-close">&times;</span>
+                <h3>Pago con QR</h3>
+                <p>Escaneá este código con la app de Mercado Pago</p>
+                <img id="qrImage" src="" alt="Código QR" style="width: 200px; height: 200px;">
+                <p id="qrStatus">Esperando pago...</p>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        modal.querySelector('.modal-qr-close').onclick = () => cerrarModalQR();
+    }
+    const img = modal.querySelector('#qrImage');
+    img.src = qrImageBase64;
+    modal.style.display = 'flex';
+    window.currentQR_OrderId = ordenId;
+}
+
+function cerrarModalQR() {
+    const modal = document.getElementById('qrModal');
+    if (modal) modal.style.display = 'none';
+    if (window.pollingInterval) clearInterval(window.pollingInterval);
+}
+
+function iniciarPolling(ordenId) {
+    if (window.pollingInterval) clearInterval(window.pollingInterval);
+    window.pollingInterval = setInterval(async () => {
+        try {
+            const resp = await fetch(`/api/estado-pago?orden_id=${ordenId}`);
+            const data = await resp.json();
+            if (data.estado === 'aprobado') {
+                clearInterval(window.pollingInterval);
+                cerrarModalQR();
+                alert("✅ Pago aprobado. Gracias por tu compra.");
+                vaciarCarrito();
+                window.location.href = `/preview?email=${window.cliente.email}&pago=success&orden_id=${ordenId}`;
+            } else if (data.estado === 'rechazado') {
+                clearInterval(window.pollingInterval);
+                cerrarModalQR();
+                alert("❌ El pago fue rechazado. Podés intentar de nuevo.");
+            }
+        } catch (err) {
+            console.warn("Error en polling", err);
+        }
+    }, 3000); // cada 3 segundos
+}
 
 function cambiarPaso(paso) {
   const pasoCarrito = document.getElementById('pasoCarrito');
