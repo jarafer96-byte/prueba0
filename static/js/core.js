@@ -228,6 +228,8 @@ fetch(urlProductos)
     });
     
     window.todosLosProductos = productosOrdenados;
+      
+    await cargarConfigTienda();    
 
     const cont = document.getElementById("productos");
     const contGrupos = document.getElementById("panelGrupos");
