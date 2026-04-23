@@ -7,6 +7,27 @@
 .flecha-izq, .flecha-der {
   display: none !important;
 }
+.modal-qr {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.8);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+.modal-qr.modal-visible {
+    display: flex;
+}
+.modal-qr-content {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+}
 .cuotas-info {
   font-size: 0.8em;
   color: #4caf50;
