@@ -238,163 +238,6 @@ function cerrarModalConfigTienda() {
   if (modal) modal.classList.remove('modal-visible');
 }
 
-// Manejar envío del formulario
-document.addEventListener('DOMContentLoaded', () => {
-    // ------------------------------------------------------------------
-    // 1. BOTONES DE ADMIN (EXCLUYENDO LOS QUE YA MANEJA CORE.JS)
-    // ------------------------------------------------------------------
-    const btnConfigMP = document.getElementById('btnConfigurarMP');
-    if (btnConfigMP) btnConfigMP.addEventListener('click', abrirConfigMercadoPago);
-
-    const btnConfigCA = document.getElementById('btnConfigurarCA');
-    if (btnConfigCA) btnConfigCA.addEventListener('click', abrirConfigCorreoArgentino);
-
-    const btnCerrarModalCA = document.getElementById('btnCerrarModalCA');
-    if (btnCerrarModalCA) btnCerrarModalCA.addEventListener('click', cerrarModalConfigCA);
-
-    const btnSalirAdmin = document.getElementById('btnSalirAdmin');
-    if (btnSalirAdmin) btnSalirAdmin.addEventListener('click', salirAdmin);
-
-    // ⚠️ NO asignamos eventos a btnProductosNav, btnContactoNav, btnVaciarCarrito,
-    //    modalClose, modalOverlay porque esas funciones (mostrarTodos, irAContacto,
-    //    vaciarCarrito, closeModal) pertenecen a core.js y ya tienen sus eventos allí.
-
-    // ------------------------------------------------------------------
-    // 2. FORMULARIO DE CONFIGURACIÓN DE CORREO ARGENTINO
-    // ------------------------------------------------------------------
-    const formCA = document.getElementById('formConfigCA');
-    if (formCA) {
-        formCA.addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const email = window.cliente?.email;
-            if (!email) {
-                alert("No se detectó el email del vendedor. Inicia sesión nuevamente.");
-                return;
-            }
-
-            const agreement = document.getElementById('ca_agreement').value.trim();
-            const api_key = document.getElementById('ca_api_key').value.trim();
-            const micorreo_user = document.getElementById('ca_micorreo_user').value.trim();
-            const micorreo_password = document.getElementById('ca_micorreo_password').value.trim();
-            const test_mode = document.getElementById('ca_test_mode').checked;
-
-            const nombre = document.getElementById('ca_nombre').value.trim();
-            const calle = document.getElementById('ca_calle').value.trim();
-            const altura = document.getElementById('ca_altura').value.trim();
-            const localidad = document.getElementById('ca_localidad').value.trim();
-            const provincia_codigo = document.getElementById('ca_provincia_codigo').value.trim();
-            const codigo_postal = document.getElementById('ca_codigo_postal').value.trim();
-
-            if (!agreement || !api_key || !micorreo_user || !micorreo_password ||
-                !nombre || !calle || !altura || !localidad || !provincia_codigo || !codigo_postal) {
-                alert("Por favor completa todos los campos.");
-                return;
-            }
-
-            const submitBtn = formCA.querySelector('button[type="submit"]');
-            const originalText = submitBtn.innerText;
-            submitBtn.innerText = "Guardando...";
-            submitBtn.disabled = true;
-
-            try {
-                const credRes = await fetch("/ca/guardar-credenciales", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ agreement, api_key, micorreo_user, micorreo_password, test_mode })
-                });
-                const credData = await credRes.json();
-                if (credData.status !== "ok") throw new Error(credData.error || "Error guardando credenciales");
-
-                const remRes = await fetch("/ca/guardar-remitente", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ nombre, calle, altura, localidad, provincia_codigo, codigo_postal })
-                });
-                const remData = await remRes.json();
-                if (remData.status !== "ok") throw new Error(remData.error || "Error guardando remitente");
-
-                alert("✅ Configuración de Correo Argentino guardada correctamente.");
-                cerrarModalConfigCA();
-                formCA.reset();
-            } catch (err) {
-                alert("❌ Error: " + err.message);
-            } finally {
-                submitBtn.innerText = originalText;
-                submitBtn.disabled = false;
-            }
-        });
-    }
-
-    // ------------------------------------------------------------------
-    // 3. FORMULARIO DE CONFIGURACIÓN DE TIENDA (CUOTAS, ETC.)
-    // ------------------------------------------------------------------
-    const formTienda = document.getElementById('formConfigTienda');
-    if (formTienda) {
-        formTienda.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const submitBtn = formTienda.querySelector('button[type="submit"]');
-            const originalText = submitBtn.innerText;
-            submitBtn.disabled = true;
-            submitBtn.innerText = 'Guardando...';
-
-            const emailNotif = document.getElementById('tienda_email_notificaciones').value.trim();
-            const cuotasActivas = document.getElementById('tienda_cuotas_activas').checked;
-            const cuotasNumero = parseInt(document.getElementById('tienda_cuotas_numero').value, 10);
-
-            try {
-                const resp = await fetch('/api/config-tienda', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        email_notificaciones: emailNotif || null,
-                        cuotas_sin_interes: cuotasActivas,
-                        cuotas_numero: cuotasNumero
-                    })
-                });
-                const data = await resp.json();
-                if (data.status === 'ok') {
-                    alert('✅ Configuración guardada');
-                    cerrarModalConfigTienda();
-
-                    // Actualizar variable global para reflejar cambios sin recargar
-                    window.configTienda = {
-                        ...window.configTienda,
-                        email_notificaciones: emailNotif,
-                        cuotas_sin_interes: cuotasActivas,
-                        cuotas_numero: cuotasNumero
-                    };
-
-                    // 🔥 NOTIFICAR AL FRONTEND PÚBLICO PARA QUE ACTUALICE LAS CARDS
-                    window.dispatchEvent(new Event('configTiendaActualizada'));
-                } else {
-                    alert('❌ Error: ' + (data.message || 'No se pudo guardar'));
-                }
-            } catch (err) {
-                alert('❌ Error de red: ' + err.message);
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.innerText = originalText;
-            }
-        });
-    }
-
-    const btnCerrarTienda = document.getElementById('btnCerrarModalTienda');
-    if (btnCerrarTienda) {
-        btnCerrarTienda.addEventListener('click', cerrarModalConfigTienda);
-    }
-
-    // ------------------------------------------------------------------
-    // 4. FORMULARIO DE LOGIN DE ADMIN (si existe)
-    // ------------------------------------------------------------------
-    const loginAdminForm = document.getElementById('loginAdminForm');
-    if (loginAdminForm) {
-        loginAdminForm.addEventListener('submit', loginAdmin);
-    }
-});
-
-
-
 async function optimizarImagen(file) {
   const imgUrl = URL.createObjectURL(file);
   try {
@@ -1445,6 +1288,162 @@ function agregarNuevoGrupo() {
     window._agregandoGrupo = false;
   }, 100);
 }
+
+
+// Manejar envío del formulario
+document.addEventListener('DOMContentLoaded', () => {
+    // ------------------------------------------------------------------
+    // 1. BOTONES DE ADMIN (EXCLUYENDO LOS QUE YA MANEJA CORE.JS)
+    // ------------------------------------------------------------------
+    const btnConfigMP = document.getElementById('btnConfigurarMP');
+    if (btnConfigMP) btnConfigMP.addEventListener('click', abrirConfigMercadoPago);
+
+    const btnConfigCA = document.getElementById('btnConfigurarCA');
+    if (btnConfigCA) btnConfigCA.addEventListener('click', abrirConfigCorreoArgentino);
+
+    const btnCerrarModalCA = document.getElementById('btnCerrarModalCA');
+    if (btnCerrarModalCA) btnCerrarModalCA.addEventListener('click', cerrarModalConfigCA);
+
+    const btnSalirAdmin = document.getElementById('btnSalirAdmin');
+    if (btnSalirAdmin) btnSalirAdmin.addEventListener('click', salirAdmin);
+
+    // ⚠️ NO asignamos eventos a btnProductosNav, btnContactoNav, btnVaciarCarrito,
+    //    modalClose, modalOverlay porque esas funciones (mostrarTodos, irAContacto,
+    //    vaciarCarrito, closeModal) pertenecen a core.js y ya tienen sus eventos allí.
+
+    // ------------------------------------------------------------------
+    // 2. FORMULARIO DE CONFIGURACIÓN DE CORREO ARGENTINO
+    // ------------------------------------------------------------------
+    const formCA = document.getElementById('formConfigCA');
+    if (formCA) {
+        formCA.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = window.cliente?.email;
+            if (!email) {
+                alert("No se detectó el email del vendedor. Inicia sesión nuevamente.");
+                return;
+            }
+
+            const agreement = document.getElementById('ca_agreement').value.trim();
+            const api_key = document.getElementById('ca_api_key').value.trim();
+            const micorreo_user = document.getElementById('ca_micorreo_user').value.trim();
+            const micorreo_password = document.getElementById('ca_micorreo_password').value.trim();
+            const test_mode = document.getElementById('ca_test_mode').checked;
+
+            const nombre = document.getElementById('ca_nombre').value.trim();
+            const calle = document.getElementById('ca_calle').value.trim();
+            const altura = document.getElementById('ca_altura').value.trim();
+            const localidad = document.getElementById('ca_localidad').value.trim();
+            const provincia_codigo = document.getElementById('ca_provincia_codigo').value.trim();
+            const codigo_postal = document.getElementById('ca_codigo_postal').value.trim();
+
+            if (!agreement || !api_key || !micorreo_user || !micorreo_password ||
+                !nombre || !calle || !altura || !localidad || !provincia_codigo || !codigo_postal) {
+                alert("Por favor completa todos los campos.");
+                return;
+            }
+
+            const submitBtn = formCA.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerText;
+            submitBtn.innerText = "Guardando...";
+            submitBtn.disabled = true;
+
+            try {
+                const credRes = await fetch("/ca/guardar-credenciales", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ agreement, api_key, micorreo_user, micorreo_password, test_mode })
+                });
+                const credData = await credRes.json();
+                if (credData.status !== "ok") throw new Error(credData.error || "Error guardando credenciales");
+
+                const remRes = await fetch("/ca/guardar-remitente", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ nombre, calle, altura, localidad, provincia_codigo, codigo_postal })
+                });
+                const remData = await remRes.json();
+                if (remData.status !== "ok") throw new Error(remData.error || "Error guardando remitente");
+
+                alert("✅ Configuración de Correo Argentino guardada correctamente.");
+                cerrarModalConfigCA();
+                formCA.reset();
+            } catch (err) {
+                alert("❌ Error: " + err.message);
+            } finally {
+                submitBtn.innerText = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+    }
+
+    // ------------------------------------------------------------------
+    // 3. FORMULARIO DE CONFIGURACIÓN DE TIENDA (CUOTAS, ETC.)
+    // ------------------------------------------------------------------
+    const formTienda = document.getElementById('formConfigTienda');
+    if (formTienda) {
+        formTienda.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitBtn = formTienda.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerText;
+            submitBtn.disabled = true;
+            submitBtn.innerText = 'Guardando...';
+
+            const emailNotif = document.getElementById('tienda_email_notificaciones').value.trim();
+            const cuotasActivas = document.getElementById('tienda_cuotas_activas').checked;
+            const cuotasNumero = parseInt(document.getElementById('tienda_cuotas_numero').value, 10);
+
+            try {
+                const resp = await fetch('/api/config-tienda', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email_notificaciones: emailNotif || null,
+                        cuotas_sin_interes: cuotasActivas,
+                        cuotas_numero: cuotasNumero
+                    })
+                });
+                const data = await resp.json();
+                if (data.status === 'ok') {
+                    alert('✅ Configuración guardada');
+                    cerrarModalConfigTienda();
+
+                    // Actualizar variable global para reflejar cambios sin recargar
+                    window.configTienda = {
+                        ...window.configTienda,
+                        email_notificaciones: emailNotif,
+                        cuotas_sin_interes: cuotasActivas,
+                        cuotas_numero: cuotasNumero
+                    };
+
+                    // 🔥 NOTIFICAR AL FRONTEND PÚBLICO PARA QUE ACTUALICE LAS CARDS
+                    window.dispatchEvent(new Event('configTiendaActualizada'));
+                } else {
+                    alert('❌ Error: ' + (data.message || 'No se pudo guardar'));
+                }
+            } catch (err) {
+                alert('❌ Error de red: ' + err.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = originalText;
+            }
+        });
+    }
+
+    const btnCerrarTienda = document.getElementById('btnCerrarModalTienda');
+    if (btnCerrarTienda) {
+        btnCerrarTienda.addEventListener('click', cerrarModalConfigTienda);
+    }
+
+    // ------------------------------------------------------------------
+    // 4. FORMULARIO DE LOGIN DE ADMIN (si existe)
+    // ------------------------------------------------------------------
+    const loginAdminForm = document.getElementById('loginAdminForm');
+    if (loginAdminForm) {
+        loginAdminForm.addEventListener('submit', loginAdmin);
+    }
+});
 
 
 if (window.modoAdmin) {
