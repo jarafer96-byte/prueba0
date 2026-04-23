@@ -426,10 +426,6 @@ function loginAdmin(event) {
       }
     });
 }
-const loginAdminForm = document.getElementById('loginAdminForm');
-if (loginAdminForm) {
-    loginAdminForm.addEventListener('submit', loginAdmin);
-}
 
 
 async function agregarFotoExtra(btn) {
