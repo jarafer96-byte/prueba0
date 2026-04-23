@@ -47,6 +47,20 @@ async function cargarConfigTienda() {
     }
 }
 
+if (!window._configTiendaListenerAdded) {
+    window.addEventListener('configTiendaActualizada', () => {
+        cargarConfigTienda().then(() => {
+            if (window.currentGrupo) {
+                mostrarGrupo(window.currentGrupo);
+            } else if (window.todosLosProductos?.length) {
+                mostrarGrupo(window.todosLosProductos[0]?.grupo);
+            }
+        });
+    });
+    window._configTiendaListenerAdded = true;
+}
+
+
 function cambiarPaso(paso) {
   const pasoCarrito = document.getElementById('pasoCarrito');
   const pasoDireccion = document.getElementById('pasoDireccion');
