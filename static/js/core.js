@@ -226,7 +226,7 @@ fetch(urlProductos)
     if (!r.ok) throw new Error("HTTP " + r.status);
     return r.json();
   })
-  .then(lista => {
+  .then(async (lista) => {
     const productosOrdenados = Array.isArray(lista) ? lista : [];
   
     productosOrdenados.sort((a, b) => {
