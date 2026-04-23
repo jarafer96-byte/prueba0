@@ -356,6 +356,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (data.status === 'ok') {
           alert('✅ Configuración guardada');
           cerrarModalConfigTienda();
+          
           // Actualizar variable global para reflejar cambios sin recargar
           window.configTienda = {
             ...window.configTienda,
@@ -363,11 +364,15 @@ document.addEventListener('DOMContentLoaded', () => {
             cuotas_sin_interes: cuotasActivas,
             cuotas_numero: cuotasNumero
           };
+          
+          // 🔥 NOTIFICAR AL FRONTEND PÚBLICO PARA QUE ACTUALICE LAS CARDS
+          window.dispatchEvent(new Event('configTiendaActualizada'));
+          
         } else {
           alert('❌ Error: ' + (data.message || 'No se pudo guardar'));
         }
       } catch (err) {
-        alert('❌ Error de red');
+        alert('❌ Error de red: ' + err.message);
       } finally {
         submitBtn.disabled = false;
         submitBtn.innerText = originalText;
@@ -376,7 +381,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   const btnCerrarTienda = document.getElementById('btnCerrarModalTienda');
-  if (btnCerrarTienda) btnCerrarTienda.addEventListener('click', cerrarModalConfigTienda);
+  if (btnCerrarTienda) {
+    btnCerrarTienda.addEventListener('click', cerrarModalConfigTienda);
+  }
 });
 
 
