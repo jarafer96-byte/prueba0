@@ -19,6 +19,10 @@
     align-items: center;
     z-index: 1000;
 }
+.qr-image {
+    width: 200px;
+    height: 200px;
+}
 .modal-qr.modal-visible {
     display: flex;
 }
