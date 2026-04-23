@@ -120,13 +120,13 @@ function mostrarModalQR(qrImageBase64, ordenId) {
     if (!modal) {
         modal = document.createElement('div');
         modal.id = 'qrModal';
-        modal.className = 'modal-qr'; // clase base (oculto por defecto)
+        modal.className = 'modal-qr';
         modal.innerHTML = `
             <div class="modal-qr-content">
                 <span class="modal-qr-close">&times;</span>
                 <h3>Pago con QR</h3>
                 <p>Escaneá este código con la app de Mercado Pago</p>
-                <img id="qrImage" src="" alt="Código QR" style="width: 200px; height: 200px;">
+                <img id="qrImage" src="" alt="Código QR" class="qr-image">
                 <p id="qrStatus">Esperando pago...</p>
             </div>
         `;
@@ -135,7 +135,6 @@ function mostrarModalQR(qrImageBase64, ordenId) {
     }
     const img = modal.querySelector('#qrImage');
     img.src = qrImageBase64;
-    // Agrega clase para mostrar (en lugar de style.display)
     modal.classList.add('modal-visible');
     window.currentQR_OrderId = ordenId;
 }
