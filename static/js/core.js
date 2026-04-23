@@ -20,18 +20,32 @@ if (adminToken) {
 }
 
 // Al inicio de core.js, después de las declaraciones iniciales
-(function initConfigTienda() {
-  const body = document.body;
-  const cuotasSinInteres = body.getAttribute('data-cuotas-sin-interes');
-  const cuotasNumero = body.getAttribute('data-cuotas-numero');
-  const emailNotificaciones = body.getAttribute('data-email-notificaciones');
+async function cargarConfigTienda() {
+    const email = window.cliente?.email;
+    if (!email) return;
 
-  window.configTienda = {
-    email_notificaciones: emailNotificaciones || '',
-    cuotas_sin_interes: cuotasSinInteres === 'true',
-    cuotas_numero: parseInt(cuotasNumero, 10) || 3
-  };
-})();
+    try {
+        const resp = await fetch(`/api/config-tienda?email=${encodeURIComponent(email)}`);
+        const data = await resp.json();
+        if (!data.error) {
+            window.configTienda = {
+                cuotas_sin_interes: data.cuotas_sin_interes === true || data.cuotas_sin_interes === 'true',
+                cuotas_numero: parseInt(data.cuotas_numero, 10) || 3,
+                email_notificaciones: data.email_notificaciones || ''
+            };
+        } else {
+            // fallback a los valores que vienen del HTML (si existen)
+            const body = document.body;
+            window.configTienda = {
+                cuotas_sin_interes: body.getAttribute('data-cuotas-sin-interes') === 'true',
+                cuotas_numero: parseInt(body.getAttribute('data-cuotas-numero'), 10) || 3,
+                email_notificaciones: body.getAttribute('data-email-notificaciones') || ''
+            };
+        }
+    } catch (err) {
+        console.warn('No se pudo cargar configuración de tienda', err);
+    }
+}
 
 function cambiarPaso(paso) {
   const pasoCarrito = document.getElementById('pasoCarrito');
