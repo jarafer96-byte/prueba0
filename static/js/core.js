@@ -115,14 +115,12 @@ async function pagarConQR() {
     }
 }
 
-// Mostrar modal con el QR
 function mostrarModalQR(qrImageBase64, ordenId) {
-    // Crear o seleccionar el modal
     let modal = document.getElementById('qrModal');
     if (!modal) {
         modal = document.createElement('div');
         modal.id = 'qrModal';
-        modal.className = 'modal-qr';
+        modal.className = 'modal-qr'; // clase base (oculto por defecto)
         modal.innerHTML = `
             <div class="modal-qr-content">
                 <span class="modal-qr-close">&times;</span>
@@ -137,13 +135,16 @@ function mostrarModalQR(qrImageBase64, ordenId) {
     }
     const img = modal.querySelector('#qrImage');
     img.src = qrImageBase64;
-    modal.style.display = 'flex';
+    // Agrega clase para mostrar (en lugar de style.display)
+    modal.classList.add('modal-visible');
     window.currentQR_OrderId = ordenId;
 }
 
 function cerrarModalQR() {
     const modal = document.getElementById('qrModal');
-    if (modal) modal.style.display = 'none';
+    if (modal) {
+        modal.classList.remove('modal-visible');
+    }
     if (window.pollingInterval) clearInterval(window.pollingInterval);
 }
 
