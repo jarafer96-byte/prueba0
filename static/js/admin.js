@@ -306,17 +306,23 @@ async function abrirConfigTienda() {
   const modal = document.getElementById('modalConfigTienda');
   if (!modal) return;
 
-  // Cargar configuración actual desde Firestore
+  const email = window.cliente?.email;
+  if (!email) {
+    console.warn("No hay email para cargar config");
+    modal.classList.add('modal-visible');
+    return;
+  }
+
   try {
-    const resp = await fetch(`/api/productos`); // No tenemos endpoint GET específico, podemos usar el config general
-    // Alternativa: hacer una petición a un nuevo endpoint GET /api/config-tienda, pero por ahora usemos window.configTienda
-    if (window.configTienda) {
-      document.getElementById('tienda_email_notificaciones').value = window.configTienda.email_notificaciones || '';
-      document.getElementById('tienda_cuotas_activas').checked = window.configTienda.cuotas_sin_interes || false;
-      document.getElementById('tienda_cuotas_numero').value = window.configTienda.cuotas_numero || 3;
+    const resp = await fetch(`/api/config-tienda?email=${encodeURIComponent(email)}`);
+    const data = await resp.json();
+    if (!data.error) {
+      document.getElementById('tienda_email_notificaciones').value = data.email_notificaciones || '';
+      document.getElementById('tienda_cuotas_activas').checked = data.cuotas_sin_interes || false;
+      document.getElementById('tienda_cuotas_numero').value = data.cuotas_numero || 3;
     }
   } catch (e) {
-    console.warn('No se pudo cargar config actual', e);
+    console.warn('Error cargando config actual', e);
   }
 
   modal.classList.add('modal-visible');
