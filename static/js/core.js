@@ -1752,7 +1752,11 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
-
+    
+  const btnPagarQR = document.getElementById('btnPagarQR');
+  if (btnPagarQR) {
+      btnPagarQR.addEventListener('click', pagarConQR);
+  }  
   // ============================================================
   // 2. BOTÓN DEL CARRITO (mostrar/ocultar + carga MP)
   // ============================================================
