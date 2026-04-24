@@ -76,11 +76,6 @@ async function pagarConQR() {
     // Aplicar descuento del 8%
     const descuento = 0.08;
     const totalConDescuento = totalBase * (1 - descuento);
-    
-    // Confirmar opcional (puedes quitar el confirm si no quieres molestar)
-    if (!confirm(`El pago con QR tiene un descuento del 8%. Total final: $${totalConDescuento.toFixed(2)}`)) {
-        return;
-    }
 
     // Preparar items para MP (un solo item con el total con descuento)
     const externalRef = `QR_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
