@@ -16,6 +16,18 @@
     font-size: 0.9rem;
     color: #2e7d32;
 }
+.precio-wrapper {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+.cuotas-info {
+    display: inline-block;
+    font-size: 0.85rem;
+    color: #2e7d32;
+}
 .flecha-izq, .flecha-der {
   display: none !important;
 }
