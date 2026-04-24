@@ -537,7 +537,7 @@ function renderProducto(p, esLCP = false) {
   else img.loading = 'lazy';
 
   titulo.textContent = p.nombre;
-  precioSpan.textContent = p.precio;
+  precioSpan.textContent = `$${p.precio}`;
   precioSpan.id = `precio_${p.id_base}`;
 
   // Oferta
