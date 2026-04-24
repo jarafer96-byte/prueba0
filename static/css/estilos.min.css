@@ -71,6 +71,7 @@
     display: flex;
 }
 .modal-qr-content {
+    position: relative; 
     background: black;
     padding: 20px;
     border-radius: 8px;
