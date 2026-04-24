@@ -62,7 +62,7 @@ if (!window._configTiendaListenerAdded) {
 
 // Agregá esta función en core.js
 async function pagarConQR() {
-    // Validar que los datos del cliente estén completos (nombre, email, etc.)
+    // Validar datos del cliente
     const nombre = document.getElementById('nombre').value.trim();
     const emailCliente = document.getElementById('email_cliente').value.trim();
     if (!nombre || !emailCliente) {
@@ -70,24 +70,34 @@ async function pagarConQR() {
         return;
     }
 
-    // Preparar el payload (similar a lo que ya envías a /pagar)
-    const itemsParaMP = window.carrito.map(item => ({
-        title: item.nombre,
-        description: item.nombre,
-        quantity: item.cantidad,
-        unit_price: item.precio,
-        total_amount: item.precio * item.cantidad,
-        sku_number: item.id_base,
+    // Calcular total de productos (sin envío)
+    let totalBase = window.carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+    
+    // Aplicar descuento del 8%
+    const descuento = 0.08;
+    const totalConDescuento = totalBase * (1 - descuento);
+    
+    // Confirmar opcional (puedes quitar el confirm si no quieres molestar)
+    if (!confirm(`El pago con QR tiene un descuento del 8%. Total final: $${totalConDescuento.toFixed(2)}`)) {
+        return;
+    }
+
+    // Preparar items para MP (un solo item con el total con descuento)
+    const externalRef = `QR_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
+    const itemsParaMP = [{
+        title: `Pedido ${externalRef}`,
+        description: `Compra en ${window.cliente.email}`,
+        quantity: 1,
+        unit_price: totalConDescuento,
+        total_amount: totalConDescuento,
+        sku_number: "QR_DISCOUNT",
         category: "others",
         unit_measure: "unit"
-    }));
-
-    const total = window.carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0) + (window.costoEnvio || 0);
-    const externalRef = `QR_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
+    }];
 
     const payload = {
         email_vendedor: window.cliente.email,
-        total: total,
+        total: totalConDescuento,
         external_reference: externalRef,
         title: `Pedido ${externalRef}`,
         description: `Compra en ${window.cliente.email}`,
@@ -103,9 +113,7 @@ async function pagarConQR() {
         });
         const data = await resp.json();
         if (data.ok) {
-            // Mostrar modal con QR y deep link (si existe)
-            mostrarModalQR(data.qr_image, data.orden_id, data.deep_link);  // ← pasar orden_id y deep_link
-            // Iniciar polling para verificar el estado del pago
+            mostrarModalQR(data.qr_image, data.orden_id);
             iniciarPolling(data.orden_id);
         } else {
             alert("Error al generar QR: " + (data.error || data.detalle));
