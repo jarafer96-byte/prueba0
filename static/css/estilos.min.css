@@ -32,6 +32,27 @@
     border-radius: 8px;
     text-align: center;
 }
+.deep-link-button {
+    display: inline-block;
+    background-color: #009ee3;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    margin-top: 10px;
+    transition: background-color 0.2s;
+}
+
+.deep-link-button:hover {
+    background-color: #007bb5;
+}
+
+.deep-link-note {
+    font-size: 12px;
+    margin-top: 8px;
+    color: #666;
+}
 .cuotas-info {
   font-size: 0.8em;
   color: #4caf50;
