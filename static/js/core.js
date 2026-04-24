@@ -565,7 +565,7 @@ function renderProducto(p, esLCP = false) {
       const valorCuota = (precioActual / cuotas).toFixed(2);
       const cuotasDiv = document.createElement('div');
       cuotasDiv.className = 'cuotas-info';
-      cuotasDiv.textContent = `${cuotas} cuotas sin interés de $${valorCuota}`;
+      cuotasDiv.textContent = `${cuotas} cuotas de $${valorCuota}`;
 
       const existing = precioSpan.parentNode.querySelector('.cuotas-info');
       if (existing) existing.remove();
