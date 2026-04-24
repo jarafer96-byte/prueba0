@@ -686,10 +686,9 @@
 }
 
 .precio-actual {
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: #f8f9fa;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+    display: inline;
 }
 /* Botón agregar al carrito */
 .btn-secondary.btn-sm {
