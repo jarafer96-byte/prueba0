@@ -103,10 +103,10 @@ async function pagarConQR() {
         });
         const data = await resp.json();
         if (data.ok) {
-            // Mostrar modal con QR
-            mostrarModalQR(data.qr_image, externalRef);
+            // Mostrar modal con QR y deep link (si existe)
+            mostrarModalQR(data.qr_image, data.orden_id, data.deep_link);  // ← pasar orden_id y deep_link
             // Iniciar polling para verificar el estado del pago
-            iniciarPolling(externalRef);
+            iniciarPolling(data.orden_id);
         } else {
             alert("Error al generar QR: " + (data.error || data.detalle));
         }
@@ -115,7 +115,7 @@ async function pagarConQR() {
     }
 }
 
-function mostrarModalQR(qrImageBase64, ordenId) {
+function mostrarModalQR(qrImageBase64, ordenId, deepLink = null) {
     let modal = document.getElementById('qrModal');
     if (!modal) {
         modal = document.createElement('div');
@@ -128,6 +128,7 @@ function mostrarModalQR(qrImageBase64, ordenId) {
                 <p>Escaneá este código con la app de Mercado Pago</p>
                 <img id="qrImage" src="" alt="Código QR" class="qr-image">
                 <p id="qrStatus">Esperando pago...</p>
+                <div id="deepLinkContainer" class="deep-link-container"></div>
             </div>
         `;
         document.body.appendChild(modal);
@@ -137,6 +138,19 @@ function mostrarModalQR(qrImageBase64, ordenId) {
     img.src = qrImageBase64;
     modal.classList.add('modal-visible');
     window.currentQR_OrderId = ordenId;
+
+    // Agregar el enlace deep link si existe
+    const container = modal.querySelector('#deepLinkContainer');
+    if (container) {
+        if (deepLink) {
+            container.innerHTML = `
+                <a href="${deepLink}" target="_blank" class="deep-link-button">📱 Pagar desde mi celular</a>
+                <p class="deep-link-note">Si estás en tu celular, tocá este enlace para pagar directamente</p>
+            `;
+        } else {
+            container.innerHTML = '';
+        }
+    }
 }
 
 function cerrarModalQR() {
