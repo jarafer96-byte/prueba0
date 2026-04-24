@@ -76,26 +76,22 @@
     border-radius: 8px;
     text-align: center;
 }
-.deep-link-button {
-    display: inline-block;
-    background-color: #009ee3;
-    color: white;
-    padding: 10px 15px;
-    border-radius: 5px;
-    text-decoration: none;
+.modal-qr-close {
+    font-size: 32px;          /* Tamaño de la X */
     font-weight: bold;
-    margin-top: 10px;
-    transition: background-color 0.2s;
+    line-height: 1;
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    color: #aaa;
+    cursor: pointer;
+    transition: color 0.2s;
+    padding: 10px;            /* Aumenta el área clicable */
+    z-index: 10;
 }
 
-.deep-link-button:hover {
-    background-color: #007bb5;
-}
-
-.deep-link-note {
-    font-size: 12px;
-    margin-top: 8px;
-    color: #666;
+.modal-qr-close:hover {
+    color: #fff;
 }
 #productos {
   min-height: 500px;
