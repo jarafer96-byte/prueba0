@@ -115,7 +115,7 @@ async function pagarConQR() {
     }
 }
 
-function mostrarModalQR(qrImageBase64, ordenId, deepLink = null) {
+function mostrarModalQR(qrImageBase64, ordenId) {
     let modal = document.getElementById('qrModal');
     if (!modal) {
         modal = document.createElement('div');
@@ -128,7 +128,6 @@ function mostrarModalQR(qrImageBase64, ordenId, deepLink = null) {
                 <p>Escaneá este código con la app de Mercado Pago</p>
                 <img id="qrImage" src="" alt="Código QR" class="qr-image">
                 <p id="qrStatus">Esperando pago...</p>
-                <div id="deepLinkContainer" class="deep-link-container"></div>
             </div>
         `;
         document.body.appendChild(modal);
@@ -138,16 +137,6 @@ function mostrarModalQR(qrImageBase64, ordenId, deepLink = null) {
     img.src = qrImageBase64;
     modal.classList.add('modal-visible');
     window.currentQR_OrderId = ordenId;
-
-    // Agregar deep link si existe
-    const container = modal.querySelector('#deepLinkContainer');
-    if (container) {
-        if (deepLink) {
-            container.innerHTML = `<a href="${deepLink}" target="_blank" class="deep-link-button">📱 Pagar desde mi celular</a>`;
-        } else {
-            container.innerHTML = '';
-        }
-    }
 }
 
 function cerrarModalQR() {
