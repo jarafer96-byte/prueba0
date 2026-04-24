@@ -14,7 +14,7 @@
 .cuotas-info {
     display: inline-block;
     font-size: 0.9rem;
-    color: #2e7d32;
+    color: white;
 }
 .precio-wrapper {
     display: flex;
@@ -22,11 +22,6 @@
     flex-wrap: wrap;
     gap: 8px;
     margin-bottom: 8px;
-}
-.cuotas-info {
-    display: inline-block;
-    font-size: 0.85rem;
-    color: #2e7d32;
 }
 .flecha-izq, .flecha-der {
   display: none !important;
@@ -76,12 +71,6 @@
     font-size: 12px;
     margin-top: 8px;
     color: #666;
-}
-.cuotas-info {
-  font-size: 0.8em;
-  color: white;
-  margin-top: 4px;
-  font-weight: 500;
 }
 #productos {
   min-height: 500px;
