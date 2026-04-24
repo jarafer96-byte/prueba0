@@ -139,14 +139,11 @@ function mostrarModalQR(qrImageBase64, ordenId, deepLink = null) {
     modal.classList.add('modal-visible');
     window.currentQR_OrderId = ordenId;
 
-    // Agregar el enlace deep link si existe
+    // Agregar deep link si existe
     const container = modal.querySelector('#deepLinkContainer');
     if (container) {
         if (deepLink) {
-            container.innerHTML = `
-                <a href="${deepLink}" target="_blank" class="deep-link-button">📱 Pagar desde mi celular</a>
-                <p class="deep-link-note">Si estás en tu celular, tocá este enlace para pagar directamente</p>
-            `;
+            container.innerHTML = `<a href="${deepLink}" target="_blank" class="deep-link-button">📱 Pagar desde mi celular</a>`;
         } else {
             container.innerHTML = '';
         }
