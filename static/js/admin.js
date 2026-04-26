@@ -1286,6 +1286,130 @@ function agregarNuevoGrupo() {
 }
 
 
+// ========== PEDIDOS / VENTAS ==========
+async function renderTablaPedidos() {
+    const container = document.getElementById('tableView');
+    if (!container) return;
+
+    const html = `
+        <div class="d-flex gap-2 mb-3 align-items-center flex-wrap">
+            <select id="filtroMetodo" class="form-select w-auto">
+                <option value="">Todos los métodos</option>
+                <option value="qr">QR</option>
+                <option value="checkout_pro">Checkout Pro</option>
+                <option value="transferencia">Transferencia</option>
+            </select>
+            <select id="filtroEstado" class="form-select w-auto">
+                <option value="">Todos los estados</option>
+                <option value="pendiente">Pendiente</option>
+                <option value="aprobado">Aprobado</option>
+                <option value="rechazado">Rechazado</option>
+            </select>
+            <button id="btnFiltrarPedidos" class="btn btn-primary btn-sm">Filtrar</button>
+            <button id="btnRecargarPedidos" class="btn btn-secondary btn-sm">Recargar</button>
+        </div>
+        <div class="tabla-responsive">
+            <table class="table table-striped table-hover tabla-productos-admin">
+                <thead>
+                    <tr>
+                        <th>Fecha</th><th>Cliente</th><th>Total</th><th>Estado</th><th>Método</th><th>Productos</th><th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-pedidos-body">
+                    <tr><td colspan="7" class="text-center">Cargando...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    `;
+    container.innerHTML = html;
+
+    // Eventos
+    document.getElementById('btnFiltrarPedidos').addEventListener('click', () => cargarPedidos());
+    document.getElementById('btnRecargarPedidos').addEventListener('click', () => cargarPedidos());
+
+    await cargarPedidos();
+}
+
+async function cargarPedidos() {
+    const metodo = document.getElementById('filtroMetodo').value;
+    const estado = document.getElementById('filtroEstado').value;
+    let url = `/api/ordenes?${metodo ? `metodo=${metodo}&` : ''}${estado ? `estado=${estado}` : ''}`;
+    try {
+        const resp = await fetch(url);
+        const ordenes = await resp.json();
+        const tbody = document.getElementById('tabla-pedidos-body');
+        if (!tbody) return;
+        if (ordenes.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center">No hay pedidos con esos filtros</td></tr>';
+            return;
+        }
+        let html = '';
+        ordenes.forEach(orden => {
+            const fecha = orden.fecha_creacion ? new Date(orden.fecha_creacion).toLocaleString() : '-';
+            const items = orden.carrito || orden.items_mp || [];
+            const productosHtml = items.map(item => {
+                const imgUrl = getVersionUrl(item.imagen_url || '', '58');
+                return `<div class="d-flex align-items-center gap-2 mb-1">
+                            <img src="${imgUrl}" class="pedido-producto-img" alt="producto">
+                            <span>${item.title || item.nombre} x${item.cantidad} (${item.talle || 'unico'}, ${item.color || 'unico'})</span>
+                        </div>`;
+            }).join('');
+            const estadoBadge = orden.estado === 'aprobado' ? 'success' : (orden.estado === 'pendiente' ? 'warning' : 'danger');
+            html += `<tr>
+                <td>${fecha}</td>
+                <td>${orden.cliente_nombre || '-'}</td>
+                <td>$${orden.total}</td>
+                <td><span class="badge bg-${estadoBadge}">${orden.estado}</span></td>
+                <td><span class="badge bg-info">${orden.metodo_pago || '-'}</span></td>
+                <td>${productosHtml}</td>
+                <td>
+                    <button class="btn btn-sm btn-outline-info ver-detalle" data-id="${orden.external_reference}">Detalle</button>
+                    ${orden.estado === 'pendiente' && orden.metodo_pago === 'transferencia' ? `<button class="btn btn-sm btn-outline-success marcar-pagado" data-id="${orden.external_reference}">Marcar pagado</button>` : ''}
+                </td>
+            </tr>`;
+        });
+        tbody.innerHTML = html;
+
+        // Eventos de detalle
+        document.querySelectorAll('.ver-detalle').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const ordenId = btn.dataset.id;
+                // Podrías abrir un modal con más detalles
+                alert(`Detalle de orden ${ordenId} - Pendiente implementar`);
+            });
+        });
+        // Eventos marcar pagado (solo para transferencias)
+        document.querySelectorAll('.marcar-pagado').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const ordenId = btn.dataset.id;
+                if (confirm('¿Marcar esta orden como pagada?')) {
+                    try {
+                        const resp = await fetch('/api/ordenes/cambiar-estado', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ orden_id: ordenId, estado: 'aprobado' })
+                        });
+                        const data = await resp.json();
+                        if (data.status === 'ok') {
+                            alert('✅ Estado actualizado');
+                            cargarPedidos(); // recargar la tabla
+                        } else {
+                            alert('Error: ' + data.error);
+                        }
+                    } catch (err) {
+                        alert('Error de red');
+                    }
+                }
+            });
+        });
+    } catch (err) {
+        console.error(err);
+        const tbody = document.getElementById('tabla-pedidos-body');
+        if (tbody) tbody.innerHTML = '<tr><td colspan="7" class="text-center text-danger">Error al cargar pedidos</td></tr>';
+    }
+}
+
+
 (function() {
     // 1. BOTONES DE ADMIN
     const btnConfigMP = document.getElementById('btnConfigurarMP');
@@ -1429,6 +1553,23 @@ function agregarNuevoGrupo() {
 
         const tableView = document.getElementById('tableView');
         if (tableView) tableView.classList.add('d-block');
+
+        // === NUEVA BARRA DE HERRAMIENTAS ===
+        const toolbar = document.createElement('div');
+        toolbar.className = 'd-flex gap-2 mb-3';
+        toolbar.innerHTML = `
+            <button id="navProductos" class="btn btn-sm btn-primary">📦 Productos</button>
+            <button id="navPedidos" class="btn btn-sm btn-secondary">🛒 Pedidos</button>
+        `;
+        tableView.prepend(toolbar);
+
+        document.getElementById('navProductos').addEventListener('click', () => {
+            renderTablaProductos();
+        });
+        document.getElementById('navPedidos').addEventListener('click', () => {
+            renderTablaPedidos();
+        });
+        // === FIN NUEVA BARRA ===
 
         recargarProductos().then(() => {
             renderTablaProductos();
