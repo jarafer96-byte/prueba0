@@ -11,6 +11,11 @@
     gap: 8px;
     margin-bottom: 8px;
 }
+.pedido-producto-img {
+    width: 32px;
+    height: 32px;
+    object-fit: cover;
+}
 #modalConfigTienda {
     display: none;
     position: fixed;
