@@ -1601,8 +1601,13 @@ async function cargarPedidos(pagina, lastId = null) {
     const loginAdminForm = document.getElementById('loginAdminForm');
     if (loginAdminForm) loginAdminForm.addEventListener('submit', loginAdmin);
 
-    // 5. INICIALIZACIÓN SI EL USUARIO YA ESTÁ EN MODO ADMIN
-    if (window.modoAdmin) {
+    // ============================================================
+    // 5. FUNCIÓN DE INICIALIZACIÓN DEL PANEL ADMIN (se llama desde core.js)
+    // ============================================================
+    function inicializarPanelAdmin() {
+        // Solo proceder si el modo admin está activo
+        if (!window.modoAdmin) return;
+        
         const container = document.getElementById('adminFormsContainer');
         if (container) container.classList.remove('d-none');
 
@@ -1615,23 +1620,25 @@ async function cargarPedidos(pagina, lastId = null) {
         const tableView = document.getElementById('tableView');
         if (tableView) tableView.classList.add('d-block');
 
-        // === NUEVA BARRA DE HERRAMIENTAS ===
-        const toolbar = document.createElement('div');
-        toolbar.className = 'd-flex gap-2 mb-3';
-        toolbar.innerHTML = `
-            <button id="navProductos" class="btn btn-sm btn-primary">📦 Productos</button>
-            <button id="navPedidos" class="btn btn-sm btn-secondary">🛒 Pedidos</button>
-        `;
-        tableView.prepend(toolbar);
+        // Crear barra de herramientas si no existe
+        let toolbar = document.querySelector('#tableView .d-flex.gap-2.mb-3');
+        if (!toolbar) {
+            toolbar = document.createElement('div');
+            toolbar.className = 'd-flex gap-2 mb-3';
+            toolbar.innerHTML = `
+                <button id="navProductos" class="btn btn-sm btn-primary">📦 Productos</button>
+                <button id="navPedidos" class="btn btn-sm btn-secondary">🛒 Pedidos</button>
+            `;
+            tableView.prepend(toolbar);
+            document.getElementById('navProductos').addEventListener('click', () => {
+                renderTablaProductos();
+            });
+            document.getElementById('navPedidos').addEventListener('click', () => {
+                renderTablaPedidos();
+            });
+        }
 
-        document.getElementById('navProductos').addEventListener('click', () => {
-            renderTablaProductos();
-        });
-        document.getElementById('navPedidos').addEventListener('click', () => {
-            renderTablaPedidos();
-        });
-        // === FIN NUEVA BARRA ===
-
+        // Cargar productos y mostrar tabla por defecto
         recargarProductos().then(() => {
             renderTablaProductos();
             setTimeout(() => {
@@ -1660,157 +1667,14 @@ async function cargarPedidos(pagina, lastId = null) {
 
         const loginToggleBtn = document.getElementById('loginToggleBtn');
         if (loginToggleBtn) loginToggleBtn.classList.add('d-none');
+    }
 
-        const adminContainer = document.getElementById('adminFormsContainer');
-        if (adminContainer) {
-            adminContainer.addEventListener('click', async (e) => {
-                const target = e.target;
-                if (target.classList.contains('admin-img-thumb')) {
-                    e.preventDefault();
-                    const url = target.getAttribute('data-modal-url');
-                    if (url) openModal(url);
-                    return;
-                }
-                if (target.id === 'guardarTodosTablaBtn') {
-                    e.preventDefault();
-                    await guardarTodosProductos();
-                    return;
-                }
-                if (target.id === 'btnNuevoProductoTabla') {
-                    e.preventDefault();
-                    agregarNuevoProducto();
-                    return;
-                }
-                if (target.id === 'adminBtnNuevoGrupo') {
-                    e.preventDefault();
-                    agregarNuevoGrupo();
-                    return;
-                }
-                if (target.classList.contains('agregar-subgrupo-btn')) {
-                    e.preventDefault();
-                    const grupo = target.dataset.grupo;
-                    if (grupo) agregarSubgrupo(grupo);
-                    return;
-                }
-                if (target.classList.contains('guardar-producto')) {
-                    e.preventDefault();
-                    const idBase = target.dataset.id;
-                    const fila = target.closest('tr');
-                    if (fila && idBase) {
-                        const producto = obtenerProductoDesdeFila(fila, idBase);
-                        await guardarProducto(producto, { dataset: { idBase } }, true);
-                    }
-                    return;
-                }
-                if (target.classList.contains('duplicar-producto')) {
-                    e.preventDefault();
-                    const idBase = target.dataset.id;
-                    if (idBase) duplicarProductoDesdeCard(idBase);
-                    return;
-                }
-                if (target.classList.contains('eliminar-producto')) {
-                    e.preventDefault();
-                    const idBase = target.dataset.id;
-                    if (idBase && confirm('¿Eliminar este producto?')) eliminarProducto(idBase);
-                    return;
-                }
-                if (target.classList.contains('agregar-fila-color')) {
-                    e.preventDefault();
-                    agregarFilaColor(target);
-                    return;
-                }
-                if (target.classList.contains('eliminar-foto-extra')) {
-                    e.preventDefault();
-                    const idBase = target.dataset.id;
-                    const url = target.dataset.url;
-                    if (idBase && url) eliminarFotoExtra(idBase, url);
-                    return;
-                }
-                if (target.classList.contains('agregar-foto-extra')) {
-                    e.preventDefault();
-                    agregarFotoExtra(target);
-                    return;
-                }
-                if (target.classList.contains('agregar-imagen-principal')) {
-                    e.preventDefault();
-                    agregarImagenPrincipal(target);
-                    return;
-                }
-                if (target.classList.contains('eliminar-color') || target.classList.contains('eliminar-fila-color')) {
-                    e.preventDefault();
-                    const filaColor = target.closest('.fila-color');
-                    if (filaColor) filaColor.remove();
-                    return;
-                }
-                if (target.classList.contains('grupo-btn')) {
-                    e.preventDefault();
-                    const grupo = target.dataset.grupo;
-                    if (grupo) filtrarProductos(grupo);
-                    return;
-                }
-                if (target.classList.contains('subgrupo-toggle-btn')) {
-                    e.preventDefault();
-                    const grupo = target.dataset.grupo;
-                    if (grupo) {
-                        const barraSub = document.getElementById('adminSubgruposBar');
-                        if (barraSub && barraSub.classList.contains('admin-subgrupos-bar-visible') && barraSub.dataset.currentGroup === grupo) {
-                            ocultarSubgrupos();
-                        } else {
-                            mostrarSubgruposHorizontal(grupo);
-                            if (barraSub) barraSub.dataset.currentGroup = grupo;
-                        }
-                    }
-                    return;
-                }
-                if (target.classList.contains('subgrupo-btn')) {
-                    e.preventDefault();
-                    const grupo = target.dataset.grupo;
-                    const subgrupo = target.dataset.subgrupo;
-                    if (grupo && subgrupo) filtrarProductos(grupo, subgrupo);
-                    return;
-                }
-            });
-        }
+    // Exponer la función globalmente para que core.js pueda llamarla
+    window.inicializarPanelAdmin = inicializarPanelAdmin;
 
-        if (adminContainer) {
-            adminContainer.addEventListener('change', (e) => {
-                const target = e.target;
-                if (target.classList.contains('talle-toggle')) {
-                    const filaColor = target.closest('.fila-color');
-                    if (!filaColor) return;
-                    const inputDinamico = filaColor.querySelector('.talles-input, .stock-input');
-                    if (!inputDinamico) return;
-                    const estaMarcado = target.checked;
-                    if (estaMarcado) {
-                        let valorActual = inputDinamico.value;
-                        if (inputDinamico.type === 'number') {
-                            const stock = parseInt(valorActual, 10) || 0;
-                            valorActual = `unico:${stock}`;
-                        }
-                        inputDinamico.type = 'text';
-                        inputDinamico.classList.remove('stock-input');
-                        inputDinamico.classList.add('talles-input');
-                        inputDinamico.placeholder = 'S:30, M:20';
-                        inputDinamico.value = valorActual;
-                    } else {
-                        let valorActual = inputDinamico.value;
-                        let stock = 0;
-                        if (inputDinamico.type === 'text') {
-                            const tallesObj = parsearTallesStock(valorActual);
-                            if (tallesObj['unico']) stock = tallesObj['unico'];
-                            else stock = Object.values(tallesObj).reduce((a, b) => a + b, 0);
-                        } else {
-                            stock = parseInt(valorActual, 10) || 0;
-                        }
-                        inputDinamico.type = 'number';
-                        inputDinamico.classList.remove('talles-input');
-                        inputDinamico.classList.add('stock-input');
-                        inputDinamico.placeholder = 'Stock';
-                        inputDinamico.value = stock;
-                    }
-                }
-            });
-        }
+    // (Opcional) Ejecutar inmediatamente si el modo admin ya está activo al cargar el script
+    if (window.modoAdmin) {
+        inicializarPanelAdmin();
     }
  })();
 } 
