@@ -94,17 +94,24 @@ function iniciarPolling(ordenId, emailVendedor) {
 function agregarBotonTransferencia() {
     const pasoDatos = document.getElementById('pasoDatos');
     if (!pasoDatos) return;
-    if (document.getElementById('btnPagarTransferencia')) return;
 
-    const contenedorBotones = pasoDatos.querySelector('.d-flex.gap-2.justify-content-center');
-    if (contenedorBotones) {
-        const btnTransfer = document.createElement('button');
-        btnTransfer.id = 'btnPagarTransferencia';
-        btnTransfer.className = 'btn btn-primary btn-lg';
-        btnTransfer.innerHTML = '🏦 Pagar con transferencia';
-        btnTransfer.addEventListener('click', pagarConTransferencia);
-        contenedorBotones.appendChild(btnTransfer);
+    // Eliminar el botón anterior si existe (para evitar fantasmas)
+    const btnExistente = document.getElementById('btnPagarTransferencia');
+    if (btnExistente) btnExistente.remove();
+
+    let contenedorBotones = pasoDatos.querySelector('.d-flex.gap-2.justify-content-center');
+    if (!contenedorBotones) {
+        contenedorBotones = document.createElement('div');
+        contenedorBotones.className = 'd-flex gap-2 justify-content-center mt-3';
+        pasoDatos.appendChild(contenedorBotones);
     }
+
+    const btnTransfer = document.createElement('button');
+    btnTransfer.id = 'btnPagarTransferencia';
+    btnTransfer.className = 'btn btn-primary btn-lg';
+    btnTransfer.innerHTML = '🏦 Pagar con transferencia';
+    btnTransfer.addEventListener('click', pagarConTransferencia);
+    contenedorBotones.appendChild(btnTransfer);
 }
 
 async function mostrarDatosBancarios(ordenId) {
