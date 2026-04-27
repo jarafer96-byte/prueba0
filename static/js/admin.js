@@ -1,3 +1,5 @@
+if (typeof window.adminAlreadyLoaded === 'undefined') {
+    window.adminAlreadyLoaded = true;
 window.todosLosProductos = window.todosLosProductos || [];
 
 let paginaActualPedidos = 1;
@@ -1811,3 +1813,4 @@ async function cargarPedidos(pagina, lastId = null) {
         }
     }
 })();
+}
