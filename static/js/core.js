@@ -60,6 +60,13 @@ if (!window._configTiendaListenerAdded) {
     window._configTiendaListenerAdded = true;
 }
 
+
+function calcularTotalCarrito() {
+    if (!window.carrito || window.carrito.length === 0) return 0;
+    return window.carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+}
+
+
 // Agregá esta función en core.js
 function iniciarPolling(ordenId, emailVendedor) {
     if (window.pollingInterval) clearInterval(window.pollingInterval);
@@ -84,11 +91,28 @@ function iniciarPolling(ordenId, emailVendedor) {
     }, 3000);
 }
 
+function agregarBotonTransferencia() {
+    const pasoDatos = document.getElementById('pasoDatos');
+    if (!pasoDatos) return;
+    if (document.getElementById('btnPagarTransferencia')) return;
+
+    const contenedorBotones = pasoDatos.querySelector('.d-flex.gap-2.justify-content-center');
+    if (contenedorBotones) {
+        const btnTransfer = document.createElement('button');
+        btnTransfer.id = 'btnPagarTransferencia';
+        btnTransfer.className = 'btn btn-primary btn-lg';
+        btnTransfer.innerHTML = '🏦 Pagar con transferencia';
+        btnTransfer.addEventListener('click', pagarConTransferencia);
+        contenedorBotones.appendChild(btnTransfer);
+    }
+}
+
 async function mostrarDatosBancarios(ordenId) {
     const email = window.cliente?.email;
     if (!email) return;
 
-    // Obtener datos bancarios desde el backend
+    const total = calcularTotalCarrito();   // ← sin envío
+
     const resp = await fetch(`/api/config-tienda?email=${encodeURIComponent(email)}`);
     const data = await resp.json();
     const { banco, cbu, alias, titular } = data;
@@ -129,7 +153,7 @@ async function mostrarDatosBancarios(ordenId) {
             ${cbu ? `<strong>CBU/CVU:</strong> ${cbu}<br>` : ''}
             ${alias ? `<strong>Alias:</strong> ${alias}<br>` : ''}
             ${titular ? `<strong>Titular:</strong> ${titular}<br>` : ''}
-            <strong>Monto:</strong> $${calcularTotalConEnvio().toFixed(2)}
+            <strong>Monto:</strong> $${total.toFixed(2)}
         `;
     } else {
         container.innerHTML = `<p>El vendedor aún no configuró sus datos bancarios. Por favor, contactalo para coordinar el pago.</p>`;
@@ -257,7 +281,6 @@ function cambiarPaso(paso) {
 }
 
 async function pagarConTransferencia() {
-    // Validar datos del cliente
     const nombre = document.getElementById('nombre').value.trim();
     const emailCliente = document.getElementById('email_cliente').value.trim();
     if (!nombre || !emailCliente) {
@@ -265,11 +288,8 @@ async function pagarConTransferencia() {
         return;
     }
 
-    // Obtener teléfono (opcional)
     const telefono = document.getElementById('telefono')?.value.trim() || '';
-
-    // Calcular total (con envío si corresponde)
-    let total = calcularTotalConEnvio();
+    const total = calcularTotalCarrito();   // ← sin envío
 
     const payload = {
         email_vendedor: window.cliente?.email,
@@ -280,7 +300,6 @@ async function pagarConTransferencia() {
         total: total
     };
 
-    // Mostrar loading en el botón
     const btn = document.getElementById('btnPagarTransferencia');
     const originalText = btn?.innerHTML;
     if (btn) {
@@ -297,7 +316,6 @@ async function pagarConTransferencia() {
         const data = await resp.json();
 
         if (data.ok) {
-            // Vaciar carrito y mostrar datos bancarios
             vaciarCarrito();
             mostrarDatosBancarios(data.orden_id);
         } else {
@@ -1784,6 +1802,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     window.pasoActual = paso;
+
+    // Si se muestra el paso 3, asegurar que el botón de transferencia esté presente
+    if (paso === 3) {
+      agregarBotonTransferencia();
+    }
   }
 
   // ============================================================
@@ -1860,7 +1883,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Botón pagar (se protege dentro de la función pagarTodoJunto con la variable global pagando)
+  // Botón pagar (Mercado Pago Checkout Pro)
   const btnPagar = document.getElementById('btnPagarFinal');
   if (btnPagar) {
     btnPagar.addEventListener('click', () => {
@@ -1871,11 +1894,40 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
-    
+
+  // Botón pagar con QR
   const btnPagarQR = document.getElementById('btnPagarQR');
   if (btnPagarQR) {
-      btnPagarQR.addEventListener('click', pagarConQR);
-  }  
+    btnPagarQR.addEventListener('click', pagarConQR);
+  }
+
+  // ============================================================
+  // BOTÓN DE TRANSFERENCIA (agregado dinámicamente)
+  // ============================================================
+  function agregarBotonTransferencia() {
+    const pasoDatos = document.getElementById('pasoDatos');
+    if (!pasoDatos) return;
+
+    // Evitar duplicados
+    if (document.getElementById('btnPagarTransferencia')) return;
+
+    // Buscar el contenedor de botones (para agregarlo junto a los otros métodos)
+    let contenedorBotones = pasoDatos.querySelector('.d-flex.gap-2.justify-content-center');
+    if (!contenedorBotones) {
+      // Si no existe, crear el contenedor (fallback)
+      contenedorBotones = document.createElement('div');
+      contenedorBotones.className = 'd-flex gap-2 justify-content-center mt-3';
+      pasoDatos.appendChild(contenedorBotones);
+    }
+
+    const btnTransfer = document.createElement('button');
+    btnTransfer.id = 'btnPagarTransferencia';
+    btnTransfer.className = 'btn btn-primary btn-lg';
+    btnTransfer.innerHTML = '🏦 Pagar con transferencia';
+    btnTransfer.addEventListener('click', pagarConTransferencia);
+    contenedorBotones.appendChild(btnTransfer);
+  }
+
   // ============================================================
   // 2. BOTÓN DEL CARRITO (mostrar/ocultar + carga MP)
   // ============================================================
@@ -2118,7 +2170,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const logo = this;
       if (logo.classList.contains('logo-anim-start') || logo.style.pointerEvents === 'none') return;
 
-      // Bloquear nuevos clics durante toda la animación
       logo.style.pointerEvents = 'none';
 
       const mensaje = document.createElement('div');
@@ -2134,7 +2185,6 @@ document.addEventListener('DOMContentLoaded', () => {
       logo.classList.add('logo-anim-start');
       setTimeout(() => {
         logo.classList.remove('logo-anim-start');
-        // Restaurar clics al finalizar
         logo.style.pointerEvents = '';
       }, 2100);
     });
@@ -2152,4 +2202,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
   });
+
+  // ============================================================
+  // 10. AGREGAR BOTÓN DE TRANSFERENCIA AL INICIO
+  // ============================================================
+  setTimeout(agregarBotonTransferencia, 500);
 });
