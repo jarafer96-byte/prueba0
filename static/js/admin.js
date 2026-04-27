@@ -1291,6 +1291,13 @@ async function renderTablaPedidos() {
     const container = document.getElementById('tableView');
     if (!container) return;
 
+    // Reiniciar estado de paginación al abrir la pestaña
+    paginaActualPedidos = 1;
+    lastIdPaginaActual = null;
+    nextLastId = null;
+    prevLastId = null;
+    lastIdsHistory = [null];
+
     const html = `
         <div class="d-flex gap-2 mb-3 align-items-center flex-wrap">
             <select id="filtroMetodo" class="form-select w-auto">
@@ -1320,14 +1327,45 @@ async function renderTablaPedidos() {
                 </tbody>
             </table>
         </div>
+        <div class="pagination-controls d-flex justify-content-center align-items-center gap-2 mt-3">
+            <button id="btnPedidosAnterior" class="btn btn-sm btn-secondary" disabled>← Anterior</button>
+            <span id="paginaInfo" class="mx-2">Página 1</span>
+            <button id="btnPedidosSiguiente" class="btn btn-sm btn-secondary">Siguiente →</button>
+        </div>
     `;
     container.innerHTML = html;
 
     // Eventos
-    document.getElementById('btnFiltrarPedidos').addEventListener('click', () => cargarPedidos());
-    document.getElementById('btnRecargarPedidos').addEventListener('click', () => cargarPedidos());
+    document.getElementById('btnFiltrarPedidos').addEventListener('click', () => {
+        // Resetear paginación al filtrar
+        paginaActualPedidos = 1;
+        lastIdPaginaActual = null;
+        nextLastId = null;
+        prevLastId = null;
+        lastIdsHistory = [null];
+        cargarPedidos(1);
+    });
+    document.getElementById('btnRecargarPedidos').addEventListener('click', () => {
+        cargarPedidos(paginaActualPedidos);
+    });
+    document.getElementById('btnPedidosAnterior').addEventListener('click', () => {
+        if (paginaActualPedidos > 1) {
+            paginaActualPedidos--;
+            const lastId = lastIdsHistory[paginaActualPedidos - 1] || null;
+            lastIdPaginaActual = lastId;
+            cargarPedidos(paginaActualPedidos, lastId);
+        }
+    });
+    document.getElementById('btnPedidosSiguiente').addEventListener('click', () => {
+        if (nextLastId) {
+            paginaActualPedidos++;
+            lastIdsHistory[paginaActualPedidos - 1] = nextLastId; // guardar last_id de la nueva página
+            lastIdPaginaActual = nextLastId;
+            cargarPedidos(paginaActualPedidos, nextLastId);
+        }
+    });
 
-    await cargarPedidos();
+    await cargarPedidos(1);
 }
 
 async function cargarPedidos(pagina, lastId = null) {
