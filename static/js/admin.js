@@ -1468,54 +1468,6 @@ async function cargarPedidos(pagina, lastId = null) {
     }
 }
 
-window.todosLosProductos = window.todosLosProductos || [];
-
-let paginaActualPedidos = 1;
-let lastIdPaginaActual = null;
-let nextLastId = null;
-let prevLastId = null;
-let lastIdsHistory = [null];
-
-async function guardarProducto(producto, formDiv, skipReload = false) {
-  // ... (todo el código original, sin modificaciones)
-}
-function abrirConfigCorreoArgentino() { ... }
-function cerrarModalConfigCA() { ... }
-function actualizarFilaProducto(idBase, productoActualizado) { ... }
-function agregarFilaProducto(producto) { ... }
-function eliminarFilaProducto(idBase) { ... }
-async function eliminarProducto(id_base) { ... }
-async function abrirConfigTienda() { ... }
-function cerrarModalConfigTienda() { ... }
-async function optimizarImagen(file) { ... }
-async function subirImagen(blob) { ... }
-function duplicarProductoDesdeCard(id_base) { ... }
-async function abrirConfigMercadoPago() { ... }
-function salirAdmin() { ... }
-function loginAdmin(event) { ... }
-async function agregarFotoExtra(btn) { ... }
-async function eliminarFotoExtra(idBase, url) { ... }
-async function agregarImagenPrincipal(btn) { ... }
-function parsearTallesStock(cadena) { ... }
-function agregarFilaColor(btn) { ... }
-function renderTablaProductos() { ... }
-function renderGruposHorizontal(productos) { ... }
-function renderFilasTabla(productos) { ... }
-function mostrarSubgruposHorizontal(grupo, subgrupoActivo = null) { ... }
-function ocultarSubgrupos() { ... }
-async function agregarSubgrupo(grupo) { ... }
-function filtrarProductos(grupo, subgrupo = null) { ... }
-function obtenerProductoDesdeFila(fila, idBase) { ... }
-async function recargarProductos() { ... }
-function getCurrentSelectedGroup() { ... }
-async function agregarNuevoProducto() { ... }
-async function guardarTodosProductos() { ... }
-function productoHaCambiado(original, actual) { ... }
-function agregarNuevoGrupo() { ... }
-async function renderTablaPedidos() { ... }
-async function cargarPedidos(pagina, lastId = null) { ... }
-
-// ========== INICIALIZACIÓN ==========
 (function() {
     // 1. BOTONES DE ADMIN
     const btnConfigMP = document.getElementById('btnConfigurarMP');
@@ -1534,7 +1486,61 @@ async function cargarPedidos(pagina, lastId = null) { ... }
     const formCA = document.getElementById('formConfigCA');
     if (formCA) {
         formCA.addEventListener('submit', async (e) => {
-            // ... todo el código original del formulario CA
+            e.preventDefault();
+            const email = window.cliente?.email;
+            if (!email) {
+                alert("No se detectó el email del vendedor. Inicia sesión nuevamente.");
+                return;
+            }
+            const agreement = document.getElementById('ca_agreement').value.trim();
+            const api_key = document.getElementById('ca_api_key').value.trim();
+            const micorreo_user = document.getElementById('ca_micorreo_user').value.trim();
+            const micorreo_password = document.getElementById('ca_micorreo_password').value.trim();
+            const test_mode = document.getElementById('ca_test_mode').checked;
+            const nombre = document.getElementById('ca_nombre').value.trim();
+            const calle = document.getElementById('ca_calle').value.trim();
+            const altura = document.getElementById('ca_altura').value.trim();
+            const localidad = document.getElementById('ca_localidad').value.trim();
+            const provincia_codigo = document.getElementById('ca_provincia_codigo').value.trim();
+            const codigo_postal = document.getElementById('ca_codigo_postal').value.trim();
+
+            if (!agreement || !api_key || !micorreo_user || !micorreo_password ||
+                !nombre || !calle || !altura || !localidad || !provincia_codigo || !codigo_postal) {
+                alert("Por favor completa todos los campos.");
+                return;
+            }
+
+            const submitBtn = formCA.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerText;
+            submitBtn.innerText = "Guardando...";
+            submitBtn.disabled = true;
+
+            try {
+                const credRes = await fetch("/ca/guardar-credenciales", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ agreement, api_key, micorreo_user, micorreo_password, test_mode })
+                });
+                const credData = await credRes.json();
+                if (credData.status !== "ok") throw new Error(credData.error || "Error guardando credenciales");
+
+                const remRes = await fetch("/ca/guardar-remitente", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ nombre, calle, altura, localidad, provincia_codigo, codigo_postal })
+                });
+                const remData = await remRes.json();
+                if (remData.status !== "ok") throw new Error(remData.error || "Error guardando remitente");
+
+                alert("✅ Configuración de Correo Argentino guardada correctamente.");
+                cerrarModalConfigCA();
+                formCA.reset();
+            } catch (err) {
+                alert("❌ Error: " + err.message);
+            } finally {
+                submitBtn.innerText = originalText;
+                submitBtn.disabled = false;
+            }
         });
     }
 
@@ -1542,7 +1548,46 @@ async function cargarPedidos(pagina, lastId = null) { ... }
     const formTienda = document.getElementById('formConfigTienda');
     if (formTienda) {
         formTienda.addEventListener('submit', async (e) => {
-            // ... todo el código original
+            e.preventDefault();
+            const submitBtn = formTienda.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerText;
+            submitBtn.disabled = true;
+            submitBtn.innerText = 'Guardando...';
+
+            const emailNotif = document.getElementById('tienda_email_notificaciones').value.trim();
+            const cuotasActivas = document.getElementById('tienda_cuotas_activas').checked;
+            const cuotasNumero = parseInt(document.getElementById('tienda_cuotas_numero').value, 10);
+
+            try {
+                const resp = await fetch('/api/config-tienda', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email_notificaciones: emailNotif || null,
+                        cuotas_sin_interes: cuotasActivas,
+                        cuotas_numero: cuotasNumero
+                    })
+                });
+                const data = await resp.json();
+                if (data.status === 'ok') {
+                    alert('✅ Configuración guardada');
+                    cerrarModalConfigTienda();
+                    window.configTienda = {
+                        ...window.configTienda,
+                        email_notificaciones: emailNotif,
+                        cuotas_sin_interes: cuotasActivas,
+                        cuotas_numero: cuotasNumero
+                    };
+                    window.dispatchEvent(new Event('configTiendaActualizada'));
+                } else {
+                    alert('❌ Error: ' + (data.message || 'No se pudo guardar'));
+                }
+            } catch (err) {
+                alert('❌ Error de red: ' + err.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = originalText;
+            }
         });
     }
 
@@ -1582,6 +1627,7 @@ async function cargarPedidos(pagina, lastId = null) { ... }
         document.getElementById('navPedidos').addEventListener('click', () => {
             renderTablaPedidos();
         });
+        // === FIN NUEVA BARRA ===
 
         recargarProductos().then(() => {
             renderTablaProductos();
@@ -1615,13 +1661,151 @@ async function cargarPedidos(pagina, lastId = null) { ... }
         const adminContainer = document.getElementById('adminFormsContainer');
         if (adminContainer) {
             adminContainer.addEventListener('click', async (e) => {
-                // ... todos los eventos de click (originales)
+                const target = e.target;
+                if (target.classList.contains('admin-img-thumb')) {
+                    e.preventDefault();
+                    const url = target.getAttribute('data-modal-url');
+                    if (url) openModal(url);
+                    return;
+                }
+                if (target.id === 'guardarTodosTablaBtn') {
+                    e.preventDefault();
+                    await guardarTodosProductos();
+                    return;
+                }
+                if (target.id === 'btnNuevoProductoTabla') {
+                    e.preventDefault();
+                    agregarNuevoProducto();
+                    return;
+                }
+                if (target.id === 'adminBtnNuevoGrupo') {
+                    e.preventDefault();
+                    agregarNuevoGrupo();
+                    return;
+                }
+                if (target.classList.contains('agregar-subgrupo-btn')) {
+                    e.preventDefault();
+                    const grupo = target.dataset.grupo;
+                    if (grupo) agregarSubgrupo(grupo);
+                    return;
+                }
+                if (target.classList.contains('guardar-producto')) {
+                    e.preventDefault();
+                    const idBase = target.dataset.id;
+                    const fila = target.closest('tr');
+                    if (fila && idBase) {
+                        const producto = obtenerProductoDesdeFila(fila, idBase);
+                        await guardarProducto(producto, { dataset: { idBase } }, true);
+                    }
+                    return;
+                }
+                if (target.classList.contains('duplicar-producto')) {
+                    e.preventDefault();
+                    const idBase = target.dataset.id;
+                    if (idBase) duplicarProductoDesdeCard(idBase);
+                    return;
+                }
+                if (target.classList.contains('eliminar-producto')) {
+                    e.preventDefault();
+                    const idBase = target.dataset.id;
+                    if (idBase && confirm('¿Eliminar este producto?')) eliminarProducto(idBase);
+                    return;
+                }
+                if (target.classList.contains('agregar-fila-color')) {
+                    e.preventDefault();
+                    agregarFilaColor(target);
+                    return;
+                }
+                if (target.classList.contains('eliminar-foto-extra')) {
+                    e.preventDefault();
+                    const idBase = target.dataset.id;
+                    const url = target.dataset.url;
+                    if (idBase && url) eliminarFotoExtra(idBase, url);
+                    return;
+                }
+                if (target.classList.contains('agregar-foto-extra')) {
+                    e.preventDefault();
+                    agregarFotoExtra(target);
+                    return;
+                }
+                if (target.classList.contains('agregar-imagen-principal')) {
+                    e.preventDefault();
+                    agregarImagenPrincipal(target);
+                    return;
+                }
+                if (target.classList.contains('eliminar-color') || target.classList.contains('eliminar-fila-color')) {
+                    e.preventDefault();
+                    const filaColor = target.closest('.fila-color');
+                    if (filaColor) filaColor.remove();
+                    return;
+                }
+                if (target.classList.contains('grupo-btn')) {
+                    e.preventDefault();
+                    const grupo = target.dataset.grupo;
+                    if (grupo) filtrarProductos(grupo);
+                    return;
+                }
+                if (target.classList.contains('subgrupo-toggle-btn')) {
+                    e.preventDefault();
+                    const grupo = target.dataset.grupo;
+                    if (grupo) {
+                        const barraSub = document.getElementById('adminSubgruposBar');
+                        if (barraSub && barraSub.classList.contains('admin-subgrupos-bar-visible') && barraSub.dataset.currentGroup === grupo) {
+                            ocultarSubgrupos();
+                        } else {
+                            mostrarSubgruposHorizontal(grupo);
+                            if (barraSub) barraSub.dataset.currentGroup = grupo;
+                        }
+                    }
+                    return;
+                }
+                if (target.classList.contains('subgrupo-btn')) {
+                    e.preventDefault();
+                    const grupo = target.dataset.grupo;
+                    const subgrupo = target.dataset.subgrupo;
+                    if (grupo && subgrupo) filtrarProductos(grupo, subgrupo);
+                    return;
+                }
             });
         }
 
         if (adminContainer) {
             adminContainer.addEventListener('change', (e) => {
-                // ... evento change para talle-toggle
+                const target = e.target;
+                if (target.classList.contains('talle-toggle')) {
+                    const filaColor = target.closest('.fila-color');
+                    if (!filaColor) return;
+                    const inputDinamico = filaColor.querySelector('.talles-input, .stock-input');
+                    if (!inputDinamico) return;
+                    const estaMarcado = target.checked;
+                    if (estaMarcado) {
+                        let valorActual = inputDinamico.value;
+                        if (inputDinamico.type === 'number') {
+                            const stock = parseInt(valorActual, 10) || 0;
+                            valorActual = `unico:${stock}`;
+                        }
+                        inputDinamico.type = 'text';
+                        inputDinamico.classList.remove('stock-input');
+                        inputDinamico.classList.add('talles-input');
+                        inputDinamico.placeholder = 'S:30, M:20';
+                        inputDinamico.value = valorActual;
+                    } else {
+                        let valorActual = inputDinamico.value;
+                        let stock = 0;
+                        if (inputDinamico.type === 'text') {
+                            const tallesObj = parsearTallesStock(valorActual);
+                            if (tallesObj['unico']) stock = tallesObj['unico'];
+                            else stock = Object.values(tallesObj).reduce((a, b) => a + b, 0);
+                        } else {
+                            stock = parseInt(valorActual, 10) || 0;
+                        }
+                        inputDinamico.type = 'number';
+                        inputDinamico.classList.remove('talles-input');
+                        inputDinamico.classList.add('stock-input');
+                        inputDinamico.placeholder = 'Stock';
+                        inputDinamico.value = stock;
+                    }
+                }
             });
         }
     }
