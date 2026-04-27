@@ -673,6 +673,10 @@ function renderTablaProductos() {
   const productos = window.todosLosProductos || [];
 
   let html = `
+    <div class="admin-nav-buttons mb-3">
+      <button id="navProductosBtn" class="btn btn-sm btn-primary">📦 Productos</button>
+      <button id="navPedidosBtn" class="btn btn-sm btn-secondary">🛒 Pedidos</button>
+    </div>
     <div class="row">
       <div class="col-12">
         <div class="admin-grupos-bar">
@@ -711,8 +715,11 @@ function renderTablaProductos() {
   `;
 
   container.innerHTML = html;
-}
 
+  // Asignar eventos a los botones de navegación
+  document.getElementById('navProductosBtn')?.addEventListener('click', () => renderTablaProductos());
+  document.getElementById('navPedidosBtn')?.addEventListener('click', () => renderTablaPedidos());
+}
 
 function renderGruposHorizontal(productos) {
   const grupos = [...new Set(productos.map(p => p.grupo).filter(Boolean))];
