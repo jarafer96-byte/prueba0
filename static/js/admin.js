@@ -1813,4 +1813,3 @@ async function cargarPedidos(pagina, lastId = null) {
         }
     }
 })();
-}
