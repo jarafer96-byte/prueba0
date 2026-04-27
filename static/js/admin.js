@@ -1330,19 +1330,31 @@ async function renderTablaPedidos() {
     await cargarPedidos();
 }
 
-async function cargarPedidos() {
+async function cargarPedidos(pagina, lastId = null) {
     const metodo = document.getElementById('filtroMetodo').value;
     const estado = document.getElementById('filtroEstado').value;
-    let url = `/api/ordenes?${metodo ? `metodo=${metodo}&` : ''}${estado ? `estado=${estado}` : ''}`;
+    const limit = 20; // cantidad por página
+    let url = `/api/ordenes?limit=${limit}`;
+    if (metodo) url += `&metodo=${metodo}`;
+    if (estado) url += `&estado=${estado}`;
+    if (lastId) url += `&last_id=${encodeURIComponent(lastId)}`;
+
     try {
         const resp = await fetch(url);
-        const ordenes = await resp.json();
+        const data = await resp.json();
+        const ordenes = data.ordenes || [];
+        nextLastId = data.next_last_id || null;
+        
         const tbody = document.getElementById('tabla-pedidos-body');
         if (!tbody) return;
+        
         if (ordenes.length === 0) {
             tbody.innerHTML = '<tr><td colspan="7" class="text-center">No hay pedidos con esos filtros</td></tr>';
+            document.getElementById('btnPedidosSiguiente').disabled = true;
+            document.getElementById('paginaInfo').innerText = `Página ${pagina}`;
             return;
         }
+        
         let html = '';
         ordenes.forEach(orden => {
             const fecha = orden.fecha_creacion ? new Date(orden.fecha_creacion).toLocaleString() : '-';
@@ -1369,16 +1381,19 @@ async function cargarPedidos() {
             </tr>`;
         });
         tbody.innerHTML = html;
-
-        // Eventos de detalle
+        
+        // Actualizar controles de paginación
+        document.getElementById('paginaInfo').innerText = `Página ${pagina}`;
+        document.getElementById('btnPedidosAnterior').disabled = (pagina === 1);
+        document.getElementById('btnPedidosSiguiente').disabled = !nextLastId;
+        
+        // Reasignar eventos de detalle y marcar pagado...
         document.querySelectorAll('.ver-detalle').forEach(btn => {
             btn.addEventListener('click', async (e) => {
                 const ordenId = btn.dataset.id;
-                // Podrías abrir un modal con más detalles
                 alert(`Detalle de orden ${ordenId} - Pendiente implementar`);
             });
         });
-        // Eventos marcar pagado (solo para transferencias)
         document.querySelectorAll('.marcar-pagado').forEach(btn => {
             btn.addEventListener('click', async (e) => {
                 const ordenId = btn.dataset.id;
@@ -1392,7 +1407,7 @@ async function cargarPedidos() {
                         const data = await resp.json();
                         if (data.status === 'ok') {
                             alert('✅ Estado actualizado');
-                            cargarPedidos(); // recargar la tabla
+                            cargarPedidos(pagina, lastId); // recargar la página actual
                         } else {
                             alert('Error: ' + data.error);
                         }
