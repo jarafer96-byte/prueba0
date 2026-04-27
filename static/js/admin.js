@@ -1301,84 +1301,92 @@ function agregarNuevoGrupo() {
 
 // ========== PEDIDOS / VENTAS ==========
 async function renderTablaPedidos() {
-    const container = document.getElementById('tableView');
-    if (!container) return;
+  const container = document.getElementById('tableView');
+  if (!container) return;
 
-    // Reiniciar estado de paginación al abrir la pestaña
+  // Reiniciar estado de paginación
+  paginaActualPedidos = 1;
+  lastIdPaginaActual = null;
+  nextLastId = null;
+  prevLastId = null;
+  lastIdsHistory = [null];
+
+  const html = `
+    <div class="admin-nav-buttons mb-3">
+      <button id="navProductosBtn" class="btn btn-sm btn-secondary">📦 Productos</button>
+      <button id="navPedidosBtn" class="btn btn-sm btn-primary">🛒 Pedidos</button>
+    </div>
+    <div class="d-flex gap-2 mb-3 align-items-center flex-wrap">
+        <select id="filtroMetodo" class="form-select w-auto">
+            <option value="">Todos los métodos</option>
+            <option value="qr">QR</option>
+            <option value="checkout_pro">Checkout Pro</option>
+            <option value="transferencia">Transferencia</option>
+        </select>
+        <select id="filtroEstado" class="form-select w-auto">
+            <option value="">Todos los estados</option>
+            <option value="pendiente">Pendiente</option>
+            <option value="aprobado">Aprobado</option>
+            <option value="rechazado">Rechazado</option>
+        </select>
+        <button id="btnFiltrarPedidos" class="btn btn-primary btn-sm">Filtrar</button>
+        <button id="btnRecargarPedidos" class="btn btn-secondary btn-sm">Recargar</button>
+    </div>
+    <div class="tabla-responsive">
+        <table class="table table-striped table-hover tabla-productos-admin">
+            <thead>
+                <tr>
+                    <th>Fecha</th><th>Cliente</th><th>Total</th><th>Estado</th><th>Método</th><th>Productos</th><th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="tabla-pedidos-body">
+                <tr><td colspan="7" class="text-center">Cargando...</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="pagination-controls d-flex justify-content-center align-items-center gap-2 mt-3">
+        <button id="btnPedidosAnterior" class="btn btn-sm btn-secondary" disabled>← Anterior</button>
+        <span id="paginaInfo" class="mx-2">Página 1</span>
+        <button id="btnPedidosSiguiente" class="btn btn-sm btn-secondary">Siguiente →</button>
+    </div>
+  `;
+
+  container.innerHTML = html;
+
+  // Navegación
+  document.getElementById('navProductosBtn')?.addEventListener('click', () => renderTablaProductos());
+  document.getElementById('navPedidosBtn')?.addEventListener('click', () => renderTablaPedidos());
+
+  // Filtros y paginación
+  document.getElementById('btnFiltrarPedidos')?.addEventListener('click', () => {
     paginaActualPedidos = 1;
     lastIdPaginaActual = null;
     nextLastId = null;
     prevLastId = null;
     lastIdsHistory = [null];
+    cargarPedidos(1);
+  });
+  document.getElementById('btnRecargarPedidos')?.addEventListener('click', () => {
+    cargarPedidos(paginaActualPedidos);
+  });
+  document.getElementById('btnPedidosAnterior')?.addEventListener('click', () => {
+    if (paginaActualPedidos > 1) {
+      paginaActualPedidos--;
+      const lastId = lastIdsHistory[paginaActualPedidos - 1] || null;
+      lastIdPaginaActual = lastId;
+      cargarPedidos(paginaActualPedidos, lastId);
+    }
+  });
+  document.getElementById('btnPedidosSiguiente')?.addEventListener('click', () => {
+    if (nextLastId) {
+      paginaActualPedidos++;
+      lastIdsHistory[paginaActualPedidos - 1] = nextLastId;
+      lastIdPaginaActual = nextLastId;
+      cargarPedidos(paginaActualPedidos, nextLastId);
+    }
+  });
 
-    const html = `
-        <div class="d-flex gap-2 mb-3 align-items-center flex-wrap">
-            <select id="filtroMetodo" class="form-select w-auto">
-                <option value="">Todos los métodos</option>
-                <option value="qr">QR</option>
-                <option value="checkout_pro">Checkout Pro</option>
-                <option value="transferencia">Transferencia</option>
-            </select>
-            <select id="filtroEstado" class="form-select w-auto">
-                <option value="">Todos los estados</option>
-                <option value="pendiente">Pendiente</option>
-                <option value="aprobado">Aprobado</option>
-                <option value="rechazado">Rechazado</option>
-            </select>
-            <button id="btnFiltrarPedidos" class="btn btn-primary btn-sm">Filtrar</button>
-            <button id="btnRecargarPedidos" class="btn btn-secondary btn-sm">Recargar</button>
-        </div>
-        <div class="tabla-responsive">
-            <table class="table table-striped table-hover tabla-productos-admin">
-                <thead>
-                    <tr>
-                        <th>Fecha</th><th>Cliente</th><th>Total</th><th>Estado</th><th>Método</th><th>Productos</th><th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody id="tabla-pedidos-body">
-                    <tr><td colspan="7" class="text-center">Cargando...</td></tr>
-                </tbody>
-            </table>
-        </div>
-        <div class="pagination-controls d-flex justify-content-center align-items-center gap-2 mt-3">
-            <button id="btnPedidosAnterior" class="btn btn-sm btn-secondary" disabled>← Anterior</button>
-            <span id="paginaInfo" class="mx-2">Página 1</span>
-            <button id="btnPedidosSiguiente" class="btn btn-sm btn-secondary">Siguiente →</button>
-        </div>
-    `;
-    container.innerHTML = html;
-
-    // Eventos
-    document.getElementById('btnFiltrarPedidos').addEventListener('click', () => {
-        // Resetear paginación al filtrar
-        paginaActualPedidos = 1;
-        lastIdPaginaActual = null;
-        nextLastId = null;
-        prevLastId = null;
-        lastIdsHistory = [null];
-        cargarPedidos(1);
-    });
-    document.getElementById('btnRecargarPedidos').addEventListener('click', () => {
-        cargarPedidos(paginaActualPedidos);
-    });
-    document.getElementById('btnPedidosAnterior').addEventListener('click', () => {
-        if (paginaActualPedidos > 1) {
-            paginaActualPedidos--;
-            const lastId = lastIdsHistory[paginaActualPedidos - 1] || null;
-            lastIdPaginaActual = lastId;
-            cargarPedidos(paginaActualPedidos, lastId);
-        }
-    });
-    document.getElementById('btnPedidosSiguiente').addEventListener('click', () => {
-        if (nextLastId) {
-            paginaActualPedidos++;
-            lastIdsHistory[paginaActualPedidos - 1] = nextLastId; // guardar last_id de la nueva página
-            lastIdPaginaActual = nextLastId;
-            cargarPedidos(paginaActualPedidos, nextLastId);
-        }
-    });
-
-    await cargarPedidos(1);
+  await cargarPedidos(1);
 }
 
 async function cargarPedidos(pagina, lastId = null) {
