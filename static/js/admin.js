@@ -1,5 +1,11 @@
 window.todosLosProductos = window.todosLosProductos || [];
 
+let paginaActualPedidos = 1;
+let lastIdPaginaActual = null;
+let nextLastId = null;        // ID del documento siguiente (para avanzar)
+let prevLastId = null;        // ID del documento anterior (se guardará cuando retrocedamos)
+let lastIdsHistory = [null];  // historial de last_ids por página (índice 0 para página 1)
+
 async function guardarProducto(producto, formDiv, skipReload = false) {
   if (window._guardandoProducto) {
     console.warn("Ya hay una operación de guardado en curso");
