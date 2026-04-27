@@ -202,6 +202,63 @@ function cambiarPaso(paso) {
   window.pasoActual = paso;
 }
 
+async function pagarConTransferencia() {
+    // Validar datos del cliente
+    const nombre = document.getElementById('nombre').value.trim();
+    const emailCliente = document.getElementById('email_cliente').value.trim();
+    if (!nombre || !emailCliente) {
+        alert("Completá tus datos antes de pagar.");
+        return;
+    }
+
+    // Obtener teléfono (opcional)
+    const telefono = document.getElementById('telefono')?.value.trim() || '';
+
+    // Calcular total (con envío si corresponde)
+    let total = calcularTotalConEnvio();
+
+    const payload = {
+        email_vendedor: window.cliente?.email,
+        carrito: window.carrito,
+        cliente_nombre: nombre,
+        cliente_email: emailCliente,
+        cliente_telefono: telefono,
+        total: total
+    };
+
+    // Mostrar loading en el botón
+    const btn = document.getElementById('btnPagarTransferencia');
+    const originalText = btn?.innerHTML;
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '⏳ Procesando...';
+    }
+
+    try {
+        const resp = await fetch('/api/crear-orden-transferencia', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const data = await resp.json();
+
+        if (data.ok) {
+            // Vaciar carrito y mostrar datos bancarios
+            vaciarCarrito();
+            mostrarDatosBancarios(data.orden_id);
+        } else {
+            alert("❌ Error: " + (data.error || "No se pudo crear la orden"));
+        }
+    } catch (err) {
+        alert("Error de red: " + err.message);
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = originalText || '🏦 Pagar con transferencia';
+        }
+    }
+}
+
 function volverAlCarrito() {
   const pasoDireccion = document.getElementById('pasoDireccion');
   const pasoCarrito = document.getElementById('pasoCarrito');
