@@ -1575,6 +1575,11 @@ async function cargarPedidos(pagina, lastId = null) {
             const emailNotif = document.getElementById('tienda_email_notificaciones').value.trim();
             const cuotasActivas = document.getElementById('tienda_cuotas_activas').checked;
             const cuotasNumero = parseInt(document.getElementById('tienda_cuotas_numero').value, 10);
+            // Nuevos campos bancarios
+            const banco = document.getElementById('tienda_banco').value.trim();
+            const cbu = document.getElementById('tienda_cbu').value.trim();
+            const alias = document.getElementById('tienda_alias').value.trim();
+            const titular = document.getElementById('tienda_titular').value.trim();
 
             try {
                 const resp = await fetch('/api/config-tienda', {
@@ -1583,18 +1588,27 @@ async function cargarPedidos(pagina, lastId = null) {
                     body: JSON.stringify({
                         email_notificaciones: emailNotif || null,
                         cuotas_sin_interes: cuotasActivas,
-                        cuotas_numero: cuotasNumero
+                        cuotas_numero: cuotasNumero,
+                        banco: banco || null,
+                        cbu: cbu || null,
+                        alias: alias || null,
+                        titular: titular || null
                     })
                 });
                 const data = await resp.json();
                 if (data.status === 'ok') {
                     alert('✅ Configuración guardada');
                     cerrarModalConfigTienda();
+                    // Actualizar variable global
                     window.configTienda = {
                         ...window.configTienda,
                         email_notificaciones: emailNotif,
                         cuotas_sin_interes: cuotasActivas,
-                        cuotas_numero: cuotasNumero
+                        cuotas_numero: cuotasNumero,
+                        banco: banco,
+                        cbu: cbu,
+                        alias: alias,
+                        titular: titular
                     };
                     window.dispatchEvent(new Event('configTiendaActualizada'));
                 } else {
