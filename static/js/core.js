@@ -1646,6 +1646,25 @@ document.addEventListener('DOMContentLoaded', () => {
   window._eventosInicializados = true;
 
   // ============================================================
+  // FUNCIÓN PARA CARGAR admin.js (definida al inicio para usarla después)
+  // ============================================================
+  function cargarAdminScript() {
+    if (window.adminScriptCargado) return;
+    window.adminScriptCargado = true;
+    const script = document.createElement('script');
+    script.src = 'static/js/admin.js';
+    script.onload = () => { window.adminScriptCargado = true; };
+    document.head.appendChild(script);
+  }
+
+  // ============================================================
+  // CARGA AUTOMÁTICA DE admin.js SI YA ESTAMOS EN MODO ADMIN
+  // ============================================================
+  if (window.modoAdmin) {
+    cargarAdminScript();
+  }
+
+  // ============================================================
   // 0. FUNCIÓN CENTRAL PARA CAMBIAR DE PASO (carrito/dirección/datos)
   // ============================================================
   function cambiarPaso(paso) {
@@ -1764,7 +1783,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnPagarQR = document.getElementById('btnPagarQR');
   if (btnPagarQR) {
       btnPagarQR.addEventListener('click', pagarConQR);
-  }  
+  }
+
   // ============================================================
   // 2. BOTÓN DEL CARRITO (mostrar/ocultar + carga MP)
   // ============================================================
@@ -1801,19 +1821,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ============================================================
-  // 3. BOTÓN DE ADMIN Y CARGA AUTOMÁTICA SI MODO ADMIN ESTÁ ACTIVO
+  // 3. BOTÓN DE ADMIN Y CARGA MANUAL (para login)
   // ============================================================
   const loginToggleBtn = document.getElementById('loginToggleBtn');
   const loginForm = document.getElementById('loginFloatingForm');
-
-  function cargarAdminScript() {
-    if (window.adminScriptCargado) return;
-    window.adminScriptCargado = true;
-    const script = document.createElement('script');
-    script.src = 'static/js/admin.js';
-    script.onload = () => { window.adminScriptCargado = true; };
-    document.head.appendChild(script);
-  }
 
   if (loginToggleBtn && loginForm) {
     const newLoginBtn = loginToggleBtn.cloneNode(true);
