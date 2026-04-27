@@ -1653,7 +1653,12 @@ document.addEventListener('DOMContentLoaded', () => {
     window.adminScriptCargado = true;
     const script = document.createElement('script');
     script.src = 'static/js/admin.js';
-    script.onload = () => { window.adminScriptCargado = true; };
+    script.onload = () => {
+        // Una vez que admin.js ha cargado todas las funciones, inicializamos el panel
+        if (typeof window.inicializarPanelAdmin === 'function') {
+            window.inicializarPanelAdmin();
+        }
+    };
     document.head.appendChild(script);
   }
 
