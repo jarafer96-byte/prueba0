@@ -1627,25 +1627,13 @@ async function cargarPedidos(pagina, lastId = null) {
         const tableView = document.getElementById('tableView');
         if (tableView) tableView.classList.add('d-block');
 
-        // === NUEVA BARRA DE HERRAMIENTAS ===
-        const toolbar = document.createElement('div');
-        toolbar.className = 'd-flex gap-2 mb-3';
-        toolbar.innerHTML = `
-            <button id="navProductos" class="btn btn-sm btn-primary">📦 Productos</button>
-            <button id="navPedidos" class="btn btn-sm btn-secondary">🛒 Pedidos</button>
-        `;
-        tableView.prepend(toolbar);
-
-        document.getElementById('navProductos').addEventListener('click', () => {
-            renderTablaProductos();
-        });
-        document.getElementById('navPedidos').addEventListener('click', () => {
-            renderTablaPedidos();
-        });
-        // === FIN NUEVA BARRA ===
+        // ========== YA NO SE CREA LA BARRA MANUALMENTE ==========
+        // La barra de navegación (Productos / Pedidos) ahora se genera
+        // dentro de renderTablaProductos() y renderTablaPedidos()
+        // ========================================================
 
         recargarProductos().then(() => {
-            renderTablaProductos();
+            renderTablaProductos();  // Esta función ya incluye la barra con sus botones
             setTimeout(() => {
                 const primerGrupo = document.querySelector('.grupo-btn');
                 if (primerGrupo) {
