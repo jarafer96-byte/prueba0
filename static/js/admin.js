@@ -1471,7 +1471,7 @@ async function cargarPedidos(pagina, lastId = null) {
 }
 
 
-(function() {
+ (function() {
     // 1. BOTONES DE ADMIN
     const btnConfigMP = document.getElementById('btnConfigurarMP');
     if (btnConfigMP) btnConfigMP.addEventListener('click', abrirConfigMercadoPago);
@@ -1812,4 +1812,5 @@ async function cargarPedidos(pagina, lastId = null) {
             });
         }
     }
-})();
+ })();
+} 
