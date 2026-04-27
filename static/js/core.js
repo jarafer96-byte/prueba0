@@ -84,6 +84,60 @@ function iniciarPolling(ordenId, emailVendedor) {
     }, 3000);
 }
 
+async function mostrarDatosBancarios(ordenId) {
+    const email = window.cliente?.email;
+    if (!email) return;
+
+    // Obtener datos bancarios desde el backend
+    const resp = await fetch(`/api/config-tienda?email=${encodeURIComponent(email)}`);
+    const data = await resp.json();
+    const { banco, cbu, alias, titular } = data;
+
+    let modal = document.getElementById('modalTransferencia');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'modalTransferencia';
+        modal.className = 'modal-qr';
+        modal.innerHTML = `
+            <div class="modal-qr-content">
+                <span class="modal-qr-close">&times;</span>
+                <h3>Pago por transferencia bancaria</h3>
+                <p>¡Gracias por tu compra! Tu pedido N° <strong>${ordenId}</strong> fue registrado.</p>
+                <p>Para completar el pago, transferí el monto total a la siguiente cuenta:</p>
+                <div style="background:#f8f9fa; padding:15px; border-radius:8px; margin:15px 0;" id="datosBancarios">
+                    <!-- Se llenan dinámicamente -->
+                </div>
+                <p>⚠️ Una vez realizada la transferencia, el vendedor verificará el pago y confirmará tu pedido.</p>
+                <button id="cerrarModalTransferencia" class="btn btn-primary mt-2">Cerrar</button>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        modal.querySelector('.modal-qr-close').onclick = () => {
+            modal.classList.remove('modal-visible');
+            window.location.reload();
+        };
+        modal.querySelector('#cerrarModalTransferencia').onclick = () => {
+            modal.classList.remove('modal-visible');
+            window.location.reload();
+        };
+    }
+
+    const container = modal.querySelector('#datosBancarios');
+    if (banco || cbu || alias || titular) {
+        container.innerHTML = `
+            ${banco ? `<strong>Banco:</strong> ${banco}<br>` : ''}
+            ${cbu ? `<strong>CBU/CVU:</strong> ${cbu}<br>` : ''}
+            ${alias ? `<strong>Alias:</strong> ${alias}<br>` : ''}
+            ${titular ? `<strong>Titular:</strong> ${titular}<br>` : ''}
+            <strong>Monto:</strong> $${calcularTotalConEnvio().toFixed(2)}
+        `;
+    } else {
+        container.innerHTML = `<p>El vendedor aún no configuró sus datos bancarios. Por favor, contactalo para coordinar el pago.</p>`;
+    }
+
+    modal.classList.add('modal-visible');
+}
+
 async function pagarConQR() {
     // Validar datos del cliente
     const nombre = document.getElementById('nombre').value.trim();
