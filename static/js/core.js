@@ -118,7 +118,9 @@ async function mostrarDatosBancarios(ordenId) {
     const email = window.cliente?.email;
     if (!email) return;
 
-    const total = calcularTotalCarrito();   // ← sin envío
+    // Calcular total con descuento del 9%
+    const totalBase = calcularTotalCarrito();
+    const totalConDescuento = Math.round((totalBase * 0.91) * 100) / 100;
 
     const resp = await fetch(`/api/config-tienda?email=${encodeURIComponent(email)}`);
     const data = await resp.json();
@@ -160,7 +162,7 @@ async function mostrarDatosBancarios(ordenId) {
             ${cbu ? `<strong>CBU/CVU:</strong> ${cbu}<br>` : ''}
             ${alias ? `<strong>Alias:</strong> ${alias}<br>` : ''}
             ${titular ? `<strong>Titular:</strong> ${titular}<br>` : ''}
-            <strong>Monto:</strong> $${total.toFixed(2)}
+            <strong>Monto (con descuento del 9%):</strong> $${totalConDescuento.toFixed(2)}
         `;
     } else {
         container.innerHTML = `<p>El vendedor aún no configuró sus datos bancarios. Por favor, contactalo para coordinar el pago.</p>`;
@@ -304,8 +306,8 @@ async function pagarConTransferencia() {
 
     // Calcular total base del carrito
     const totalBase = calcularTotalCarrito();
-    // Aplicar descuento del 8% y redondear a 2 decimales
-    const totalConDescuento = Math.round((totalBase * 0.92) * 100) / 100;
+    // Aplicar descuento del 9% y redondear a 2 decimales
+    const totalConDescuento = Math.round((totalBase * 0.91) * 100) / 100;
 
     const payload = {
         email_vendedor: window.cliente?.email,
@@ -313,7 +315,7 @@ async function pagarConTransferencia() {
         cliente_nombre: nombre,
         cliente_email: emailCliente,
         cliente_telefono: telefono,
-        total: totalConDescuento   // <-- total con descuento
+        total: totalConDescuento
     };
 
     const btn = document.getElementById('btnPagarTransferencia');
