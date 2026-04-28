@@ -1,13 +1,11 @@
 /* Contenedor del ticker */
 .ticker-container {
-    background-color: #f8f9fa;
-    color: #dc3545;          /* rojo llamativo, puedes cambiarlo */
+    background-color: #00000042;
+    color: #dca335;       /* rojo llamativo, puedes cambiarlo */
     overflow: hidden;
     white-space: nowrap;
     padding: 10px 0;
     font-weight: bold;
-    border-bottom: 1px solid #ddd;
-    border-top: 1px solid #ddd;
     position: relative;
     width: 100%;
 }
