@@ -301,7 +301,11 @@ async function pagarConTransferencia() {
     }
 
     const telefono = document.getElementById('telefono')?.value.trim() || '';
-    const total = calcularTotalCarrito();   // ← sin envío
+
+    // Calcular total base del carrito
+    const totalBase = calcularTotalCarrito();
+    // Aplicar descuento del 8% y redondear a 2 decimales
+    const totalConDescuento = Math.round((totalBase * 0.92) * 100) / 100;
 
     const payload = {
         email_vendedor: window.cliente?.email,
@@ -309,7 +313,7 @@ async function pagarConTransferencia() {
         cliente_nombre: nombre,
         cliente_email: emailCliente,
         cliente_telefono: telefono,
-        total: total
+        total: totalConDescuento   // <-- total con descuento
     };
 
     const btn = document.getElementById('btnPagarTransferencia');
