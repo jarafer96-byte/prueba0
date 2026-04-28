@@ -187,16 +187,17 @@ async function pagarConQR() {
 
     // Preparar items para MP (un solo item con el total con descuento)
     const externalRef = `QR_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
-    const itemsParaMP = [{
-        title: `Pedido ${externalRef}`,
-        description: `Compra en ${window.cliente.email}`,
-        quantity: 1,
-        unit_price: totalConDescuento,
-        total_amount: totalConDescuento,
-        sku_number: "QR_DISCOUNT",
+    const itemsParaMP = window.carrito.map(item => ({
+        title: item.nombre,
+        description: item.nombre,
+        quantity: item.cantidad,
+        unit_price: item.precio * 0.92,   // aplicar descuento del 8% individual
+        total_amount: item.precio * item.cantidad * 0.92,
+        sku_number: item.id_base,
         category: "others",
-        unit_measure: "unit"
-    }];
+        unit_measure: "unit",
+        imagen_url: item.imagen_url       // ✅ incluir imagen real
+    }));
 
     const payload = {
         email_vendedor: window.cliente.email,
