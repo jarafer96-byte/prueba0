@@ -178,26 +178,30 @@ async function pagarConQR() {
         return;
     }
 
-    // Calcular total de productos (sin envío)
-    let totalBase = window.carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
-    
-    // Aplicar descuento del 8%
-    const descuento = 0.08;
-    const totalConDescuento = totalBase * (1 - descuento);
+    if (!window.carrito || window.carrito.length === 0) {
+        alert("El carrito está vacío.");
+        return;
+    }
 
-    // Preparar items para MP (un solo item con el total con descuento)
+    // Aplicar descuento del 8% a cada ítem individualmente, con redondeo a 2 decimales
+    const descuento = 0.08;
+    const itemsParaMP = window.carrito.map(item => {
+        const unitPriceDisc = Math.round((item.precio * (1 - descuento)) * 100) / 100;
+        return {
+            title: item.nombre,
+            description: item.nombre,
+            quantity: item.cantidad,
+            unit_price: unitPriceDisc,
+            sku_number: item.id_base,
+            category: "others",
+            unit_measure: "unit",
+            imagen_url: item.imagen_url || ''   // incluir imagen (puede estar vacía)
+        };
+    });
+
+    // Calcular total con descuento sumando los precios de los items
+    const totalConDescuento = itemsParaMP.reduce((sum, it) => sum + (it.unit_price * it.quantity), 0);
     const externalRef = `QR_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
-    const itemsParaMP = window.carrito.map(item => ({
-        title: item.nombre,
-        description: item.nombre,
-        quantity: item.cantidad,
-        unit_price: item.precio * 0.92,   // aplicar descuento del 8% individual
-        total_amount: item.precio * item.cantidad * 0.92,
-        sku_number: item.id_base,
-        category: "others",
-        unit_measure: "unit",
-        imagen_url: item.imagen_url       // ✅ incluir imagen real
-    }));
 
     const payload = {
         email_vendedor: window.cliente.email,
