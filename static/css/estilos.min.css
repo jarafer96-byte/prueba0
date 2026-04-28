@@ -4,6 +4,16 @@
     padding: 10px 18px;   /* Reduce el padding horizontal */
   }
 }
+/* Forzar texto blanco en botones de detalles y marcar pagado */
+.ver-detalle,
+.marcar-pagado {
+    color: white !important;
+}
+.ver-detalle:hover,
+.marcar-pagado:hover {
+    color: white !important;
+    opacity: 0.9;
+}
 .card-producto .precio-container {
     display: flex;
     align-items: center;
