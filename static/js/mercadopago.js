@@ -1,17 +1,6 @@
 (function() {
   let costoEnvio = 0;
-  let pagando = false;  // 🔒 Flag anti-duplicidad para el pago
-
-  async function cargarSDK() {
-    if (window.MercadoPago) return Promise.resolve();
-    return new Promise((resolve, reject) => {
-      const script = document.createElement('script');
-      script.src = 'https://sdk.mercadopago.com/js/v2';
-      script.onload = resolve;
-      script.onerror = reject;
-      document.head.appendChild(script);
-    });
-  }
+  let pagando = false;
 
   function resetEnvio() {
     costoEnvio = 0;
@@ -21,57 +10,40 @@
   }
   window.resetEnvio = resetEnvio;
 
-  async function initMercadoPago() {
-    try {
-      await cargarSDK();
-      const resp = await fetch(`/api/mp_public_key?email=${encodeURIComponent(window.cliente.email)}`);
-      const data = await resp.json();
-      if (data.public_key) {
-        window.mp = new window.MercadoPago(data.public_key, { locale: 'es-AR' });
-        const pagarBtn = document.getElementById('btn_pagar');
-        if (pagarBtn) pagarBtn.disabled = false;
-      } else {
-        const pagarBtn = document.getElementById('btn_pagar');
-        if (pagarBtn) pagarBtn.disabled = true;
-      }
-    } catch {
-      const pagarBtn = document.getElementById('btn_pagar');
-      if (pagarBtn) pagarBtn.disabled = true;
+  function actualizarCarritoConEnvio() {
+    let subtotal = 0;
+    if (window.carrito && window.carrito.length) {
+      subtotal = window.carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
     }
-  }
-
-  // Actualiza la UI después de verificar stock (basado en stock_actualizado)
-  function actualizarStockUI(stockActualizado) {
-    if (!stockActualizado) return;
-    for (const [key, stock] of Object.entries(stockActualizado)) {
-      // key formato "id_base_talle" o "id_base_talle_color"
-      const [id_base, talle, color] = key.split('_');
-      const talleSelect = document.getElementById(`talle_${id_base}`);
-      const cantidadInput = document.getElementById(`cantidad_${id_base}`);
-      const agregarBtn = document.getElementById(`btn_agregar_${id_base}`);
-      if (talleSelect) {
-        if (typeof actualizarStockPorTalle === 'function') {
-          actualizarStockPorTalle(id_base, talle, color || null);
-        }
-      } else if (cantidadInput) {
-        cantidadInput.max = stock;
-        if (stock <= 0) {
-          cantidadInput.disabled = true;
-          cantidadInput.value = 0;
-          if (agregarBtn) {
-            agregarBtn.disabled = true;
-            agregarBtn.textContent = '❌ Sin stock';
-          }
-        } else {
-          cantidadInput.disabled = false;
-          if (agregarBtn) {
-            agregarBtn.disabled = false;
-            agregarBtn.textContent = 'Agregar al carrito';
-          }
-        }
+    const envio = (typeof window.costoEnvio !== 'undefined') ? window.costoEnvio : costoEnvio;
+    let total = subtotal + envio;
+    const totalSpan = document.getElementById('totalCarrito');
+    if (totalSpan) totalSpan.textContent = total.toFixed(2);
+    
+    let envioLinea = document.getElementById('envioLinea');
+    if (!envioLinea && window.carrito && window.carrito.length) {
+      const lista = document.getElementById('listaCarrito');
+      if (lista) {
+        envioLinea = document.createElement('li');
+        envioLinea.id = 'envioLinea';
+        envioLinea.className = 'envio-linea'; 
+        lista.appendChild(envioLinea);
       }
     }
+    if (envioLinea) {
+      envioLinea.innerHTML = '';
+      const div = document.createElement('div');
+      div.className = 'envio-linea-contenido';
+      const spanLabel = document.createElement('span');
+      spanLabel.textContent = 'Envío';
+      const spanValue = document.createElement('span');
+      spanValue.textContent = `$${envio.toFixed(2)}`;
+      div.appendChild(spanLabel);
+      div.appendChild(spanValue);
+      envioLinea.appendChild(div);
+    }
   }
+  window.actualizarCarritoConEnvio = actualizarCarritoConEnvio;
 
   async function calcularEnvio() {
     const emailVendedor = window.cliente?.email;
@@ -135,50 +107,45 @@
       costoEnvio = 0;
       window.costoEnvio = 0;
     } finally {
-      if (btnCalcular) {
-        btnCalcular.disabled = false;
-        btnCalcular.textContent = 'Calcular envío';
-      }
+      if (btnCalcular) btnCalcular.disabled = false;
+      btnCalcular.textContent = 'Calcular envío';
     }
   }
+  window.calcularEnvio = calcularEnvio;
 
-  function actualizarCarritoConEnvio() {
-    let subtotal = 0;
-    if (window.carrito && window.carrito.length) {
-      subtotal = window.carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
-    }
-    const envio = (typeof window.costoEnvio !== 'undefined') ? window.costoEnvio : costoEnvio;
-    let total = subtotal + envio;
-    const totalSpan = document.getElementById('totalCarrito');
-    if (totalSpan) totalSpan.textContent = total.toFixed(2);
-    
-    let envioLinea = document.getElementById('envioLinea');
-    if (!envioLinea && window.carrito && window.carrito.length) {
-      const lista = document.getElementById('listaCarrito');
-      if (lista) {
-        envioLinea = document.createElement('li');
-        envioLinea.id = 'envioLinea';
-        envioLinea.className = 'envio-linea'; 
-        lista.appendChild(envioLinea);
+  // Actualiza la UI después de verificar stock
+  function actualizarStockUI(stockActualizado) {
+    if (!stockActualizado) return;
+    for (const [key, stock] of Object.entries(stockActualizado)) {
+      const [id_base, talle, color] = key.split('_');
+      const talleSelect = document.getElementById(`talle_${id_base}`);
+      const cantidadInput = document.getElementById(`cantidad_${id_base}`);
+      const agregarBtn = document.getElementById(`btn_agregar_${id_base}`);
+      if (talleSelect) {
+        if (typeof actualizarStockPorTalle === 'function') {
+          actualizarStockPorTalle(id_base, talle, color || null);
+        }
+      } else if (cantidadInput) {
+        cantidadInput.max = stock;
+        if (stock <= 0) {
+          cantidadInput.disabled = true;
+          cantidadInput.value = 0;
+          if (agregarBtn) {
+            agregarBtn.disabled = true;
+            agregarBtn.textContent = '❌ Sin stock';
+          }
+        } else {
+          cantidadInput.disabled = false;
+          if (agregarBtn) {
+            agregarBtn.disabled = false;
+            agregarBtn.textContent = 'Agregar al carrito';
+          }
+        }
       }
     }
-    if (envioLinea) {
-      envioLinea.innerHTML = '';
-      const div = document.createElement('div');
-      div.className = 'envio-linea-contenido';
-      const spanLabel = document.createElement('span');
-      spanLabel.textContent = 'Envío';
-      const spanValue = document.createElement('span');
-      spanValue.textContent = `$${envio.toFixed(2)}`;
-      div.appendChild(spanLabel);
-      div.appendChild(spanValue);
-      envioLinea.appendChild(div);
-    }
   }
-  window.actualizarCarritoConEnvio = actualizarCarritoConEnvio;
 
   async function pagarTodoJunto() {
-    // 🔒 Evitar múltiples llamadas simultáneas
     if (pagando) {
       console.warn("Ya hay un proceso de pago en curso");
       return;
@@ -251,29 +218,21 @@
     }
 
     const clienteDireccion = tieneEnvio ? {
-      calle,
-      numero,
-      localidad,
+      calle, numero, localidad,
       provincia_codigo: provinciaCodigo,
       codigo_postal: codigoPostal
     } : {};
 
-    // Items para verificar stock Y PRECIOS (se añade 'precio')
     const itemsVerificar = carrito.filter(item => item.id_base).map(item => ({
       id_base: item.id_base,
       talle: item.talle || 'unico',
       color: item.color || 'unico',
       cantidad: item.cantidad,
-      precio: item.precio      // ⭐ Se envía el precio para validar
+      precio: item.precio
     }));
 
     if (itemsVerificar.length === 0) {
-      alert("❌ El carrito no contiene productos válidos para procesar el pago.");
-      const btnPagarFinal = document.getElementById('btnPagarFinal');
-      if (btnPagarFinal) {
-        btnPagarFinal.disabled = false;
-        btnPagarFinal.textContent = 'Pagar con Mercado Pago';
-      }
+      alert("❌ El carrito no contiene productos válidos.");
       pagando = false;
       return;
     }
@@ -281,10 +240,9 @@
     const btnPagarFinal = document.getElementById('btnPagarFinal');
     if (btnPagarFinal) {
       btnPagarFinal.disabled = true;
-      btnPagarFinal.textContent = 'Verificando stock y precios...';
+      btnPagarFinal.textContent = 'Verificando...';
     }
 
-    // ⭐ Determinar el email del vendedor: priorizar TARGET_EMAIL (master admin) sobre cliente.email
     const emailVendedor = window.TARGET_EMAIL || window.cliente?.email;
     if (!emailVendedor) {
       alert("❌ No se pudo identificar al vendedor");
@@ -297,53 +255,33 @@
     }
 
     try {
+      // 1. Verificar stock y precios
       const verifyResp = await fetch(`/verificar-stock`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email_vendedor: emailVendedor,
-          carrito: itemsVerificar 
-        })
+        body: JSON.stringify({ email_vendedor: emailVendedor, carrito: itemsVerificar })
       });
-
-      if (!verifyResp.ok) {
-        const errorText = await verifyResp.text();
-        throw new Error(`Error al verificar: ${verifyResp.status} ${errorText}`);
-      }
-
       const verifyData = await verifyResp.json();
 
       if (!verifyData.ok) {
-        // ⭐ NUEVO: Manejo de precios desactualizados
         if (verifyData.precios_desactualizados) {
           let mensaje = "❌ Los siguientes productos cambiaron de precio:\n";
           verifyData.precios_desactualizados.forEach(item => {
             mensaje += `- ${item.nombre}: era $${item.precio_cliente}, ahora $${item.precio_actual}\n`;
           });
-          mensaje += "\nPor favor, actualizá la página para ver los nuevos precios.";
+          mensaje += "\nActualizá la página para ver los nuevos precios.";
           alert(mensaje);
-          
-          // Intentar recargar productos automáticamente
-          if (typeof recargarProductos === 'function') {
-            await recargarProductos();
-          }
-        }
-        // Manejo de stock insuficiente (existente)
-        else if (verifyData.faltantes) {
-          let mensaje = "❌ No hay suficiente stock para:\n";
+          if (typeof recargarProductos === 'function') await recargarProductos();
+        } else if (verifyData.faltantes) {
+          let mensaje = "❌ Stock insuficiente:\n";
           verifyData.faltantes.forEach(item => {
-            mensaje += `- ${item.nombre} (talle: ${item.talle}, color: ${item.color || 'unico'}): disponible ${item.disponible}, solicitado ${item.solicitado}\n`;
+            mensaje += `- ${item.nombre} (talle: ${item.talle}): disponible ${item.disponible}, solicitado ${item.solicitado}\n`;
           });
           alert(mensaje);
-
-          // Actualizar la UI con el stock real
-          if (verifyData.stock_actualizado) {
-            actualizarStockUI(verifyData.stock_actualizado);
-          }
+          if (verifyData.stock_actualizado) actualizarStockUI(verifyData.stock_actualizado);
         } else {
-          alert("❌ Error en la verificación: " + (verifyData.error || "Desconocido"));
+          alert("❌ Error en verificación: " + (verifyData.error || "Desconocido"));
         }
-
         if (btnPagarFinal) {
           btnPagarFinal.disabled = false;
           btnPagarFinal.textContent = 'Pagar con Mercado Pago';
@@ -352,41 +290,15 @@
         return;
       }
 
+      // 2. Construir payload para /pagar
       btnPagarFinal.textContent = 'Generando pago...';
 
-      function convertirPrecio(precio) {
-        if (typeof precio === 'number') return precio;
-        if (typeof precio === 'string') {
-          const limpio = precio.replace(/[$\s,]/g, '').trim();
-          const num = parseFloat(limpio);
-          return isNaN(num) ? 0 : num;
-        }
-        return 0;
-      }
-
-      function convertirCantidad(cantidad) {
-        const num = parseInt(cantidad);
-        return isNaN(num) || num < 1 ? 1 : num;
-      }
-
-      const itemsMP = [];
-      const itemsCarrito = [];
       let subtotalProductos = 0;
-
-      carrito.forEach(item => {
-        const precio = convertirPrecio(item.precio);
-        const cantidad = convertirCantidad(item.cantidad);
-        const subtotal = precio * cantidad;
-        subtotalProductos += subtotal;
-
-        itemsMP.push({
-          title: item.nombre + (item.talle ? ` (${item.talle})` : ""),
-          quantity: cantidad,
-          unit_price: precio,
-          currency_id: "ARS"
-        });
-
-        itemsCarrito.push({
+      const itemsCarrito = carrito.map(item => {
+        const precio = parseFloat(item.precio);
+        const cantidad = parseInt(item.cantidad);
+        subtotalProductos += precio * cantidad;
+        return {
           nombre: item.nombre,
           precio: precio,
           cantidad: cantidad,
@@ -395,8 +307,8 @@
           id_base: item.id_base || "",
           grupo: item.grupo || "",
           subgrupo: item.subgrupo || "",
-          subtotal: subtotal
-        });
+          subtotal: precio * cantidad
+        };
       });
 
       const totalFinal = subtotalProductos + (window.costoEnvio || costoEnvio);
@@ -405,7 +317,6 @@
       const payload = {
         email_vendedor: emailVendedor,
         carrito: itemsCarrito,
-        items_mp: itemsMP,
         total: totalFinal,
         costo_envio: window.costoEnvio || costoEnvio,
         cliente_nombre: `${nombre} ${apellido}`.trim(),
@@ -416,18 +327,12 @@
         url_retorno: window.location.href
       };
 
-      await cargarSDK();
-
+      // 3. Llamar a /pagar
       const response = await fetch(`/pagar`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Error HTTP ${response.status}: ${errorText}`);
-      }
 
       const data = await response.json();
 
@@ -435,22 +340,9 @@
         alert("❌ Error: " + data.error);
       } else if (data.init_point) {
         localStorage.setItem('ultima_orden_id', orden_id);
-        localStorage.setItem('ultima_orden_data', JSON.stringify({
-          fecha: new Date().toISOString(),
-          items: carrito.length,
-          total: totalFinal,
-          cliente: `${nombre} ${apellido}`,
-          email: emailCliente
-        }));
         window.location.href = data.init_point;
-      } else if (data.preference_id && window.mp) {
-        localStorage.setItem('ultima_orden_id', orden_id);
-        window.mp.checkout({
-          preference: { id: data.preference_id },
-          autoOpen: true
-        });
       } else {
-        alert("⚠️ No se pudo procesar el pago. Intenta de nuevo.");
+        alert("⚠️ No se pudo obtener la URL de pago. Intenta de nuevo.");
       }
     } catch (error) {
       console.error(error);
@@ -464,28 +356,17 @@
     }
   }
 
+  // Asociar el evento click al botón cuando el DOM esté listo
   document.addEventListener('DOMContentLoaded', () => {
+    const btnPagar = document.getElementById('btnPagarFinal');
+    if (btnPagar) {
+      btnPagar.addEventListener('click', pagarTodoJunto);
+    }
     const btnCalcular = document.getElementById('btnCalcularEnvio');
     if (btnCalcular) {
       btnCalcular.addEventListener('click', calcularEnvio);
     }
   });
 
-  setTimeout(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('mp_configurado') === 'true') {
-      alert('✅ ¡Mercado Pago configurado exitosamente! Ahora puedes recibir pagos.');
-      const nuevaURL = window.location.pathname + '?email=' + encodeURIComponent(urlParams.get('email'));
-      window.history.replaceState({}, document.title, nuevaURL);
-      setTimeout(() => location.reload(), 1500);
-    }
-    if (urlParams.get('mp_error') === '1') {
-      alert('❌ Hubo un error al configurar Mercado Pago. Por favor, intenta nuevamente.');
-      window.history.replaceState({}, document.title, window.location.pathname);
-    }
-  }, 100);
-
-  window.initMercadoPago = initMercadoPago;
   window.pagarTodoJunto = pagarTodoJunto;
-  window.calcularEnvio = calcularEnvio;
 })();
