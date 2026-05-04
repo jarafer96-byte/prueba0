@@ -67,31 +67,6 @@ function calcularTotalCarrito() {
 }
 
 
-// Agregá esta función en core.js
-function iniciarPolling(ordenId, emailVendedor) {
-    if (window.pollingInterval) clearInterval(window.pollingInterval);
-    window.pollingInterval = setInterval(async () => {
-        try {
-            const resp = await fetch(`/api/estado-pago?orden_id=${ordenId}&email=${encodeURIComponent(emailVendedor)}`);
-            const data = await resp.json();
-            if (data.estado === 'aprobado') {
-                clearInterval(window.pollingInterval);
-                cerrarModalQR();
-                alert("✅ Pago aprobado. Gracias por tu compra.");
-                vaciarCarrito();
-                window.location.href = `/preview?email=${emailVendedor}&pago=success&orden_id=${ordenId}`;
-            } else if (data.estado === 'rechazado') {
-                clearInterval(window.pollingInterval);
-                cerrarModalQR();
-                alert("❌ El pago fue rechazado. Podés intentar de nuevo.");
-            }
-        } catch (err) {
-            console.warn("Error en polling", err);
-        }
-    }, 3000);
-}
-
-
 async function pagarConQR() {
     // Validar datos del cliente
     const nombre = document.getElementById('nombre').value.trim();
