@@ -1961,9 +1961,9 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         carritoDiv.classList.add('carrito-hidden');
       }
-      if (typeof cargarMercadoPagoJS === 'function') {
-        cargarMercadoPagoJS();
-      }
+      //if (typeof cargarMercadoPagoJS === 'function') {
+      //  cargarMercadoPagoJS();
+      //}
     };
 
     toggleCarritoBtn.removeEventListener('click', toggleCarritoBtn._clickHandler);
@@ -1973,7 +1973,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if ('IntersectionObserver' in window) {
       const observer = new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting) {
-          if (typeof cargarMercadoPagoJS === 'function') cargarMercadoPagoJS();
+          //if (typeof cargarMercadoPagoJS === 'function') cargarMercadoPagoJS();
           observer.disconnect();
         }
       }, { rootMargin: '300px' });
