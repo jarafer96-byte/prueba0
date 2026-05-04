@@ -1733,7 +1733,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Si se muestra el paso 3, asegurar que el botón de transferencia esté presente
     if (paso === 3) {
-      agregarBotonTransferencia();
+      if (typeof window.agregarBotonTransferencia === 'function') {
+        window.agregarBotonTransferencia();
+      }
     }
   }
 
@@ -1807,7 +1809,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnCalcular = document.getElementById('btnCalcularEnvioPaso');
   if (btnCalcular) {
     btnCalcular.addEventListener('click', async () => {
-      await calcularEnvioPaso();
+      if (typeof calcularEnvioPaso === 'function') {
+        await calcularEnvioPaso();
+      } else {
+        alert("El módulo de envíos aún no está listo.");
+      }
     });
   }
 
@@ -1826,35 +1832,19 @@ document.addEventListener('DOMContentLoaded', () => {
   // Botón pagar con QR
   const btnPagarQR = document.getElementById('btnPagarQR');
   if (btnPagarQR) {
-    btnPagarQR.addEventListener('click', pagarConQR);
+    btnPagarQR.addEventListener('click', () => {
+      if (typeof pagarConQR === 'function') {
+        pagarConQR();
+      } else {
+        alert("Módulo de pagos QR no disponible.");
+      }
+    });
   }
 
   // ============================================================
-  // BOTÓN DE TRANSFERENCIA (agregado dinámicamente)
+  // BOTÓN DE TRANSFERENCIA (agregado dinámicamente desde mercadopago.js)
   // ============================================================
-  function agregarBotonTransferencia() {
-    const pasoDatos = document.getElementById('pasoDatos');
-    if (!pasoDatos) return;
-
-    // Evitar duplicados
-    if (document.getElementById('btnPagarTransferencia')) return;
-
-    // Buscar el contenedor de botones (para agregarlo junto a los otros métodos)
-    let contenedorBotones = pasoDatos.querySelector('.d-flex.gap-2.justify-content-center');
-    if (!contenedorBotones) {
-      // Si no existe, crear el contenedor (fallback)
-      contenedorBotones = document.createElement('div');
-      contenedorBotones.className = 'd-flex gap-2 justify-content-center mt-3';
-      pasoDatos.appendChild(contenedorBotones);
-    }
-
-    const btnTransfer = document.createElement('button');
-    btnTransfer.id = 'btnPagarTransferencia';
-    btnTransfer.className = 'btn btn-primary btn-lg';
-    btnTransfer.innerHTML = '🏦 Pagar con transferencia';
-    btnTransfer.addEventListener('click', pagarConTransferencia);
-    contenedorBotones.appendChild(btnTransfer);
-  }
+  // La función window.agregarBotonTransferencia se define en mercadopago.js
 
   // ============================================================
   // 2. BOTÓN DEL CARRITO (mostrar/ocultar + carga MP)
@@ -1871,9 +1861,8 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         carritoDiv.classList.add('carrito-hidden');
       }
-      //if (typeof cargarMercadoPagoJS === 'function') {
-      //  cargarMercadoPagoJS();
-      //}
+      // La carga de mercadopago.js se hará desde el HTML con <script defer>
+      // o mediante cargarMercadoPagoJS() si se necesita bajo demanda.
     };
 
     toggleCarritoBtn.removeEventListener('click', toggleCarritoBtn._clickHandler);
@@ -1883,7 +1872,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if ('IntersectionObserver' in window) {
       const observer = new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting) {
-          //if (typeof cargarMercadoPagoJS === 'function') cargarMercadoPagoJS();
           observer.disconnect();
         }
       }, { rootMargin: '300px' });
@@ -1947,10 +1935,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   });
-
-  if (window.modoAdmin && typeof cargarMercadoPagoJS === 'function') {
-    cargarMercadoPagoJS();
-  }
 
   setTimeout(loadVisibleImagesFirst, 300);
   setTimeout(setupEnhancedLazyLoading, 800);
@@ -2134,5 +2118,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // ============================================================
   // 10. AGREGAR BOTÓN DE TRANSFERENCIA AL INICIO
   // ============================================================
-  setTimeout(agregarBotonTransferencia, 500);
+  setTimeout(() => {
+    if (typeof window.agregarBotonTransferencia === 'function') {
+      window.agregarBotonTransferencia();
+    }
+  }, 500);
 });
