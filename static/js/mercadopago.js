@@ -341,6 +341,8 @@
       } else if (data.init_point) {
         localStorage.setItem('ultima_orden_id', orden_id);
         window.location.href = data.init_point;
+        console.log("📦 Respuesta completa de /pagar:", JSON.stringify(data, null, 2));
+        alert("Respuesta recibida. Revisá la consola (F12).");
       } else {
         alert("⚠️ No se pudo obtener la URL de pago. Intenta de nuevo.");
       }
