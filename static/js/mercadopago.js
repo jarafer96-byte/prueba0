@@ -1,7 +1,12 @@
+// mercadopago.js - Lógica de pagos, envíos y QR
+
 (function() {
+  // -------------------- VARIABLES GLOBALES DEL MÓDULO --------------------
   let costoEnvio = 0;
   let pagando = false;
+  let pollingInterval = null;
 
+  // -------------------- FUNCIONES DE ENVÍO Y CARRITO --------------------
   function resetEnvio() {
     costoEnvio = 0;
     window.costoEnvio = 0;
@@ -45,6 +50,7 @@
   }
   window.actualizarCarritoConEnvio = actualizarCarritoConEnvio;
 
+  // Cálculo de envío (para el botón dentro del carrito)
   async function calcularEnvio() {
     const emailVendedor = window.cliente?.email;
     if (!emailVendedor) {
@@ -107,13 +113,92 @@
       costoEnvio = 0;
       window.costoEnvio = 0;
     } finally {
-      if (btnCalcular) btnCalcular.disabled = false;
-      btnCalcular.textContent = 'Calcular envío';
+      if (btnCalcular) {
+        btnCalcular.disabled = false;
+        btnCalcular.textContent = 'Calcular envío';
+      }
     }
   }
   window.calcularEnvio = calcularEnvio;
 
-  // Actualiza la UI después de verificar stock
+  // Cálculo de envío para el paso de dirección (usado por core.js)
+  async function calcularEnvioPaso() {
+    const emailVendedor = window.cliente?.email;
+    if (!emailVendedor) {
+      alert("No se pudo identificar al vendedor");
+      return;
+    }
+
+    const codigoPostal = document.getElementById('codigo_postal').value.trim();
+    if (!codigoPostal) {
+      alert("Ingresá tu código postal para calcular el envío");
+      return;
+    }
+
+    let pesoTotalKg = 0;
+    for (const item of (window.carrito || [])) {
+      const producto = window.todosLosProductos?.find(p => p.id_base === item.id_base);
+      const pesoGramos = producto?.peso_gramos || 500;
+      pesoTotalKg += (pesoGramos * item.cantidad) / 1000;
+    }
+
+    const altoCm = 10, anchoCm = 15, largoCm = 20;
+    const payload = {
+      email_vendedor: emailVendedor,
+      codigo_postal_destino: codigoPostal,
+      peso_kg: pesoTotalKg,
+      alto_cm: altoCm,
+      ancho_cm: anchoCm,
+      largo_cm: largoCm
+    };
+
+    const btnCalcular = document.getElementById('btnCalcularEnvioPaso');
+    if (btnCalcular) {
+      btnCalcular.disabled = true;
+      btnCalcular.textContent = 'Calculando...';
+    }
+
+    try {
+      const resp = await fetch("/ca/cotizar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      const data = await resp.json();
+      if (data.ok && data.costo) {
+        window.costoEnvio = data.costo;
+        document.getElementById("costoEnvioMostrado").innerHTML = `<strong>Envío:</strong> $${data.costo.toFixed(2)}`;
+        actualizarCarritoConEnvio();
+        window.envioCalculado = true;
+        const btnSiguiente = document.getElementById('btnSiguienteDatos');
+        if (btnSiguiente) {
+          btnSiguiente.classList.remove('paso-oculto');
+        }
+      } else {
+        alert("No se pudo calcular el envío: " + (data.error || "Error desconocido"));
+        window.costoEnvio = 0;
+        document.getElementById("costoEnvioMostrado").innerHTML = "";
+        window.envioCalculado = false;
+        const btnSiguiente = document.getElementById('btnSiguienteDatos');
+        if (btnSiguiente) btnSiguiente.classList.add('paso-oculto');
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error al calcular envío. Verifica tu conexión.");
+      window.costoEnvio = 0;
+      window.envioCalculado = false;
+      const btnSiguiente = document.getElementById('btnSiguienteDatos');
+      if (btnSiguiente) btnSiguiente.classList.add('paso-oculto');
+    } finally {
+      if (btnCalcular) {
+        btnCalcular.disabled = false;
+        btnCalcular.textContent = 'Calcular envío';
+      }
+    }
+  }
+  window.calcularEnvioPaso = calcularEnvioPaso;
+
+  // -------------------- VERIFICACIÓN DE STOCK UI --------------------
   function actualizarStockUI(stockActualizado) {
     if (!stockActualizado) return;
     for (const [key, stock] of Object.entries(stockActualizado)) {
@@ -145,6 +230,7 @@
     }
   }
 
+  // -------------------- PAGO CON CHECKOUT PRO --------------------
   async function pagarTodoJunto() {
     if (pagando) {
       console.warn("Ya hay un proceso de pago en curso");
@@ -324,7 +410,7 @@
         cliente_telefono: telefono,
         cliente_direccion: clienteDireccion,
         orden_id: orden_id,
-        url_retorno: window.location.href
+        url_retorno: window.location.origin + window.location.pathname   // URL base sin parámetros
       };
 
       // 3. Llamar a /pagar
@@ -341,8 +427,6 @@
       } else if (data.init_point) {
         localStorage.setItem('ultima_orden_id', orden_id);
         window.location.href = data.init_point;
-        console.log("📦 Respuesta completa de /pagar:", JSON.stringify(data, null, 2));
-        alert("Respuesta recibida. Revisá la consola (F12).");
       } else {
         alert("⚠️ No se pudo obtener la URL de pago. Intenta de nuevo.");
       }
@@ -357,18 +441,287 @@
       pagando = false;
     }
   }
-
-  // Asociar el evento click al botón cuando el DOM esté listo
-  document.addEventListener('DOMContentLoaded', () => {
-    const btnPagar = document.getElementById('btnPagarFinal');
-    if (btnPagar) {
-      btnPagar.addEventListener('click', pagarTodoJunto);
-    }
-    const btnCalcular = document.getElementById('btnCalcularEnvio');
-    if (btnCalcular) {
-      btnCalcular.addEventListener('click', calcularEnvio);
-    }
-  });
-
   window.pagarTodoJunto = pagarTodoJunto;
+
+  // -------------------- PAGO CON QR --------------------
+  function iniciarPolling(ordenId, emailVendedor) {
+    if (pollingInterval) clearInterval(pollingInterval);
+    pollingInterval = setInterval(async () => {
+      try {
+        const resp = await fetch(`/api/estado-pago?orden_id=${ordenId}&email=${encodeURIComponent(emailVendedor)}`);
+        const data = await resp.json();
+        if (data.estado === 'aprobado') {
+          clearInterval(pollingInterval);
+          cerrarModalQR();
+          alert("✅ Pago aprobado. Gracias por tu compra.");
+          if (typeof vaciarCarrito === 'function') vaciarCarrito();
+          window.location.href = `/preview?email=${emailVendedor}&pago=success&orden_id=${ordenId}`;
+        } else if (data.estado === 'rechazado') {
+          clearInterval(pollingInterval);
+          cerrarModalQR();
+          alert("❌ El pago fue rechazado. Podés intentar de nuevo.");
+        }
+      } catch (err) {
+        console.warn("Error en polling", err);
+      }
+    }, 3000);
+  }
+
+  function mostrarModalQR(qrImageBase64, ordenId) {
+    let modal = document.getElementById('qrModal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'qrModal';
+      modal.className = 'modal-qr';
+      modal.innerHTML = `
+        <div class="modal-qr-content">
+          <span class="modal-qr-close">&times;</span>
+          <h3>Pago con QR</h3>
+          <p>Escaneá este código con la app de Mercado Pago</p>
+          <img id="qrImage" src="" alt="Código QR" class="qr-image">
+          <p id="qrStatus">Esperando pago...</p>
+        </div>
+      `;
+      document.body.appendChild(modal);
+      modal.querySelector('.modal-qr-close').onclick = () => cerrarModalQR();
+    }
+    const img = modal.querySelector('#qrImage');
+    img.src = qrImageBase64;
+    modal.classList.add('modal-visible');
+    window.currentQR_OrderId = ordenId;
+  }
+
+  function cerrarModalQR() {
+    const modal = document.getElementById('qrModal');
+    if (modal) {
+      modal.classList.remove('modal-visible');
+    }
+    if (pollingInterval) clearInterval(pollingInterval);
+  }
+
+  async function pagarConQR() {
+    const nombre = document.getElementById('nombre').value.trim();
+    const emailCliente = document.getElementById('email_cliente').value.trim();
+    if (!nombre || !emailCliente) {
+      alert("Completá tus datos antes de pagar.");
+      return;
+    }
+
+    if (!window.carrito || window.carrito.length === 0) {
+      alert("El carrito está vacío.");
+      return;
+    }
+
+    // Aplicar descuento del 8%
+    const descuento = 0.08;
+    const itemsParaMP = window.carrito.map(item => {
+      const unitPriceDisc = Math.round((item.precio * (1 - descuento)) * 100) / 100;
+      return {
+        title: item.nombre,
+        description: item.nombre,
+        quantity: item.cantidad,
+        unit_price: unitPriceDisc,
+        sku_number: item.id_base,
+        category: "others",
+        unit_measure: "unit",
+        imagen_url: item.imagen_url || ''
+      };
+    });
+
+    const totalConDescuento = itemsParaMP.reduce((sum, it) => sum + (it.unit_price * it.quantity), 0);
+    const externalRef = `QR_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
+
+    const payload = {
+      email_vendedor: window.cliente.email,
+      total: totalConDescuento,
+      external_reference: externalRef,
+      title: `Pedido ${externalRef}`,
+      description: `Compra en ${window.cliente.email}`,
+      items: itemsParaMP,
+      notification_url: "https://mpagina.onrender.com/webhook_qr"
+    };
+
+    try {
+      const resp = await fetch('/api/crear-qr', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await resp.json();
+      if (data.ok) {
+        const emailVendedor = window.cliente.email;
+        mostrarModalQR(data.qr_image, data.orden_id);
+        iniciarPolling(data.orden_id, emailVendedor);
+      } else {
+        alert("Error al generar QR: " + (data.error || data.detalle));
+      }
+    } catch (err) {
+      alert("Error de red: " + err.message);
+    }
+  }
+  window.pagarConQR = pagarConQR;
+
+  // -------------------- PAGO CON TRANSFERENCIA --------------------
+  async function mostrarDatosBancarios(ordenId) {
+    const email = window.cliente?.email;
+    if (!email) return;
+
+    const totalBase = window.carrito ? window.carrito.reduce((s, i) => s + (i.precio * i.cantidad), 0) : 0;
+    const totalConDescuento = Math.round((totalBase * 0.91) * 100) / 100;
+
+    const resp = await fetch(`/api/config-tienda?email=${encodeURIComponent(email)}`);
+    const data = await resp.json();
+    const { banco, cbu, alias, titular } = data;
+
+    let modal = document.getElementById('modalTransferencia');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'modalTransferencia';
+      modal.className = 'modal-qr';
+      modal.innerHTML = `
+        <div class="modal-qr-content">
+          <span class="modal-qr-close">&times;</span>
+          <h3>Pago por transferencia bancaria</h3>
+          <p>¡Gracias por tu compra! Tu pedido N° <strong>${ordenId}</strong> fue registrado.</p>
+          <p>Para completar el pago, transferí el monto total a la siguiente cuenta:</p>
+          <div style="background:#f8f9fa; padding:15px; border-radius:8px; margin:15px 0;" id="datosBancarios"></div>
+          <p>⚠️ Una vez realizada la transferencia, el vendedor verificará el pago y confirmará tu pedido.</p>
+          <button id="cerrarModalTransferencia" class="btn btn-primary mt-2">Cerrar</button>
+        </div>
+      `;
+      document.body.appendChild(modal);
+      modal.querySelector('.modal-qr-close').onclick = () => {
+        modal.classList.remove('modal-visible');
+        window.location.reload();
+      };
+      modal.querySelector('#cerrarModalTransferencia').onclick = () => {
+        modal.classList.remove('modal-visible');
+        window.location.reload();
+      };
+    }
+
+    const container = modal.querySelector('#datosBancarios');
+    if (banco || cbu || alias || titular) {
+      container.innerHTML = `
+        ${banco ? `<strong>Banco:</strong> ${banco}<br>` : ''}
+        ${cbu ? `<strong>CBU/CVU:</strong> ${cbu}<br>` : ''}
+        ${alias ? `<strong>Alias:</strong> ${alias}<br>` : ''}
+        ${titular ? `<strong>Titular:</strong> ${titular}<br>` : ''}
+        <strong>Monto (con descuento del 9%):</strong> $${totalConDescuento.toFixed(2)}
+      `;
+    } else {
+      container.innerHTML = `<p>El vendedor aún no configuró sus datos bancarios. Por favor, contactalo para coordinar el pago.</p>`;
+    }
+    modal.classList.add('modal-visible');
+  }
+
+  async function pagarConTransferencia() {
+    const nombre = document.getElementById('nombre').value.trim();
+    const emailCliente = document.getElementById('email_cliente').value.trim();
+    if (!nombre || !emailCliente) {
+      alert("Completá tus datos antes de pagar.");
+      return;
+    }
+    const telefono = document.getElementById('telefono')?.value.trim() || '';
+
+    const totalBase = window.carrito ? window.carrito.reduce((s, i) => s + (i.precio * i.cantidad), 0) : 0;
+    const totalConDescuento = Math.round((totalBase * 0.91) * 100) / 100;
+
+    const payload = {
+      email_vendedor: window.cliente?.email,
+      carrito: window.carrito,
+      cliente_nombre: nombre,
+      cliente_email: emailCliente,
+      cliente_telefono: telefono,
+      total: totalConDescuento
+    };
+
+    const btn = document.getElementById('btnPagarTransferencia');
+    const originalText = btn?.innerHTML;
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = '⏳ Procesando...';
+    }
+
+    try {
+      const resp = await fetch('/api/crear-orden-transferencia', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await resp.json();
+      if (data.ok) {
+        if (typeof vaciarCarrito === 'function') vaciarCarrito();
+        mostrarDatosBancarios(data.orden_id);
+      } else {
+        alert("❌ Error: " + (data.error || "No se pudo crear la orden"));
+      }
+    } catch (err) {
+      alert("Error de red: " + err.message);
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = originalText || '🏦 Pagar con transferencia';
+      }
+    }
+  }
+  window.pagarConTransferencia = pagarConTransferencia;
+
+  // -------------------- BOTÓN DE TRANSFERENCIA (dinámico) --------------------
+  function agregarBotonTransferencia() {
+    const pasoDatos = document.getElementById('pasoDatos');
+    if (!pasoDatos) return;
+    if (document.getElementById('btnPagarTransferencia')) return;
+
+    let contenedorBotones = pasoDatos.querySelector('.d-flex.gap-2.justify-content-center');
+    if (!contenedorBotones) {
+      contenedorBotones = document.createElement('div');
+      contenedorBotones.className = 'd-flex gap-2 justify-content-center mt-3';
+      pasoDatos.appendChild(contenedorBotones);
+    }
+
+    const btnTransfer = document.createElement('button');
+    btnTransfer.id = 'btnPagarTransferencia';
+    btnTransfer.className = 'btn btn-primary btn-lg';
+    btnTransfer.innerHTML = '🏦 Pagar con transferencia';
+    btnTransfer.addEventListener('click', pagarConTransferencia);
+    contenedorBotones.appendChild(btnTransfer);
+  }
+  window.agregarBotonTransferencia = agregarBotonTransferencia;
+
+  // -------------------- ASIGNACIÓN DE EVENTOS (robusta para carga estática/dinámica) --------------------
+  function asignarEventos() {
+    // Botón pagar principal (Checkout Pro)
+    const btnPagar = document.getElementById('btnPagarFinal');
+    if (btnPagar && !btnPagar._listenerAsignado) {
+      btnPagar.addEventListener('click', pagarTodoJunto);
+      btnPagar._listenerAsignado = true;
+    }
+    // Botón calcular envío (dentro del carrito)
+    const btnCalcular = document.getElementById('btnCalcularEnvio');
+    if (btnCalcular && !btnCalcular._listenerAsignado) {
+      btnCalcular.addEventListener('click', calcularEnvio);
+      btnCalcular._listenerAsignado = true;
+    }
+    // Botón calcular envío paso (dentro de dirección)
+    const btnCalcularPaso = document.getElementById('btnCalcularEnvioPaso');
+    if (btnCalcularPaso && !btnCalcularPaso._listenerAsignado) {
+      btnCalcularPaso.addEventListener('click', calcularEnvioPaso);
+      btnCalcularPaso._listenerAsignado = true;
+    }
+    // Botón pagar con QR
+    const btnPagarQR = document.getElementById('btnPagarQR');
+    if (btnPagarQR && !btnPagarQR._listenerAsignado) {
+      btnPagarQR.addEventListener('click', pagarConQR);
+      btnPagarQR._listenerAsignado = true;
+    }
+    // El botón de transferencia se agrega dinámicamente, no necesita evento aquí, pero sí la función global.
+  }
+
+  // Ejecutar asignación de eventos cuando el DOM esté listo
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', asignarEventos);
+  } else {
+    asignarEventos();
+  }
 })();
