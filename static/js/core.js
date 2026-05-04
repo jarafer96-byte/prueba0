@@ -624,18 +624,6 @@ function actualizarCarritoConEnvio() {
   }
 }
 
-function resetEnvio() {
-  window.costoEnvio = 0;
-  envioCalculado = false;
-  const costoEnvioSpan = document.getElementById('costoEnvioMostrado');
-  if (costoEnvioSpan) costoEnvioSpan.innerHTML = '';
-  const btnSiguiente = document.getElementById('btnSiguienteDatos');
-  if (btnSiguiente) {
-    btnSiguiente.classList.remove('paso-visible');
-    btnSiguiente.classList.add('paso-oculto');
-  }
-}
-
 function renderProducto(p, esLCP = false) {
   const template = document.getElementById('producto-template');
   const card = template.content.cloneNode(true).firstElementChild;
