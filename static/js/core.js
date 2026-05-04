@@ -1388,33 +1388,6 @@ function setupEnhancedLazyLoading() {
 }
 
 
-
-function cargarMercadoPagoJS() {
-  return new Promise((resolve, reject) => {
-    if (window.mercadoPagoCargado) return resolve();
-
-    const cargar = () => {
-      const script = document.createElement('script');
-      script.src = 'static/js/mercadopago.js';
-      script.async = true; 
-      script.onload = async () => {
-        window.mercadoPagoCargado = true;
-        resolve();
-      };
-      script.onerror = reject;
-      document.head.appendChild(script);
-    };
-
-    if ('requestIdleCallback' in window) {
-      requestIdleCallback(cargar, { timeout: 2000 });
-    } else {
-      setTimeout(cargar, 1000); 
-    }
-  });
-}
-let pagando = false;
-
-
 document.addEventListener('DOMContentLoaded', () => {
   // Evita que el bloque se ejecute más de una vez (por si el script se recarga)
   if (window._eventosInicializados) {
