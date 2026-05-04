@@ -18,7 +18,11 @@ const adminToken = sessionStorage.getItem('adminToken');
 if (adminToken) {
     window.modoAdmin = true;
 }
-
+// Reemplazá 'TEST-...' con tu public key de prueba (empieza con TEST-)
+const mp = new MercadoPago('TEST-0c0fa72a-ae20-4135-875d-059ba58bcd3c', {
+  locale: 'es-AR',
+  sandbox: true   // <-- Fundamental para pruebas
+});
 // Al inicio de core.js, después de las declaraciones iniciales
 async function cargarConfigTienda() {
     const email = window.cliente?.email;
