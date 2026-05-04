@@ -345,31 +345,6 @@ function renderPaginacion(productosFiltrados) {
 }
 
 
-function actualizarCarritoConEnvio() {
-  const totalSpan = document.getElementById('totalCarrito');
-  if (!totalSpan) return;
-
-  // Calcular el subtotal de los productos (sin envío)
-  let subtotal = 0;
-  if (window.carrito && window.carrito.length > 0) {
-    subtotal = window.carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
-  }
-
-  const costoEnvio = window.costoEnvio || 0;
-  const totalConEnvio = subtotal + costoEnvio;
-
-  const fmt = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  totalSpan.textContent = fmt.format(totalConEnvio);
-
-  // Opcional: mostrar el desglose en algún lugar
-  const envioSpan = document.getElementById('costoEnvioMostrado');
-  if (envioSpan && costoEnvio > 0) {
-    envioSpan.innerHTML = `<strong>Envío:</strong> $${costoEnvio.toFixed(2)}`;
-  } else if (envioSpan && costoEnvio === 0) {
-    envioSpan.innerHTML = '';
-  }
-}
-
 function renderProducto(p, esLCP = false) {
   const template = document.getElementById('producto-template');
   const card = template.content.cloneNode(true).firstElementChild;
