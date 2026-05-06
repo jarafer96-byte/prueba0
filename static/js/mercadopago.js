@@ -250,6 +250,7 @@
     const apellidoInput = document.getElementById('apellido');
     const emailInput = document.getElementById('email_cliente');
     const telefonoInput = document.getElementById('telefono');
+    const dniInput = document.getElementById('dni');
 
     if (!nombreInput || !apellidoInput || !emailInput) {
       alert("❌ Por favor completa nombre, apellido y email");
@@ -261,6 +262,7 @@
     const apellido = apellidoInput.value.trim();
     const emailCliente = emailInput.value.trim();
     const telefono = telefonoInput?.value?.trim() || "";
+    const dni = dniInput?.value?.trim() || ""; 
 
     if (!nombre || !apellido || !emailCliente) {
       alert("❌ Nombre, apellido y email son obligatorios");
@@ -273,6 +275,12 @@
       alert("❌ Por favor ingresa un email válido");
       pagando = false;
       return;
+    }
+    
+    if (dni && !/^\d{7,8}$/.test(dni)) {
+        alert("❌ El DNI debe tener 7 u 8 dígitos numéricos (sin puntos)");
+        pagando = false;
+        return;
     }
 
     const tieneEnvio = (window.costoEnvio || costoEnvio) > 0;
@@ -406,7 +414,9 @@
         carrito: itemsCarrito,
         total: totalFinal,
         costo_envio: window.costoEnvio || costoEnvio,
-        cliente_nombre: `${nombre} ${apellido}`.trim(),
+        cliente_nombre: nombre,
+        cliente_apellido: apellido,          // 👈 nuevo
+        cliente_dni: dni,         
         cliente_email: emailCliente,
         cliente_telefono: telefono,
         cliente_direccion: clienteDireccion,
@@ -515,7 +525,11 @@
 
     try {
       const nombre = document.getElementById('nombre').value.trim();
+      const apellido = document.getElementById('apellido').value.trim();
       const emailCliente = document.getElementById('email_cliente').value.trim();
+      const telefono = document.getElementById('telefono').value.trim();
+      const dni = document.getElementById('dni')?.value.trim() || '';
+      
       if (!nombre || !emailCliente) {
         alert("Completá tus datos antes de pagar.");
         return;
@@ -546,13 +560,19 @@
       const externalRef = `QR_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
 
       const payload = {
-        email_vendedor: window.cliente.email,
-        total: totalConDescuento,
-        external_reference: externalRef,
-        title: `Pedido ${externalRef}`,
-        description: `Compra en ${window.cliente.email}`,
-        items: itemsParaMP,
-        notification_url: "https://mpagina.onrender.com/webhook_qr"
+          email_vendedor: window.cliente.email,
+          total: totalConDescuento,
+          external_reference: externalRef,
+          title: `Pedido ${externalRef}`,
+          description: `Compra en ${window.cliente.email}`,
+          items: itemsParaMP,
+          notification_url: "https://mpagina.onrender.com/webhook_mp",  // mismo webhook unificado
+          // 👇 nuevos campos
+          cliente_nombre: nombre,
+          cliente_apellido: apellido,
+          cliente_email: emailCliente,
+          cliente_telefono: telefono,
+          cliente_dni: dni
       };
 
       const resp = await fetch('/api/crear-qr', {
