@@ -4,6 +4,7 @@
   // -------------------- VARIABLES GLOBALES DEL MÓDULO --------------------
   let costoEnvio = 0;
   let pagando = false;
+  let generandoQR = false;      // Nueva variable para evitar doble QR
   let pollingInterval = null;
 
   // -------------------- FUNCIONES DE ENVÍO Y CARRITO --------------------
@@ -500,48 +501,60 @@
   }
 
   async function pagarConQR() {
-    const nombre = document.getElementById('nombre').value.trim();
-    const emailCliente = document.getElementById('email_cliente').value.trim();
-    if (!nombre || !emailCliente) {
-      alert("Completá tus datos antes de pagar.");
+    if (generandoQR) {
+      console.warn("Ya se está generando un QR, esperá un momento.");
       return;
     }
-
-    if (!window.carrito || window.carrito.length === 0) {
-      alert("El carrito está vacío.");
-      return;
+    generandoQR = true;
+    const btnPagarQR = document.getElementById('btnPagarQR');
+    const originalText = btnPagarQR?.innerHTML;
+    if (btnPagarQR) {
+      btnPagarQR.disabled = true;
+      btnPagarQR.innerHTML = '⏳ Generando QR...';
     }
-
-    // Aplicar descuento del 8%
-    const descuento = 0.08;
-    const itemsParaMP = window.carrito.map(item => {
-      const unitPriceDisc = Math.round((item.precio * (1 - descuento)) * 100) / 100;
-      return {
-        title: item.nombre,
-        description: item.nombre,
-        quantity: item.cantidad,
-        unit_price: unitPriceDisc,
-        sku_number: item.id_base,
-        category: "others",
-        unit_measure: "unit",
-        imagen_url: item.imagen_url || ''
-      };
-    });
-
-    const totalConDescuento = itemsParaMP.reduce((sum, it) => sum + (it.unit_price * it.quantity), 0);
-    const externalRef = `QR_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
-
-    const payload = {
-      email_vendedor: window.cliente.email,
-      total: totalConDescuento,
-      external_reference: externalRef,
-      title: `Pedido ${externalRef}`,
-      description: `Compra en ${window.cliente.email}`,
-      items: itemsParaMP,
-      notification_url: "https://mpagina.onrender.com/webhook_qr"
-    };
 
     try {
+      const nombre = document.getElementById('nombre').value.trim();
+      const emailCliente = document.getElementById('email_cliente').value.trim();
+      if (!nombre || !emailCliente) {
+        alert("Completá tus datos antes de pagar.");
+        return;
+      }
+
+      if (!window.carrito || window.carrito.length === 0) {
+        alert("El carrito está vacío.");
+        return;
+      }
+
+      // Aplicar descuento del 8%
+      const descuento = 0.08;
+      const itemsParaMP = window.carrito.map(item => {
+        const unitPriceDisc = Math.round((item.precio * (1 - descuento)) * 100) / 100;
+        return {
+          title: item.nombre,
+          description: item.nombre,
+          quantity: item.cantidad,
+          unit_price: unitPriceDisc,
+          sku_number: item.id_base,
+          category: "others",
+          unit_measure: "unit",
+          imagen_url: item.imagen_url || ''
+        };
+      });
+
+      const totalConDescuento = itemsParaMP.reduce((sum, it) => sum + (it.unit_price * it.quantity), 0);
+      const externalRef = `QR_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
+
+      const payload = {
+        email_vendedor: window.cliente.email,
+        total: totalConDescuento,
+        external_reference: externalRef,
+        title: `Pedido ${externalRef}`,
+        description: `Compra en ${window.cliente.email}`,
+        items: itemsParaMP,
+        notification_url: "https://mpagina.onrender.com/webhook_qr"
+      };
+
       const resp = await fetch('/api/crear-qr', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -556,7 +569,14 @@
         alert("Error al generar QR: " + (data.error || data.detalle));
       }
     } catch (err) {
+      console.error(err);
       alert("Error de red: " + err.message);
+    } finally {
+      generandoQR = false;
+      if (btnPagarQR) {
+        btnPagarQR.disabled = false;
+        btnPagarQR.innerHTML = originalText || 'Pagar con QR';
+      }
     }
   }
   window.pagarConQR = pagarConQR;
