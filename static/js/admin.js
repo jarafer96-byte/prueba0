@@ -1755,6 +1755,42 @@ async function cargarPedidos(pagina, lastId = null) {
     const btnCerrarTienda = document.getElementById('btnCerrarModalTienda');
     if (btnCerrarTienda) btnCerrarTienda.addEventListener('click', cerrarModalConfigTienda);
 
+        // Botón para crear nueva sucursal
+    const btnCrearStore = document.getElementById('btnCrearStore');
+    if (btnCrearStore) {
+        btnCrearStore.addEventListener('click', async () => {
+            const name = prompt('Nombre de la nueva sucursal:');
+            const address = prompt('Dirección completa:');
+            if (!name || !address) return;
+            
+            // Mostrar loading en el botón
+            const originalText = btnCrearStore.innerHTML;
+            btnCrearStore.disabled = true;
+            btnCrearStore.innerHTML = '⏳ Creando...';
+            
+            try {
+                const resp = await fetch('/api/crear-store', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, address_line: address })
+                });
+                const data = await resp.json();
+                if (data.ok) {
+                    alert('✅ Sucursal creada correctamente');
+                    // Recargar los datos de la store en el modal
+                    await cargarDatosStore();
+                } else {
+                    alert('❌ Error: ' + (data.error || 'Error desconocido'));
+                }
+            } catch (err) {
+                alert('❌ Error de red: ' + err.message);
+            } finally {
+                btnCrearStore.disabled = false;
+                btnCrearStore.innerHTML = originalText;
+            }
+        });
+    }
+
     // 4. LOGIN DE ADMIN
     const loginAdminForm = document.getElementById('loginAdminForm');
     if (loginAdminForm) loginAdminForm.addEventListener('submit', loginAdmin);
