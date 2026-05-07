@@ -242,6 +242,33 @@ async function abrirConfigTienda() {
   modal.classList.add('modal-visible');
 }
 
+async function cargarDatosStore() {
+  const email = window.cliente?.email;
+  if (!email) return;
+
+  try {
+    const resp = await fetch(`/api/obtener-store?email=${encodeURIComponent(email)}`);
+    const store = await resp.json();
+    if (!store.error) {
+      document.getElementById('store_name').value = store.name || '';
+      document.getElementById('store_street_name').value = store.location?.street_name || '';
+      document.getElementById('store_street_number').value = store.location?.street_number || '';
+      document.getElementById('store_city').value = store.location?.city_name || '';
+      document.getElementById('store_state').value = store.location?.state_name || '';
+      document.getElementById('store_reference').value = store.location?.reference || '';
+      document.getElementById('store_latitude').value = store.location?.latitude || '';
+      document.getElementById('store_longitude').value = store.location?.longitude || '';
+    } else if (store.error === 'Vendedor sin MP configurado') {
+      // No hay store aún, dejar campos vacíos (no es error)
+      console.log('Vendedor aún no configuró MP');
+    } else {
+      console.warn('Error cargando store:', store.error);
+    }
+  } catch (e) {
+    console.warn('Error en cargarDatosStore', e);
+  }
+}
+
 // Guardar configuración general (Firestore) y datos de la sucursal (MP)
 async function guardarConfigTienda(event) {
   event.preventDefault();
