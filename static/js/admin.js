@@ -1671,17 +1671,32 @@ async function cargarPedidos(pagina, lastId = null) {
             submitBtn.disabled = true;
             submitBtn.innerText = 'Guardando...';
 
+            // 1. Datos de configuración general y bancarios
             const emailNotif = document.getElementById('tienda_email_notificaciones').value.trim();
             const cuotasActivas = document.getElementById('tienda_cuotas_activas').checked;
             const cuotasNumero = parseInt(document.getElementById('tienda_cuotas_numero').value, 10);
-            // Nuevos campos bancarios
             const banco = document.getElementById('tienda_banco').value.trim();
             const cbu = document.getElementById('tienda_cbu').value.trim();
             const alias = document.getElementById('tienda_alias').value.trim();
             const titular = document.getElementById('tienda_titular').value.trim();
 
+            // 2. Datos de la sucursal (store)
+            const storeData = {
+                name: document.getElementById('store_name').value.trim(),
+                location: {
+                    street_name: document.getElementById('store_street_name').value.trim(),
+                    street_number: document.getElementById('store_street_number').value.trim(),
+                    city_name: document.getElementById('store_city').value.trim(),
+                    state_name: document.getElementById('store_state').value.trim(),
+                    reference: document.getElementById('store_reference').value.trim(),
+                    latitude: parseFloat(document.getElementById('store_latitude').value) || undefined,
+                    longitude: parseFloat(document.getElementById('store_longitude').value) || undefined
+                }
+            };
+
             try {
-                const resp = await fetch('/api/config-tienda', {
+                // Primero, guardar configuración general (Firestore)
+                const respGeneral = await fetch('/api/config-tienda', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -1694,27 +1709,42 @@ async function cargarPedidos(pagina, lastId = null) {
                         titular: titular || null
                     })
                 });
-                const data = await resp.json();
-                if (data.status === 'ok') {
-                    alert('✅ Configuración guardada');
-                    cerrarModalConfigTienda();
-                    // Actualizar variable global
-                    window.configTienda = {
-                        ...window.configTienda,
-                        email_notificaciones: emailNotif,
-                        cuotas_sin_interes: cuotasActivas,
-                        cuotas_numero: cuotasNumero,
-                        banco: banco,
-                        cbu: cbu,
-                        alias: alias,
-                        titular: titular
-                    };
-                    window.dispatchEvent(new Event('configTiendaActualizada'));
-                } else {
-                    alert('❌ Error: ' + (data.message || 'No se pudo guardar'));
+                const dataGeneral = await respGeneral.json();
+                if (dataGeneral.status !== 'ok') {
+                    throw new Error(dataGeneral.message || 'Error al guardar configuración general');
                 }
+
+                // Segundo, actualizar la sucursal en Mercado Pago (si existe)
+                const respStore = await fetch('/api/actualizar-store', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ store_data: storeData })
+                });
+                const dataStore = await respStore.json();
+                if (!respStore.ok) {
+                    throw new Error(dataStore.error || 'Error al actualizar la sucursal');
+                }
+
+                // Todo OK
+                alert('✅ Configuración guardada correctamente');
+                cerrarModalConfigTienda(); // función que cierra el modal
+
+                // Actualizar variable global
+                window.configTienda = {
+                    ...window.configTienda,
+                    email_notificaciones: emailNotif,
+                    cuotas_sin_interes: cuotasActivas,
+                    cuotas_numero: cuotasNumero,
+                    banco: banco,
+                    cbu: cbu,
+                    alias: alias,
+                    titular: titular
+                };
+                window.dispatchEvent(new Event('configTiendaActualizada'));
+
             } catch (err) {
-                alert('❌ Error de red: ' + err.message);
+                console.error(err);
+                alert('❌ Error: ' + err.message);
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.innerText = originalText;
