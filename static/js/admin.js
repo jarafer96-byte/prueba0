@@ -242,6 +242,75 @@ async function abrirConfigTienda() {
   modal.classList.add('modal-visible');
 }
 
+// Guardar configuración general (Firestore) y datos de la sucursal (MP)
+async function guardarConfigTienda(event) {
+  event.preventDefault();
+  const email = window.cliente?.email;
+  if (!email) {
+    alert('No se pudo identificar al vendedor');
+    return;
+  }
+
+  // 1. Datos generales (Firestore)
+  const payloadGeneral = {
+    email_notificaciones: document.getElementById('tienda_email_notificaciones').value,
+    cuotas_sin_interes: document.getElementById('tienda_cuotas_activas').checked,
+    cuotas_numero: parseInt(document.getElementById('tienda_cuotas_numero').value, 10) || 3,
+    banco: document.getElementById('tienda_banco').value,
+    cbu: document.getElementById('tienda_cbu').value,
+    alias: document.getElementById('tienda_alias').value,
+    titular: document.getElementById('tienda_titular').value,
+  };
+
+  // 2. Datos de la sucursal (store) – solo enviar si hay cambios
+  const storeData = {
+    name: document.getElementById('store_name').value,
+    location: {
+      street_name: document.getElementById('store_street_name').value,
+      street_number: document.getElementById('store_street_number').value,
+      city_name: document.getElementById('store_city').value,
+      state_name: document.getElementById('store_state').value,
+      reference: document.getElementById('store_reference').value,
+      latitude: parseFloat(document.getElementById('store_latitude').value) || undefined,
+      longitude: parseFloat(document.getElementById('store_longitude').value) || undefined
+    }
+  };
+
+  try {
+    // Guardar configuración general primero
+    const respGeneral = await fetch('/api/config-tienda', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payloadGeneral)
+    });
+    const dataGeneral = await respGeneral.json();
+    if (dataGeneral.status !== 'ok') {
+      throw new Error(dataGeneral.message || 'Error al guardar config general');
+    }
+
+    // Guardar datos de la sucursal
+    const respStore = await fetch('/api/actualizar-store', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ store_data: storeData })
+    });
+    const dataStore = await respStore.json();
+    if (!respStore.ok) {
+      throw new Error(dataStore.error || 'Error al actualizar sucursal');
+    }
+
+    alert('✅ Configuración guardada correctamente');
+    // Disparar evento para que core.js refresque cuotas, etc.
+    window.dispatchEvent(new Event('configTiendaActualizada'));
+    // Cerrar modal
+    const modal = document.getElementById('modalConfigTienda');
+    if (modal) modal.classList.remove('modal-visible');
+  } catch (err) {
+    console.error(err);
+    alert('❌ Error al guardar: ' + err.message);
+  }
+}
+
 function cerrarModalConfigTienda() {
   const modal = document.getElementById('modalConfigTienda');
   if (modal) modal.classList.remove('modal-visible');
