@@ -248,24 +248,24 @@ async function abrirConfigTienda() {
 async function cargarDatosStore() {
   const email = window.cliente?.email;
   if (!email) return;
-
   try {
     const resp = await fetch(`/api/obtener-store?email=${encodeURIComponent(email)}`);
     const store = await resp.json();
     if (!store.error) {
       document.getElementById('store_name').value = store.name || '';
-      document.getElementById('store_street_name').value = store.location?.street_name || '';
-      document.getElementById('store_street_number').value = store.location?.street_number || '';
-      document.getElementById('store_city').value = store.location?.city_name || '';
-      document.getElementById('store_state').value = store.location?.state_name || '';
+      // address_line contiene la dirección completa
+      const addressParts = store.location?.address_line || '';
+      // Si necesitas separar calle y número, puedes hacer una heurística básica:
+      const parts = addressParts.split(',');
+      const streetAndNumber = parts[0] || '';
+      const city = parts[1]?.trim() || '';
+      const state = parts[2]?.trim() || '';
+      document.getElementById('store_address_line').value = addressParts;  // Nuevo campo (reemplaza calle/numero)
+      document.getElementById('store_city').value = city;
+      document.getElementById('store_state').value = state;
       document.getElementById('store_reference').value = store.location?.reference || '';
       document.getElementById('store_latitude').value = store.location?.latitude || '';
       document.getElementById('store_longitude').value = store.location?.longitude || '';
-    } else if (store.error === 'Vendedor sin MP configurado') {
-      // No hay store aún, dejar campos vacíos (no es error)
-      console.log('Vendedor aún no configuró MP');
-    } else {
-      console.warn('Error cargando store:', store.error);
     }
   } catch (e) {
     console.warn('Error en cargarDatosStore', e);
