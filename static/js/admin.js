@@ -230,15 +230,18 @@ async function abrirConfigTienda() {
       document.getElementById('tienda_email_notificaciones').value = data.email_notificaciones || '';
       document.getElementById('tienda_cuotas_activas').checked = data.cuotas_sin_interes || false;
       document.getElementById('tienda_cuotas_numero').value = data.cuotas_numero || 3;
-      // Nuevos campos bancarios
       document.getElementById('tienda_banco').value = data.banco || '';
       document.getElementById('tienda_cbu').value = data.cbu || '';
       document.getElementById('tienda_alias').value = data.alias || '';
       document.getElementById('tienda_titular').value = data.titular || '';
     }
   } catch (e) {
-    console.warn('Error cargando config actual', e);
+    console.warn('Error cargando config general', e);
   }
+
+  // 👇 AGREGAR esta línea
+  await cargarDatosStore();
+
   modal.classList.add('modal-visible');
 }
 
