@@ -238,53 +238,100 @@
     </div>
   </div>
 
-  <!-- Modal Configuración de Tienda -->
-  <div id="modalConfigTienda" class="modal-config-ca">
-    <div class="modal-config-ca-content">
-      <h3>⚙️ Configurar Tienda</h3>
-      <form id="formConfigTienda">
-        <div class="mb-2">
-          <label>Email de notificaciones</label>
-          <input type="email" id="tienda_email_notificaciones" placeholder="ej: ventas@tutienda.com" class="form-control">
+  <!-- Modal Configuración de Tienda (completo) -->
+<div id="modalConfigTienda" class="modal-config-ca">
+  <div class="modal-config-ca-content">
+    <h3>⚙️ Configurar Tienda</h3>
+    <form id="formConfigTienda">
+      <!-- Email de notificaciones -->
+      <div class="mb-2">
+        <label>Email de notificaciones</label>
+        <input type="email" id="tienda_email_notificaciones" placeholder="ej: ventas@tutienda.com" class="form-control">
+      </div>
+
+      <!-- Cuotas sin interés -->
+      <div class="mb-2">
+        <label>
+          <input type="checkbox" id="tienda_cuotas_activas"> Mostrar cuotas sin interés
+        </label>
+      </div>
+      <div class="mb-2">
+        <label>Número de cuotas:</label>
+        <select id="tienda_cuotas_numero" class="form-control">
+          <option value="3">3 cuotas</option>
+          <option value="6">6 cuotas</option>
+          <option value="12">12 cuotas</option>
+        </select>
+      </div>
+
+      <hr>
+
+      <!-- Datos bancarios para transferencia -->
+      <h4>💰 Datos bancarios para transferencia</h4>
+      <div class="mb-2">
+        <label>Banco</label>
+        <input type="text" id="tienda_banco" placeholder="Ej: Banco Nación" class="form-control">
+      </div>
+      <div class="mb-2">
+        <label>CBU / CVU</label>
+        <input type="text" id="tienda_cbu" placeholder="CBU o CVU de 22 dígitos" class="form-control">
+      </div>
+      <div class="mb-2">
+        <label>Alias</label>
+        <input type="text" id="tienda_alias" placeholder="tu.alias" class="form-control">
+      </div>
+      <div class="mb-2">
+        <label>Titular de la cuenta</label>
+        <input type="text" id="tienda_titular" placeholder="Nombre completo" class="form-control">
+      </div>
+
+      <hr>
+
+      <!-- ========== NUEVA SECCIÓN: DATOS DE LA SUCURSAL (STORE) ========== -->
+      <h4>🏢 Datos de la sucursal (punto de venta)</h4>
+      <div class="mb-2">
+        <label>Nombre de la sucursal</label>
+        <input type="text" id="store_name" placeholder="Ej: Sucursal Centro" class="form-control">
+      </div>
+      <div class="mb-2">
+        <label>Calle</label>
+        <input type="text" id="store_street_name" placeholder="Ej: Av. Corrientes" class="form-control">
+      </div>
+      <div class="mb-2">
+        <label>Número</label>
+        <input type="text" id="store_street_number" placeholder="Ej: 1234" class="form-control">
+      </div>
+      <div class="mb-2">
+        <label>Ciudad / Localidad</label>
+        <input type="text" id="store_city" placeholder="Ej: CABA" class="form-control">
+      </div>
+      <div class="mb-2">
+        <label>Provincia</label>
+        <input type="text" id="store_state" placeholder="Ej: Buenos Aires" class="form-control">
+      </div>
+      <div class="mb-2">
+        <label>Referencia (opcional)</label>
+        <input type="text" id="store_reference" placeholder="Ej: Entre esquilas 1 y 2" class="form-control">
+      </div>
+      <div class="row">
+        <div class="col-md-6 mb-2">
+          <label>Latitud (opcional)</label>
+          <input type="text" id="store_latitude" placeholder="Ej: -34.6037" class="form-control">
         </div>
-        <div class="mb-2">
-          <label>
-            <input type="checkbox" id="tienda_cuotas_activas"> Mostrar cuotas sin interés
-          </label>
+        <div class="col-md-6 mb-2">
+          <label>Longitud (opcional)</label>
+          <input type="text" id="store_longitude" placeholder="Ej: -58.3816" class="form-control">
         </div>
-        <div class="mb-2">
-          <label>Número de cuotas:</label>
-          <select id="tienda_cuotas_numero" class="form-control">
-            <option value="3">3 cuotas</option>
-            <option value="6">6 cuotas</option>
-            <option value="12">12 cuotas</option>
-          </select>
-        </div>
-        <hr>
-        <h4>💰 Datos bancarios para transferencia</h4>
-        <div class="mb-2">
-          <label>Banco</label>
-          <input type="text" id="tienda_banco" placeholder="Ej: Banco Nación" class="form-control">
-        </div>
-        <div class="mb-2">
-          <label>CBU / CVU</label>
-          <input type="text" id="tienda_cbu" placeholder="CBU o CVU de 22 dígitos" class="form-control">
-        </div>
-        <div class="mb-2">
-          <label>Alias</label>
-          <input type="text" id="tienda_alias" placeholder="tu.alias" class="form-control">
-        </div>
-        <div class="mb-2">
-          <label>Titular de la cuenta</label>
-          <input type="text" id="tienda_titular" placeholder="Nombre completo" class="form-control">
-        </div>
-        <div class="mt-3">
-          <button type="submit" class="btn btn-primary">Guardar</button>
-          <button type="button" id="btnCerrarModalTienda" class="btn btn-secondary">Cancelar</button>
-        </div>
-      </form>
-    </div>
+      </div>
+      <small class="text-muted">Modificar estos datos no afecta el funcionamiento del QR.</small>
+
+      <div class="mt-4 d-flex justify-content-end gap-2">
+        <button type="submit" class="btn btn-primary">Guardar todo</button>
+        <button type="button" id="btnCerrarModalTienda" class="btn btn-secondary">Cancelar</button>
+      </div>
+    </form>
   </div>
+</div>
          
   <div id="logoutAdminWrapper" class="text-center mt-4 d-none">
     <button id="btnSalirAdmin" class="btn-grupo">🚪 Salir de Admin</button>
