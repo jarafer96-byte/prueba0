@@ -570,6 +570,7 @@
           items: itemsParaMP,
           notification_url: "https://mpagina.onrender.com/webhook_mp",  // mismo webhook unificado
           // 👇 nuevos campos
+          total: totalRedondeado,
           cliente_nombre: nombre,
           cliente_apellido: apellido,
           cliente_email: emailCliente,
