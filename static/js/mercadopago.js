@@ -755,31 +755,6 @@
       btnPagarQR.addEventListener('click', pagarConQR);
       btnPagarQR._listenerAsignado = true;
     }
-    const btnDesafio = document.getElementById('btnDesafio');
-    if (btnDesafio && !btnDesafio._listenerAsignado) {
-        btnDesafio.addEventListener('click', async () => {
-            const email = window.cliente?.email;
-            if (!email) {
-                alert('No se pudo identificar al vendedor');
-                return;
-            }
-            try {
-                const response = await fetch(`/desafio/preferencia?email=${encodeURIComponent(email)}`);
-                const data = await response.json();
-                if (data.init_point) {
-                    window.location.href = data.init_point;
-                } else {
-                    alert('Error: ' + (data.error || 'No se obtuvo URL de pago'));
-                }
-            } catch (err) {
-                alert('Error de red: ' + err.message);
-            }
-        });
-        btnDesafio._listenerAsignado = true;
-    }
-    // El botón de transferencia se agrega dinámicamente, no necesita evento aquí, pero sí la función global.
-  }
-
   // Ejecutar asignación de eventos cuando el DOM esté listo
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', asignarEventos);
