@@ -1494,7 +1494,7 @@ async function renderTablaPedidos() {
 async function cargarPedidos(pagina, lastId = null) {
     const metodo = document.getElementById('filtroMetodo').value;
     const estado = document.getElementById('filtroEstado').value;
-    const limit = 20; // cantidad por página
+    const limit = 20;
     let url = `/api/ordenes?limit=${limit}`;
     if (metodo) url += `&metodo=${metodo}`;
     if (estado) url += `&estado=${estado}`;
@@ -1519,12 +1519,20 @@ async function cargarPedidos(pagina, lastId = null) {
         let html = '';
         ordenes.forEach(orden => {
             const fecha = orden.fecha_creacion ? new Date(orden.fecha_creacion).toLocaleString() : '-';
-            const items = orden.carrito || orden.items_mp || [];
+            // 🔧 CORRECCIÓN: leer items desde la clave correcta (items, carrito o items_mp)
+            const items = orden.items || orden.carrito || orden.items_mp || [];
             const productosHtml = items.map(item => {
-                const imgUrl = getVersionUrl(item.imagen_url || '', '58');
+                // Obtener URL de imagen (fallback si no existe)
+                const imgUrl = (item.imagen_url && typeof getVersionUrl === 'function') 
+                    ? getVersionUrl(item.imagen_url, '58') 
+                    : '/static/img/fallback.webp';
+                const nombreProducto = item.title || item.nombre || 'Producto';
+                const cantidad = item.quantity || item.cantidad || 1;
+                const talle = item.talle || 'unico';
+                const color = item.color || 'unico';
                 return `<div class="d-flex align-items-center gap-2 mb-1">
                             <img src="${imgUrl}" class="pedido-producto-img" alt="producto">
-                            <span>${item.title || item.nombre} x${item.cantidad} (${item.talle || 'unico'}, ${item.color || 'unico'})</span>
+                            <span>${nombreProducto} x${cantidad} (${talle}, ${color})</span>
                         </div>`;
             }).join('');
             const estadoBadge = orden.estado === 'aprobado' ? 'success' : (orden.estado === 'pendiente' ? 'warning' : 'danger');
@@ -1543,12 +1551,10 @@ async function cargarPedidos(pagina, lastId = null) {
         });
         tbody.innerHTML = html;
         
-        // Actualizar controles de paginación
         document.getElementById('paginaInfo').innerText = `Página ${pagina}`;
         document.getElementById('btnPedidosAnterior').disabled = (pagina === 1);
         document.getElementById('btnPedidosSiguiente').disabled = !nextLastId;
         
-        // Reasignar eventos de detalle y marcar pagado...
         document.querySelectorAll('.ver-detalle').forEach(btn => {
             btn.addEventListener('click', async (e) => {
                 const ordenId = btn.dataset.id;
@@ -1568,7 +1574,7 @@ async function cargarPedidos(pagina, lastId = null) {
                         const data = await resp.json();
                         if (data.status === 'ok') {
                             alert('✅ Estado actualizado');
-                            cargarPedidos(pagina, lastId); // recargar la página actual
+                            cargarPedidos(pagina, lastId);
                         } else {
                             alert('Error: ' + data.error);
                         }
