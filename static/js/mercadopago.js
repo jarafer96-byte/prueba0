@@ -755,6 +755,9 @@
       btnPagarQR.addEventListener('click', pagarConQR);
       btnPagarQR._listenerAsignado = true;
     }
+    // El botón de transferencia se agrega dinámicamente, no necesita evento aquí, pero sí la función global.
+  }
+  
   // Ejecutar asignación de eventos cuando el DOM esté listo
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', asignarEventos);
