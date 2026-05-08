@@ -402,7 +402,8 @@
           id_base: item.id_base || "",
           grupo: item.grupo || "",
           subgrupo: item.subgrupo || "",
-          subtotal: precio * cantidad
+          subtotal: precio * cantidad,
+          imagen_url: item.imagen_url || ''
         };
       });
 
