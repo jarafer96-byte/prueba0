@@ -558,6 +558,7 @@
       });
 
       const totalConDescuento = itemsParaMP.reduce((sum, it) => sum + (it.unit_price * it.quantity), 0);
+      const totalRedondeado = Math.round(totalConDescuento * 100) / 100;
       const externalRef = `QR_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
 
       const payload = {
