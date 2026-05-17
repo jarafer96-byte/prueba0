@@ -1849,6 +1849,9 @@ async function cargarPedidos(pagina, lastId = null) {
         const loginToggleBtn = document.getElementById('loginToggleBtn');
         if (loginToggleBtn) loginToggleBtn.classList.add('d-none');
 
+        const configurarMobbex = document.getElementById('configurarMobbex');
+        if (configurarMobbex) configurarMobbex.classList.remove('d-none');
+
         const adminContainer = document.getElementById('adminFormsContainer');
         if (adminContainer) {
             adminContainer.addEventListener('click', async (e) => {
