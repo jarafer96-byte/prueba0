@@ -194,6 +194,7 @@ async function pagarConMobbex() {
         const response = await fetch('/api/crear-checkout-mobbex', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'include', 
             body: JSON.stringify(payload)
         });
 
