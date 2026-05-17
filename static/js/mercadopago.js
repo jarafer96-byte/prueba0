@@ -955,20 +955,26 @@ function iniciarPollingMobbex(ordenId, emailVendedor) {
 
     // Botón para conectar Mobbex (en panel admin)
     const btnConectarMobbex = document.getElementById('btnConectarMobbex');
-    if (btnConectarMobbex && !btnConectarMobbex._listenerAsignado) {
+    if (btnConectarMobbex) {
         btnConectarMobbex.addEventListener('click', async () => {
-            const response = await fetch('/api/conectar_mobbex', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' }
-            });
-            const data = await response.json();
-            if (data.auth_url) {
-                window.location.href = data.auth_url;
-            } else {
-                alert('Error al conectar Mobbex: ' + (data.error || 'Error desconocido'));
+            const returnUrl = window.location.href;
+            try {
+                const response = await fetch('/api/conectar_mobbex', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ return_url: returnUrl })
+                });
+                const data = await response.json();
+                if (data.auth_url) {
+                    window.location.href = data.auth_url;
+                } else {
+                    alert('Error: ' + (data.error || 'No se pudo iniciar la conexión'));
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Error de red: ' + err.message);
             }
         });
-        btnConectarMobbex._listenerAsignado = true;
     }
     // El botón de transferencia se agrega dinámicamente, no necesita evento aquí, pero sí la función global.
   }
