@@ -939,6 +939,37 @@ function iniciarPollingMobbex(ordenId, emailVendedor) {
       btnPagarQR.addEventListener('click', pagarConQR);
       btnPagarQR._listenerAsignado = true;
     }
+    // Botón pagar con Mobbex
+    const btnPagarMobbex = document.getElementById('btnPagarMobbex');
+    if (btnPagarMobbex && !btnPagarMobbex._listenerAsignado) {
+        btnPagarMobbex.addEventListener('click', pagarConMobbex);
+        btnPagarMobbex._listenerAsignado = true;
+    }
+    
+    // Botón pagar con QR Mobbex
+    const btnPagarMobbexQR = document.getElementById('btnPagarMobbexQR');
+    if (btnPagarMobbexQR && !btnPagarMobbexQR._listenerAsignado) {
+        btnPagarMobbexQR.addEventListener('click', pagarConMobbexQR);
+        btnPagarMobbexQR._listenerAsignado = true;
+    }
+
+    // Botón para conectar Mobbex (en panel admin)
+    const btnConectarMobbex = document.getElementById('btnConectarMobbex');
+    if (btnConectarMobbex && !btnConectarMobbex._listenerAsignado) {
+        btnConectarMobbex.addEventListener('click', async () => {
+            const response = await fetch('/api/conectar_mobbex', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            const data = await response.json();
+            if (data.auth_url) {
+                window.location.href = data.auth_url;
+            } else {
+                alert('Error al conectar Mobbex: ' + (data.error || 'Error desconocido'));
+            }
+        });
+        btnConectarMobbex._listenerAsignado = true;
+    }
     // El botón de transferencia se agrega dinámicamente, no necesita evento aquí, pero sí la función global.
   }
   
