@@ -122,6 +122,187 @@
   }
   window.calcularEnvio = calcularEnvio;
 
+  // ==================== FUNCIONES DE PAGO MOBBEX ====================
+
+async function pagarConMobbex() {
+    if (pagando) {
+        console.warn("Ya hay un proceso de pago en curso");
+        return;
+    }
+    pagando = true;
+
+    const carrito = window.carrito || [];
+    if (carrito.length === 0) {
+        alert("❌ El carrito está vacío");
+        pagando = false;
+        return;
+    }
+
+    const nombre = document.getElementById('nombre').value.trim();
+    const emailCliente = document.getElementById('email_cliente').value.trim();
+    
+    if (!nombre || !emailCliente) {
+        alert("❌ Completa nombre y email antes de pagar");
+        pagando = false;
+        return;
+    }
+
+    const telefono = document.getElementById('telefono')?.value?.trim() || "";
+    const dni = document.getElementById('dni')?.value?.trim() || "";
+    const apellido = document.getElementById('apellido')?.value?.trim() || "";
+
+    const emailVendedor = window.cliente?.email;
+    if (!emailVendedor) {
+        alert("❌ No se pudo identificar al vendedor");
+        pagando = false;
+        return;
+    }
+
+    const btnPagar = document.getElementById('btnPagarMobbex');
+    const originalText = btnPagar?.innerHTML;
+    if (btnPagar) {
+        btnPagar.disabled = true;
+        btnPagar.innerHTML = '⏳ Procesando...';
+    }
+
+    try {
+        // Preparar items del carrito
+        const itemsCarrito = carrito.map(item => ({
+            nombre: item.nombre,
+            precio: parseFloat(item.precio),
+            cantidad: parseInt(item.cantidad),
+            id_base: item.id_base || "",
+            talle: item.talle || "",
+            color: item.color || ""
+        }));
+
+        const total = window.carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+        const externalRef = `MOB_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
+
+        const payload = {
+            email_vendedor: emailVendedor,
+            total: total,
+            external_reference: externalRef,
+            cliente_nombre: nombre,
+            cliente_apellido: apellido,
+            cliente_dni: dni,
+            cliente_email: emailCliente,
+            cliente_telefono: telefono,
+            items: itemsCarrito
+        };
+
+        const response = await fetch('/api/crear-checkout-mobbex', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+        if (data.ok && data.embed_url) {
+            // Redirigir al checkout de Mobbex o mostrar embebido
+            window.location.href = data.embed_url;
+        } else {
+            alert("❌ Error al generar pago: " + (data.error || "Error desconocido"));
+        }
+    } catch (error) {
+        console.error(error);
+        alert("❌ Error al procesar el pago: " + error.message);
+    } finally {
+        pagando = false;
+        if (btnPagar) {
+            btnPagar.disabled = false;
+            btnPagar.innerHTML = originalText || '💳 Pagar con Mobbex';
+        }
+    }
+}
+
+async function pagarConMobbexQR() {
+    if (generandoQR) {
+        console.warn("Ya se está generando un QR, esperá un momento.");
+        return;
+    }
+    generandoQR = true;
+
+    const btnPagarQR = document.getElementById('btnPagarMobbexQR');
+    const originalText = btnPagarQR?.innerHTML;
+    if (btnPagarQR) {
+        btnPagarQR.disabled = true;
+        btnPagarQR.innerHTML = '⏳ Generando QR...';
+    }
+
+    try {
+        const carrito = window.carrito || [];
+        if (carrito.length === 0) {
+            alert("❌ El carrito está vacío");
+            generandoQR = false;
+            if (btnPagarQR) btnPagarQR.disabled = false;
+            return;
+        }
+
+        const emailVendedor = window.cliente?.email;
+        if (!emailVendedor) {
+            alert("❌ No se pudo identificar al vendedor");
+            generandoQR = false;
+            return;
+        }
+
+        const total = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+        const externalRef = `MOB_QR_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
+
+        const payload = {
+            email_vendedor: emailVendedor,
+            total: total,
+            external_reference: externalRef
+        };
+
+        const response = await fetch('/api/crear-qr-mobbex', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+        if (data.ok && data.qr_image) {
+            mostrarModalQR(data.qr_image, data.orden_id);
+            iniciarPollingMobbex(data.orden_id, emailVendedor);
+        } else {
+            alert("❌ Error al generar QR Mobbex: " + (data.error || "Error desconocido"));
+        }
+    } catch (err) {
+        console.error(err);
+        alert("❌ Error de red: " + err.message);
+    } finally {
+        generandoQR = false;
+        if (btnPagarQR) {
+            btnPagarQR.disabled = false;
+            btnPagarQR.innerHTML = originalText || '📱 Pagar con QR Mobbex';
+        }
+    }
+}
+
+function iniciarPollingMobbex(ordenId, emailVendedor) {
+    if (pollingInterval) clearInterval(pollingInterval);
+    pollingInterval = setInterval(async () => {
+        try {
+            const resp = await fetch(`/api/estado-pago?orden_id=${ordenId}&email=${encodeURIComponent(emailVendedor)}`);
+            const data = await resp.json();
+            if (data.estado === 'aprobado') {
+                clearInterval(pollingInterval);
+                cerrarModalQR();
+                alert("✅ Pago aprobado. Gracias por tu compra.");
+                if (typeof vaciarCarrito === 'function') vaciarCarrito();
+                window.location.href = `/preview?email=${emailVendedor}&pago=success&orden_id=${ordenId}`;
+            } else if (data.estado === 'rechazado') {
+                clearInterval(pollingInterval);
+                cerrarModalQR();
+                alert("❌ El pago fue rechazado. Podés intentar de nuevo.");
+            }
+        } catch (err) {
+            console.warn("Error en polling", err);
+        }
+    }, 3000);
+}
+
   // Cálculo de envío para el paso de dirección (usado por core.js)
   async function calcularEnvioPaso() {
     const emailVendedor = window.cliente?.email;
